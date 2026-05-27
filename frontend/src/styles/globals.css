@@ -1,0 +1,78 @@
+:root {
+  --bg:           #FFFFFF;
+  --surface:      #F5F5F0;
+  --border:       #111111;
+  --border-width: 2.5px;
+  --text:         #111111;
+  --text-muted:   #555555;
+  --radius-card:  16px;
+  --radius-pill:  999px;
+
+  /* Breaking ticker */
+  --ticker-bg:    #111111;
+  --ticker-text:  #FFEE00;
+
+  /* Category colors */
+  --cat-international: #3B82F6;
+  --cat-politics:      #EF4444;
+  --cat-technology:    #8B5CF6;
+  --cat-medical:       #10B981;
+  --cat-fun-fact:      #F59E0B;
+  --cat-sports:        #F97316;
+  --cat-business:      #6366F1;
+  --cat-entertainment: #EC4899;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  overflow-x: hidden;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+
+/* Grogg style borders */
+.grog-border {
+  border: var(--border-width) solid var(--border);
+}
+
+.grog-pill {
+  border-radius: var(--radius-pill);
+}
+
+.grog-card {
+  border-radius: var(--radius-card);
+}
+
+/* Ticker marquee animation */
+@keyframes marquee {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+.marquee-container {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.marquee-content {
+  display: inline-block;
+  animation: marquee 15s linear infinite;
+}
