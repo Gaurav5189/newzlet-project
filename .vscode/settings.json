@@ -1,0 +1,6 @@
+{
+  "python.defaultInterpreterPath": "/home/gauravs/git-play/newzlet-project/.venv/bin/python",
+  "python.analysis.extraPaths": ["backend"],
+  "python.analysis.autoSearchPaths": true,
+  "python.analysis.useLibraryCodeForTypes": true
+}

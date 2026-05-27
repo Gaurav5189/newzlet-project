@@ -1,0 +1,8 @@
+{
+  "venvPath": "/home/gauravs/git-play/newzlet-project",
+  "venv": ".venv",
+  "pythonVersion": "3.13",
+  "extraPaths": [
+    "/home/gauravs/git-play/newzlet-project/backend"
+  ]
+}
