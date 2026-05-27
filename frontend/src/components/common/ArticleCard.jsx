@@ -28,7 +28,7 @@ export default function ArticleCard({ article }) {
           alignItems: 'center',
           justifyContent: 'center'
         }}>
-          <span className="font-archivo" style={{ opacity: 0.2, fontSize: '2rem' }}>NEWSBLAST</span>
+          <span className="font-archivo" style={{ opacity: 0.2, fontSize: '2rem' }}>NEWZLET</span>
         </div>
       )}
       

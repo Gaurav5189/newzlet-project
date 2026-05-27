@@ -12,7 +12,7 @@ export default function Navbar() {
       background: 'var(--bg)'
     }}>
       <Link to="/" className="font-boogaloo" style={{ fontSize: '2.5rem', color: 'var(--text)', marginRight: '1rem' }}>
-        NEWSBLAST!
+        NEWZLET!
       </Link>
       
       <div style={{ display: 'flex', gap: '0.5rem' }}>

@@ -15,7 +15,7 @@ export default function HeroSection() {
         color: 'white',
         WebkitTextStroke: '3px black'
       }}>
-        THE DAILY BLAST
+        THE DAILY NEWZLET
       </h1>
       <p className="font-archivo" style={{ fontSize: '1.5rem', margin: 0 }}>
         YOUR NO-NONSENSE NEWS ROUNDUP

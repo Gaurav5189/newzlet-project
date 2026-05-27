@@ -8,7 +8,7 @@ export default function Footer() {
       marginTop: '4rem'
     }}>
       <p className="font-dm" style={{ fontWeight: 'bold' }}>
-        © {new Date().getFullYear()} NEWSBLAST. Grogg-inspired daily news.
+        © {new Date().getFullYear()} NEWZLET. Grogg-inspired daily news.
       </p>
     </footer>
   );
