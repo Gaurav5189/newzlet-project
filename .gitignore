@@ -51,6 +51,9 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Tool Configs with machine-specific paths
+pyrightconfig.json
+
 # IDEs, Editors & System Files
 .vscode/
 .idea/
@@ -63,6 +66,14 @@ lerna-debug.log*
 .project
 .pydevproject
 .settings/
+staticfiles/
+/backend/populate.py
+/backend/pyproject.toml
+
 
 # Keep original gitignore rule for Help directory
 Help/
+
+# Backend tool config (pyproject.toml is project config, keep tracked)
+# but ignore any local override files
+*.local.toml
