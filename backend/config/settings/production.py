@@ -36,5 +36,8 @@ CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='').split(',')
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# n8n ingest api key
+N8N_INGEST_API_KEY = config('N8N_INGEST_API_KEY', default=None)
+
 # Insert whitenoise middleware after SecurityMiddleware
 MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
