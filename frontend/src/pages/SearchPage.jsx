@@ -11,7 +11,7 @@ export default function SearchPage() {
   const q = searchParams.get('q') || '';
   const category = searchParams.get('category') || '';
 
-  const { data, isLoading } = useSearch({ q, category, page });
+  const { data, isLoading, error } = useSearch({ q, category, page });
 
   useEffect(() => {
     setPage(1); // Reset page on new search
@@ -26,6 +26,12 @@ export default function SearchPage() {
 
       {isLoading ? (
         <p className="font-dm">Searching...</p>
+      ) : error ? (
+        <p className="font-dm" style={{ color: 'var(--error-color, #d32f2f)' }}>
+          Error loading search results. Please try again.
+        </p>
+      ) : !q && !category ? (
+        <p className="font-dm">Enter a search term or select a category to find articles.</p>
       ) : (
         <>
           <div style={{
@@ -37,14 +43,22 @@ export default function SearchPage() {
               <ArticleCard key={article.id} article={article} />
             ))}
           </div>
-          
-          <Pagination 
-            count={data?.count} 
-            next={data?.next} 
-            previous={data?.previous}
-            currentPage={page}
-            setPage={setPage}
-          />
+
+          {data?.results?.length === 0 && (
+            <p className="font-dm" style={{ textAlign: 'center', margin: '2rem 0' }}>
+              No articles found. Try a different search term or category.
+            </p>
+          )}
+
+          {data?.results && data.results.length > 0 && (
+            <Pagination
+              count={data?.count}
+              next={data?.next}
+              previous={data?.previous}
+              currentPage={page}
+              setPage={setPage}
+            />
+          )}
         </>
       )}
     </main>

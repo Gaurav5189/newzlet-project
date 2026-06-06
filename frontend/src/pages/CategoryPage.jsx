@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCategoryArticles } from '../hooks/useCategoryArticles';
 import { useCategories } from '../hooks/useCategories';
 import ArticleCard from '../components/common/ArticleCard';
@@ -11,6 +11,10 @@ export default function CategoryPage() {
   const [page, setPage] = useState(1);
   const { data: categories } = useCategories();
   const { data, isLoading } = useCategoryArticles(slug, page);
+
+  useEffect(() => {
+    setPage(1);
+  }, [slug]);
 
   const category = categories?.find(c => c.slug === slug);
 

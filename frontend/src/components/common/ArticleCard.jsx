@@ -12,7 +12,7 @@ export default function ArticleCard({ article }) {
       position: 'relative'
     }}>
       {article.image_url ? (
-        <img src={article.image_url} alt="" style={{
+        <img src={article.image_url} alt={article.title} style={{
           width: '100%',
           height: '200px',
           objectFit: 'cover',

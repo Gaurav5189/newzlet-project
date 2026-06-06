@@ -68,7 +68,6 @@ pyrightconfig.json
 .settings/
 staticfiles/
 /backend/populate.py
-/backend/pyproject.toml
 
 
 # Keep original gitignore rule for Help directory
