@@ -16,9 +16,16 @@ export default function CategoryPage() {
   const category = categoryData?.find(c => c.slug === slug);
   const articles = data?.results || [];
   
-  // Group by date (simplified today vs yesterday)
-  const todayArticles = articles.slice(0, 3);
-  const olderArticles = articles.slice(3);
+  // Group by last 24 hours dynamically
+  const oneDayAgo = new Date();
+  oneDayAgo.setHours(oneDayAgo.getHours() - 24);
+
+  const todayArticles = articles.filter(
+    article => new Date(article.published_at) >= oneDayAgo
+  );
+  const olderArticles = articles.filter(
+    article => new Date(article.published_at) < oneDayAgo
+  );
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
@@ -31,9 +38,7 @@ export default function CategoryPage() {
         <h1 className="text-display-lg text-uppercase tracking-tight">
           {category?.name || slug}
         </h1>
-        <p className="category-subtitle text-body-lg">
-          Global clippings, unvarnished and raw. Updates from across the oceans, ink still wet.
-        </p>
+
       </section>
 
       {isLoading ? (
@@ -48,9 +53,14 @@ export default function CategoryPage() {
         <>
           {todayArticles.length > 0 && (
             <section className="date-group">
-              <h2 className="date-header text-headline-lg wobbly-underline">
-                TODAY - {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-              </h2>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '1rem', flexWrap: 'wrap' }}>
+                <h2 className="date-header text-headline-lg wobbly-underline">
+                  TODAY - {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </h2>
+                <span className="text-body-md" style={{ color: 'var(--on-surface-variant)', fontStyle: 'italic' }}>
+                  (What's happened in the last 24hrs)
+                </span>
+              </div>
               <div className="category-grid">
                 {todayArticles.map((article) => (
                   <ArticleCard 

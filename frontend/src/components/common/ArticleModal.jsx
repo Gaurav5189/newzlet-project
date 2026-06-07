@@ -1,5 +1,6 @@
 import { useModal } from '../../context/ModalContext';
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { sanitizeHtml } from '../../utils/html';
 import '../../styles/ArticleModal.css';
 
@@ -51,6 +52,13 @@ export default function ArticleModal() {
     return activeArticle.category_slug || 'General';
   };
 
+  const getCategorySlug = () => {
+    if (typeof activeArticle.category === 'object' && activeArticle.category !== null) {
+      return activeArticle.category.slug;
+    }
+    return activeArticle.category_slug || 'general';
+  };
+
   return (
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-container">
@@ -66,7 +74,10 @@ export default function ArticleModal() {
 
         {/* Article Header */}
         <div className="modal-meta">
-          <span className="category-pill font-label-caps rotate-slight-neg border-2 border-on-surface">
+          <span 
+            className="category-pill font-label-caps rotate-slight-neg border-2 border-on-surface"
+            style={{ backgroundColor: activeArticle.category?.color || 'var(--secondary-container)' }}
+          >
             {getCategoryName()}
           </span>
           <span className="font-body-md text-body-md text-on-surface-variant italic">
@@ -115,6 +126,14 @@ export default function ArticleModal() {
             <span>Read Full Source</span>
             <span className="material-symbols-outlined">arrow_forward</span>
           </a>
+          <Link 
+            to={`/category/${getCategorySlug()}`}
+            onClick={closeArticle}
+            className="modal-action-btn secondary"
+          >
+            <span>View More {getCategoryName()}</span>
+            <span className="material-symbols-outlined">category</span>
+          </Link>
         </div>
       </div>
     </div>

@@ -204,6 +204,8 @@
   margin-top: 2rem;
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
   border-top: 3px solid var(--on-surface);
   padding-top: 2rem;
 }
@@ -233,4 +235,18 @@
 .modal-action-btn:active {
   transform: translate(4px, 4px);
   box-shadow: 0px 0px 0px 0px var(--primary-container);
+}
+
+.modal-action-btn.secondary {
+  background-color: var(--primary-container);
+  color: var(--on-surface);
+  box-shadow: 4px 4px 0px 0px var(--on-surface);
+}
+
+.modal-action-btn.secondary:hover {
+  box-shadow: 2px 2px 0px 0px var(--on-surface);
+}
+
+.modal-action-btn.secondary:active {
+  box-shadow: 0px 0px 0px 0px var(--on-surface);
 }

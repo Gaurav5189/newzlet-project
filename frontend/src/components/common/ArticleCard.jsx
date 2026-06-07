@@ -76,7 +76,10 @@ export default function ArticleCard({ article, variant = 'standard' }) {
 
       <div className="article-content">
         <div className="article-meta">
-          <span className={`category-pill font-label-caps ${resolvedVariant === 'featured' ? 'rotate-slight-neg border-2 border-on-surface' : ''}`}>
+          <span 
+            className={`category-pill font-label-caps ${resolvedVariant === 'featured' ? 'rotate-slight-neg border-2 border-on-surface' : ''}`}
+            style={{ backgroundColor: article.category?.color || 'var(--secondary-container)' }}
+          >
             {article.category_slug || (article.category?.name) || 'General'}
           </span>
           {resolvedVariant === 'featured' && (

@@ -110,6 +110,14 @@
   border: 2px solid var(--on-surface);
   background: transparent;
   margin-left: 1rem;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s ease;
+}
+
+.category-label:hover {
+  background-color: var(--on-surface);
+  color: var(--background);
 }
 
 .header-line {

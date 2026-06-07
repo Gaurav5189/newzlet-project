@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Outlet, ScrollRestoration } from 'react-router-dom';
 import { ModalProvider } from './context/ModalContext';
 import TopAppBar from './components/layout/TopAppBar';
 import Footer from './components/layout/Footer';
@@ -9,6 +9,7 @@ import ArticleModal from './components/common/ArticleModal';
 
 const RootLayout = () => (
   <div className="main-content">
+    <ScrollRestoration />
     <TopAppBar />
     <div className="flex-grow">
       <div className="page-transition-wrapper">
@@ -16,6 +17,7 @@ const RootLayout = () => (
       </div>
     </div>
     <Footer />
+    <ArticleModal />
   </div>
 );
 
@@ -35,7 +37,6 @@ export default function App() {
   return (
     <ModalProvider>
       <RouterProvider router={router} />
-      <ArticleModal />
     </ModalProvider>
   );
 }

@@ -104,27 +104,18 @@
 
 .category-pill {
   border: 2px solid var(--on-surface);
-  border-radius: 999px;
-  padding: 0.25rem 0.75rem;
-  font-size: 10px;
-  background-color: var(--surface-bright);
+  border-radius: 0;
+  padding: 0.2rem 0.5rem;
+  font-size: 11px;
+  background-color: var(--secondary-container);
+  color: var(--on-secondary-container);
+  text-transform: capitalize;
+  letter-spacing: normal;
 }
 
 .article-card.featured .category-pill {
-  background-color: var(--secondary-container);
-  color: var(--on-secondary-container);
-  padding: 0.25rem 0.75rem;
-  border-radius: 0;
   font-size: 14px;
-}
-
-.article-card.side .category-pill {
-  border: none;
-  padding: 0;
-  background: transparent;
-  color: var(--secondary);
-  font-size: 10px;
-  text-transform: uppercase;
+  padding: 0.25rem 0.75rem;
 }
 
 .article-date {

@@ -6,23 +6,23 @@ import { Link } from 'react-router-dom';
 import '../styles/HomePage.css';
 
 export default function HomePage() {
-  const { data, isLoading } = useArticles();
+  const { data, isLoading } = useArticles(1, 100);
   const { data: factData, isLoading: isFactLoading } = useCategoryArticles('day-fact', 1);
 
-  // Filter out the day-fact articles from the main general feed
+  // Filter out the day-fact and fun-fact articles from the main general feed
   const baseArticles = (data?.results || []).filter(
-    article => article.category?.slug !== 'day-fact'
+    article => article.category?.slug !== 'day-fact' && article.category?.slug !== 'fun-fact'
   );
 
   // Safety measure: Ensure bento grid articles have images. We need 4 total (1 featured, 3 side)
   const bentoArticles = baseArticles.filter(a => a.image_url).slice(0, 4);
-  
+
   const featuredArticle = bentoArticles.length > 0 ? bentoArticles[0] : null;
   const sideArticles = bentoArticles.length > 1 ? bentoArticles.slice(1, 4) : [];
 
   // Exclude bento articles from the latest section
   const bentoArticleIds = new Set(bentoArticles.map(a => a.id));
-  
+
   const oneDayAgo = new Date();
   oneDayAgo.setHours(oneDayAgo.getHours() - 24);
 
@@ -33,9 +33,17 @@ export default function HomePage() {
   });
 
   const groupedArticles = recentArticles.reduce((acc, article) => {
-    const catName = article.category?.name || 'General';
-    if (!acc[catName]) acc[catName] = [];
-    acc[catName].push(article);
+    const catSlug = article.category?.slug || 'general';
+    if (!acc[catSlug]) {
+      acc[catSlug] = {
+        name: article.category?.name || 'General',
+        slug: catSlug,
+        articles: []
+      };
+    }
+    if (acc[catSlug].articles.length < 3) {
+      acc[catSlug].articles.push(article);
+    }
     return acc;
   }, {});
 
@@ -146,27 +154,25 @@ export default function HomePage() {
           </section>
 
           {/* Latest Clippings */}
-          {Object.entries(groupedArticles).length > 0 ? (
+          {Object.values(groupedArticles).length > 0 ? (
             <section className="latest-clippings-section">
-              {Object.entries(groupedArticles).map(([categoryName, catArticles], index) => (
-                <div key={categoryName} className="category-group" style={{ marginTop: index > 0 ? '3rem' : '0' }}>
+              <h2 className="text-headline-lg" style={{ marginBottom: '2rem' }}>Latest Clippings</h2>
+              {Object.values(groupedArticles).map((categoryGroup, index) => (
+                <div key={categoryGroup.slug} className="category-group" style={{ marginTop: index > 0 ? '3rem' : '0' }}>
                   <div className="category-group-header">
-                    {index === 0 && (
-                      <h2 className="text-headline-lg" style={{ marginRight: '1rem' }}>Latest Clippings</h2>
-                    )}
                     <div className="header-line"></div>
-                    <div className="category-label text-label-caps font-bold">
-                      {categoryName}
-                    </div>
+                    <Link to={`/category/${categoryGroup.slug}`} className="category-label text-label-caps font-bold">
+                      VIEW MORE {categoryGroup.name.toUpperCase()}
+                    </Link>
                   </div>
                   <div className="latest-grid">
-                    {catArticles.map(article => (
+                    {categoryGroup.articles.map(article => (
                       <ArticleCard key={article.id} article={article} variant="standard" />
                     ))}
                   </div>
                 </div>
               ))}
-              
+
               <div style={{ display: 'flex', justifyContent: 'center', marginTop: '4rem' }}>
                 <Link to="/search" viewTransition className="archive-btn text-label-caps font-bold">
                   See All Archive
