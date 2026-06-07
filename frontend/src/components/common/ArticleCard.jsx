@@ -43,14 +43,14 @@ export default function ArticleCard({ article, variant = 'standard' }) {
         className={getContainerClass()}
         onClick={handleClick}
       >
-        <div className="article-content justify-center">
+        <div className="article-content">
           <div className="article-no-image-icon">
-            <span className="material-symbols-outlined text-3xl">public</span>
+            <span className="material-symbols-outlined">public</span>
           </div>
           <h3 className={getTitleClass()} dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.title) }} />
           <p className="article-excerpt font-body-md text-body-md" dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.summary || article.excerpt) }} />
-          <div className="mt-4 font-label-caps text-label-caps flex items-center gap-1 hover:text-surface-bright">
-            Read full analysis <span className="material-symbols-outlined text-sm">arrow_forward</span>
+          <div className="article-read-analysis font-label-caps text-label-caps">
+            Read full analysis <span className="material-symbols-outlined">arrow_forward</span>
           </div>
         </div>
       </Link>
@@ -91,17 +91,17 @@ export default function ArticleCard({ article, variant = 'standard' }) {
         )}
 
         {resolvedVariant === 'featured' && (
-          <div className="article-read-btn font-label-caps text-label-caps mt-auto">
+          <div className="article-read-btn font-label-caps text-label-caps">
             READ FULL SOURCE <span className="material-symbols-outlined">arrow_right_alt</span>
           </div>
         )}
 
         {resolvedVariant === 'standard' && (
           <div className="article-footer">
-            <span className="font-label-caps text-label-caps text-xs text-on-surface-variant">
+            <span className="article-date-text font-label-caps text-label-caps">
                {new Date(article.published_at || '2026-05-28').toLocaleDateString('en-GB')}
             </span>
-            <button className="hover:text-primary" onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}>
+            <button className="article-bookmark-btn" onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}>
               <span className="material-symbols-outlined">bookmark_add</span>
             </button>
           </div>

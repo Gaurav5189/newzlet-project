@@ -246,3 +246,11 @@ img {
   position: relative;
   z-index: 10;
 }
+
+/* Utilities */
+.text-center { text-align: center; }
+.text-uppercase { text-transform: uppercase; }
+.tracking-tight { letter-spacing: -0.025em; }
+.text-error { color: var(--error); }
+.justify-center { justify-content: center; }
+.flex-grow { flex-grow: 1; }
