@@ -10,13 +10,34 @@ export default function HomePage() {
   const { data: factData, isLoading: isFactLoading } = useCategoryArticles('day-fact', 1);
 
   // Filter out the day-fact articles from the main general feed
-  const articles = (data?.results || []).filter(
+  const baseArticles = (data?.results || []).filter(
     article => article.category?.slug !== 'day-fact'
   );
 
-  const featuredArticle = articles.length > 0 ? articles[0] : null;
-  const sideArticles = articles.length > 2 ? articles.slice(1, 3) : [];
-  const latestArticles = articles.length > 3 ? articles.slice(3, 6) : [];
+  // Safety measure: Ensure bento grid articles have images. We need 4 total (1 featured, 3 side)
+  const bentoArticles = baseArticles.filter(a => a.image_url).slice(0, 4);
+  
+  const featuredArticle = bentoArticles.length > 0 ? bentoArticles[0] : null;
+  const sideArticles = bentoArticles.length > 1 ? bentoArticles.slice(1, 4) : [];
+
+  // Exclude bento articles from the latest section
+  const bentoArticleIds = new Set(bentoArticles.map(a => a.id));
+  
+  const oneDayAgo = new Date();
+  oneDayAgo.setHours(oneDayAgo.getHours() - 24);
+
+  const recentArticles = baseArticles.filter(a => {
+    if (bentoArticleIds.has(a.id)) return false;
+    const pubDate = new Date(a.published_at);
+    return pubDate >= oneDayAgo;
+  });
+
+  const groupedArticles = recentArticles.reduce((acc, article) => {
+    const catName = article.category?.name || 'General';
+    if (!acc[catName]) acc[catName] = [];
+    acc[catName].push(article);
+    return acc;
+  }, {});
 
   const dayFactArticle = factData?.results?.[0];
 
@@ -80,20 +101,32 @@ export default function HomePage() {
             <div className="bento-sidebar">
               <SkeletonCard variant="side" />
               <SkeletonCard variant="side" />
+              <SkeletonCard variant="side" />
             </div>
           </section>
-          <section>
-            <div className="latest-clippings-header">
-              <h2 className="text-headline-lg">Latest Clippings</h2>
-              <div className="header-line"></div>
-              <Link to="/search" viewTransition className="archive-btn text-label-caps font-bold">
-                See All Archive
-              </Link>
+          <section className="latest-clippings-section">
+            <div className="category-group">
+              <div className="category-group-header">
+                <h2 className="text-headline-lg">Latest Clippings</h2>
+                <div className="header-line"></div>
+                <div className="category-label text-label-caps font-bold">Loading</div>
+              </div>
+              <div className="latest-grid">
+                <SkeletonCard variant="no-image" />
+                <SkeletonCard variant="no-image" />
+                <SkeletonCard variant="no-image" />
+              </div>
             </div>
-            <div className="latest-grid">
-              <SkeletonCard variant="no-image" />
-              <SkeletonCard variant="no-image" />
-              <SkeletonCard variant="no-image" />
+            <div className="category-group" style={{ marginTop: '3rem' }}>
+              <div className="category-group-header">
+                <div className="header-line"></div>
+                <div className="category-label text-label-caps font-bold">Loading</div>
+              </div>
+              <div className="latest-grid">
+                <SkeletonCard variant="no-image" />
+                <SkeletonCard variant="no-image" />
+                <SkeletonCard variant="no-image" />
+              </div>
             </div>
           </section>
         </>
@@ -113,20 +146,47 @@ export default function HomePage() {
           </section>
 
           {/* Latest Clippings */}
-          <section>
-            <div className="latest-clippings-header">
-              <h2 className="text-headline-lg">Latest Clippings</h2>
-              <div className="header-line"></div>
-              <Link to="/search" viewTransition className="archive-btn text-label-caps font-bold">
-                See All Archive
-              </Link>
-            </div>
-            <div className="latest-grid">
-              {latestArticles.map(article => (
-                <ArticleCard key={article.id} article={article} variant="standard" />
+          {Object.entries(groupedArticles).length > 0 ? (
+            <section className="latest-clippings-section">
+              {Object.entries(groupedArticles).map(([categoryName, catArticles], index) => (
+                <div key={categoryName} className="category-group" style={{ marginTop: index > 0 ? '3rem' : '0' }}>
+                  <div className="category-group-header">
+                    {index === 0 && (
+                      <h2 className="text-headline-lg" style={{ marginRight: '1rem' }}>Latest Clippings</h2>
+                    )}
+                    <div className="header-line"></div>
+                    <div className="category-label text-label-caps font-bold">
+                      {categoryName}
+                    </div>
+                  </div>
+                  <div className="latest-grid">
+                    {catArticles.map(article => (
+                      <ArticleCard key={article.id} article={article} variant="standard" />
+                    ))}
+                  </div>
+                </div>
               ))}
-            </div>
-          </section>
+              
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '4rem' }}>
+                <Link to="/search" viewTransition className="archive-btn text-label-caps font-bold">
+                  See All Archive
+                </Link>
+              </div>
+            </section>
+          ) : (
+            <section className="latest-clippings-section">
+              <div className="category-group-header">
+                <h2 className="text-headline-lg" style={{ marginRight: '1rem' }}>Latest Clippings</h2>
+                <div className="header-line"></div>
+              </div>
+              <p className="text-body-md text-center" style={{ margin: '3rem 0' }}>No other clippings from the last 24 hours.</p>
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '3rem' }}>
+                <Link to="/search" viewTransition className="archive-btn text-label-caps font-bold">
+                  See All Archive
+                </Link>
+              </div>
+            </section>
+          )}
         </>
       )}
     </main>
