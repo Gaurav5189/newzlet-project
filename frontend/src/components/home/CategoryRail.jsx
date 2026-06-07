@@ -8,34 +8,22 @@ export default function CategoryRail({ category }) {
   if (isLoading || !data?.results?.length) return null;
 
   return (
-    <section style={{ padding: '3rem 2rem', borderBottom: 'var(--border-width) solid var(--border)' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem' }}>
-        <h2 className="font-boogaloo grog-pill grog-border" style={{ 
-          fontSize: '3rem', 
-          margin: 0, 
-          background: category.color, 
-          color: 'white', 
-          padding: '0.5rem 2rem',
-          textShadow: '2px 2px 0 #000'
-        }}>
-          {category.name}
+    <section className="flex flex-col gap-8 py-8 border-b-2 border-on-surface border-dashed last:border-0">
+      <div className="flex justify-between items-end mb-4">
+        <h2 className="font-headline-lg text-headline-lg-mobile lg:text-headline-lg text-on-surface wobbly-underline">
+          {category.name.toUpperCase()}
         </h2>
-        <Link to={`/category/${category.slug}`} className="font-archivo grog-pill grog-border" style={{ padding: '0.8rem 1.5rem', background: 'white' }}>
-          SEE ALL →
+        <Link 
+          to={`/category/${category.slug}`} 
+          className="font-label-caps text-label-caps text-on-surface hover:text-primary transition-colors hover:underline"
+        >
+          See All →
         </Link>
       </div>
 
-      <div style={{ 
-        display: 'flex', 
-        gap: '2rem', 
-        overflowX: 'auto', 
-        paddingBottom: '1rem',
-        scrollSnapType: 'x mandatory'
-      }}>
-        {data.results.slice(0, 4).map(article => (
-          <div key={article.id} style={{ minWidth: '350px', width: '350px', scrollSnapAlign: 'start' }}>
-            <ArticleCard article={article} />
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+        {data.results.slice(0, 3).map(article => (
+          <ArticleCard key={article.id} article={article} />
         ))}
       </div>
     </section>

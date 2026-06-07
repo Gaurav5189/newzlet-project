@@ -8,8 +8,8 @@ export default function ShareButtons({ url, title }) {
     try {
       await navigator.clipboard.writeText(shareData.url);
       alert('Link copied!');
-    } catch (err) {
-      alert('Failed to copy link. Please copy manually.');
+    } catch {
+      alert('Failed to copy link. Please try again.');
     }
   };
 

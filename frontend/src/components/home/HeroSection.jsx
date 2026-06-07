@@ -1,24 +1,11 @@
 export default function HeroSection() {
   return (
-    <section style={{
-      padding: '4rem 2rem',
-      borderBottom: 'var(--border-width) solid var(--border)',
-      background: 'var(--surface)',
-      textAlign: 'center'
-    }}>
-      <h1 className="font-boogaloo" style={{
-        fontSize: 'clamp(4rem, 10vw, 8rem)',
-        lineHeight: 1,
-        margin: '0 0 1rem 0',
-        textTransform: 'uppercase',
-        textShadow: '4px 4px 0 #000',
-        color: 'white',
-        WebkitTextStroke: '3px black'
-      }}>
+    <section className="pt-8 pb-12 border-b-[3px] border-on-surface border-dashed text-center">
+      <h1 className="font-display-lg text-display-lg text-on-surface uppercase tracking-tight mb-4">
         THE DAILY NEWZLET
       </h1>
-      <p className="font-archivo" style={{ fontSize: '1.5rem', margin: 0 }}>
-        YOUR NO-NONSENSE NEWS ROUNDUP
+      <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
+        Your no-nonsense news roundup. Global clippings, unvarnished and raw.
       </p>
     </section>
   );

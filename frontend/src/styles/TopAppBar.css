@@ -1,0 +1,67 @@
+.top-app-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: var(--base-spacing) var(--margin-mobile);
+  max-width: 100%;
+  background-color: var(--background);
+  border-bottom: 2px solid var(--on-surface);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+@media (min-width: 768px) {
+  .top-app-bar {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 0;
+    padding-left: var(--margin-desktop);
+    padding-right: var(--margin-desktop);
+  }
+}
+
+.top-app-bar-brand {
+  font-weight: bold;
+  letter-spacing: -0.05em;
+  color: var(--on-surface);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.top-app-bar-brand:hover {
+  transform: rotate(1deg);
+}
+
+.top-app-bar-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .top-app-bar-nav {
+    gap: 2rem;
+  }
+}
+
+.nav-link {
+  color: var(--on-surface-variant);
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: var(--primary);
+}
+
+.nav-link.active {
+  color: var(--primary);
+  font-weight: bold;
+  border-bottom: 2px solid var(--primary-container);
+  padding-bottom: 0.25rem;
+}

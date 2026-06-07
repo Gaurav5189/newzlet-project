@@ -76,3 +76,6 @@ Help/
 # Backend tool config (pyproject.toml is project config, keep tracked)
 # but ignore any local override files
 *.local.toml
+
+# Design / AI related docs
+DESIGN.md

@@ -1,60 +1,85 @@
 import { useParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
 import { useCategoryArticles } from '../hooks/useCategoryArticles';
 import { useCategories } from '../hooks/useCategories';
 import ArticleCard from '../components/common/ArticleCard';
 import Pagination from '../components/common/Pagination';
-import BreakingTicker from '../components/common/BreakingTicker';
+import '../styles/CategoryPage.css';
+import { useState } from 'react';
 
 export default function CategoryPage() {
   const { slug } = useParams();
   const [page, setPage] = useState(1);
-  const { data: categories } = useCategories();
+  const { data: categoryData } = useCategories();
   const { data, isLoading } = useCategoryArticles(slug, page);
 
-  useEffect(() => {
-    setPage(1);
-  }, [slug]);
+  const category = categoryData?.find(c => c.slug === slug);
+  const articles = data?.results || [];
+  
+  // Group by date (simplified today vs yesterday)
+  const todayArticles = articles.slice(0, 3);
+  const olderArticles = articles.slice(3);
 
-  const category = categories?.find(c => c.slug === slug);
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
-    <main>
-      <BreakingTicker />
-      
-      {category && (
-        <div style={{ padding: '4rem 2rem', background: category.color, borderBottom: 'var(--border-width) solid var(--border)' }}>
-          <h1 className="font-boogaloo" style={{ fontSize: '4rem', color: 'white', textShadow: '3px 3px 0 #000', margin: 0 }}>
-            {category.emoji} {category.name.toUpperCase()}
-          </h1>
-        </div>
-      )}
+    <main className="container category-page">
+      <section className="category-header">
+        <h1 className="text-display-lg text-uppercase tracking-tight">
+          {category?.name || slug}
+        </h1>
+        <p className="category-subtitle text-body-lg">
+          Global clippings, unvarnished and raw. Updates from across the oceans, ink still wet.
+        </p>
+      </section>
 
-      <div style={{ padding: '2rem' }}>
-        {isLoading ? (
-          <p className="font-dm">Loading...</p>
-        ) : (
-          <>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-              gap: '2rem'
-            }}>
-              {data?.results?.map(article => (
-                <ArticleCard key={article.id} article={article} />
-              ))}
-            </div>
-            
-            <Pagination 
-              count={data?.count} 
-              next={data?.next} 
-              previous={data?.previous}
-              currentPage={page}
-              setPage={setPage}
-            />
-          </>
-        )}
-      </div>
+      {isLoading ? (
+        <p className="text-body-md text-center">Fetching clippings...</p>
+      ) : (
+        <>
+          {todayArticles.length > 0 && (
+            <section className="date-group">
+              <h2 className="date-header text-headline-lg wobbly-underline">
+                TODAY - {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+              </h2>
+              <div className="category-grid">
+                {todayArticles.map((article, index) => (
+                  <ArticleCard 
+                    key={article.id} 
+                    article={article} 
+                    variant={index === 2 ? 'no-image' : 'standard'} 
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {olderArticles.length > 0 && (
+            <section className="date-group">
+              <h2 className="date-header text-headline-lg wobbly-underline">
+                OLDER CLIPPINGS
+              </h2>
+              <div className="category-grid">
+                {olderArticles.map(article => (
+                  <ArticleCard key={article.id} article={article} variant="standard" />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {data && data.count > data.results.length && (
+             <div style={{ marginTop: '2rem' }}>
+                <Pagination
+                  currentPage={page}
+                  totalPages={Math.ceil(data.count / 12)}
+                  onPageChange={handlePageChange}
+                />
+             </div>
+          )}
+        </>
+      )}
     </main>
   );
 }

@@ -1,0 +1,137 @@
+/* HomePage.css */
+
+.home-page {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+}
+
+.home-hero-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 2rem;
+  position: relative;
+}
+
+.hero-subtitle {
+  opacity: 0.8;
+  font-style: italic;
+}
+
+.fun-fact-container {
+  position: relative;
+  width: 100%;
+  max-width: 42rem;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+.fun-fact-card {
+  background-color: var(--primary-container);
+  padding: 2rem;
+  position: relative;
+}
+
+.fun-fact-tape {
+  position: absolute;
+  top: -1rem;
+  left: 50%;
+  transform: translateX(-50%) rotate(-2deg);
+  width: 6rem;
+  height: 2rem;
+  background-color: rgba(233, 225, 221, 0.8); /* surface-container-highest approx */
+  border: 2px solid rgba(30, 27, 25, 0.2);
+  mix-blend-mode: multiply;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+  opacity: 0.5;
+}
+
+.fun-fact-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-style: italic;
+}
+
+.bento-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gutter);
+  align-items: flex-start;
+}
+
+@media (min-width: 768px) {
+  .bento-grid {
+    grid-template-columns: repeat(12, 1fr);
+  }
+}
+
+.bento-featured {
+  grid-column: span 1;
+}
+@media (min-width: 768px) {
+  .bento-featured {
+    grid-column: span 8;
+  }
+}
+
+.bento-sidebar {
+  grid-column: span 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gutter);
+}
+@media (min-width: 768px) {
+  .bento-sidebar {
+    grid-column: span 4;
+  }
+}
+
+.latest-clippings-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.header-line {
+  height: 2px;
+  flex-grow: 1;
+  background-color: var(--on-surface);
+  opacity: 0.1;
+}
+
+.archive-btn {
+  padding: 0.5rem 1rem;
+  border: 2px solid var(--on-surface);
+  transition: all 0.3s ease;
+}
+
+.archive-btn:hover {
+  background-color: var(--on-surface);
+  color: var(--background);
+}
+
+.latest-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .latest-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
