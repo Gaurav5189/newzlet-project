@@ -12,7 +12,7 @@ export default function Footer() {
         <Link to="#" className="footer-link font-body-md text-body-md">Contact</Link>
       </nav>
       <p className="footer-copy font-body-md text-body-md text-sm">
-        © 2024 The Daily Newzlet. Hand-inked for the modern reader.
+        © 2026 The Daily Newzlet.
       </p>
     </footer>
   );

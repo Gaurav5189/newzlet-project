@@ -176,7 +176,7 @@ img {
 
 .wobbly-border {
   border: 2px solid var(--on-surface);
-  clip-path: polygon(0% 2%, 100% 0%, 98% 100%, 2% 98%);
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
 }
 
 .hand-drawn-bubble {

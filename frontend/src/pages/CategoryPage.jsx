@@ -45,11 +45,10 @@ export default function CategoryPage() {
                 TODAY - {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
               </h2>
               <div className="category-grid">
-                {todayArticles.map((article, index) => (
+                {todayArticles.map((article) => (
                   <ArticleCard 
                     key={article.id} 
                     article={article} 
-                    variant={index === 2 ? 'no-image' : 'standard'} 
                   />
                 ))}
               </div>

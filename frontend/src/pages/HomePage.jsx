@@ -1,15 +1,23 @@
 import { useArticles } from '../hooks/useArticles';
+import { useCategoryArticles } from '../hooks/useCategoryArticles';
 import ArticleCard from '../components/common/ArticleCard';
 import { Link } from 'react-router-dom';
 import '../styles/HomePage.css';
 
 export default function HomePage() {
   const { data, isLoading } = useArticles();
+  const { data: factData, isLoading: isFactLoading } = useCategoryArticles('day-fact', 1);
 
-  const articles = data?.results || [];
+  // Filter out the day-fact articles from the main general feed
+  const articles = (data?.results || []).filter(
+    article => article.category?.slug !== 'day-fact'
+  );
+
   const featuredArticle = articles.length > 0 ? articles[0] : null;
   const sideArticles = articles.length > 2 ? articles.slice(1, 3) : [];
   const latestArticles = articles.length > 3 ? articles.slice(3, 6) : [];
+
+  const dayFactArticle = factData?.results?.[0];
 
   return (
     <main className="container home-page">
@@ -28,15 +36,30 @@ export default function HomePage() {
           <div className="fun-fact-card neo-shadow hand-drawn-bubble">
             <div className="fun-fact-header">
               <span className="material-symbols-outlined text-headline-md">auto_awesome</span>
-              <h3 className="text-headline-md text-uppercase">Fun Fact Daily</h3>
+              <h3 className="text-headline-md text-uppercase">
+                {dayFactArticle?.category?.name || 'Day Fact'}
+              </h3>
               <span className="material-symbols-outlined text-headline-md">ink_pen</span>
             </div>
-            <p className="text-headline-md mb-2" style={{ color: 'var(--on-surface-variant)' }}>
-              Did you know? Honey never spoils!
-            </p>
-            <p className="text-body-md">
-              Archaeologists have found pots of honey in ancient Egyptian tombs that are over 3,000 years old and still perfectly good to eat. Truly amazing!
-            </p>
+            {isFactLoading ? (
+              <p className="text-body-md">Loading daily fact...</p>
+            ) : dayFactArticle ? (
+              <>
+                <p className="text-headline-md mb-2" style={{ color: 'var(--on-surface-variant)' }}>
+                  {new Date(dayFactArticle.published_at).toLocaleDateString(undefined, {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </p>
+                <p className="text-body-md">
+                  {dayFactArticle.title}
+                </p>
+              </>
+            ) : (
+              <p className="text-body-md">No fact for today.</p>
+            )}
           </div>
         </div>
       </section>
