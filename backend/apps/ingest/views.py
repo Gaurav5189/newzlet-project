@@ -5,7 +5,6 @@ from django.utils.dateparse import parse_datetime
 from django.db import transaction
 from django.core.cache import cache
 from .auth import ApiKeyAuthentication
-from .utils import calc_read_time
 from apps.news.models import Article, Category
 
 class IngestArticleView(APIView):
@@ -85,7 +84,6 @@ class IngestArticleView(APIView):
                 continue
 
             category = categories.get(category_slug) if category_slug else None
-            read_time = calc_read_time(summary)
 
             articles_to_create.append(Article(
                 title=title,
@@ -95,8 +93,6 @@ class IngestArticleView(APIView):
                 source_name=source_name,
                 category=category,
                 published_at=published_at,
-                read_time=read_time,
-                is_breaking=item.get('is_breaking', False),
                 is_visible=item.get('is_visible', True)
             ))
 
