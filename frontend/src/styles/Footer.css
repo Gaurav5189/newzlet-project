@@ -2,7 +2,7 @@
   width: 100%;
   padding: 3rem var(--margin-mobile);
   background-color: var(--surface-container);
-  border-top: 2px dashed var(--on-surface);
+  border-top: 3px solid var(--on-surface);
   margin-top: 5rem;
   display: flex;
   flex-direction: column;

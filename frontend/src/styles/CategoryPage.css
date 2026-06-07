@@ -11,7 +11,7 @@
 .category-header {
   padding-top: 2rem;
   padding-bottom: 1rem;
-  border-bottom: 3px dashed var(--on-surface);
+  border-bottom: 3px solid var(--on-surface);
 }
 
 .category-subtitle {

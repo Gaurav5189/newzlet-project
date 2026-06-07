@@ -204,7 +204,7 @@
   margin-top: 2rem;
   display: flex;
   justify-content: center;
-  border-top: 2px dashed var(--on-surface);
+  border-top: 3px solid var(--on-surface);
   padding-top: 2rem;
 }
 
