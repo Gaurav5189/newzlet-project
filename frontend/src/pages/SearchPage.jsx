@@ -2,6 +2,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useState } from 'react';
 import { useSearch } from '../hooks/useSearch';
 import ArticleCard from '../components/common/ArticleCard';
+import SkeletonCard from '../components/common/SkeletonCard';
 import SearchBar from '../components/common/SearchBar';
 import Pagination from '../components/common/Pagination';
 import '../styles/SearchPage.css';
@@ -32,7 +33,11 @@ export default function SearchPage() {
 
       <section>
         {isLoading ? (
-          <p className="text-body-lg text-on-surface-variant">Searching clippings...</p>
+          <div className="search-results-grid">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </div>
         ) : error ? (
           <p className="text-body-lg text-error">
             Error loading search results. Please try again.

@@ -49,8 +49,10 @@ export default function ArticleCard({ article, variant = 'standard' }) {
           </div>
           <h3 className={getTitleClass()} dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.title) }} />
           <p className="article-excerpt font-body-md text-body-md" dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.summary || article.excerpt) }} />
-          <div className="article-read-analysis font-label-caps text-label-caps">
-            Read full analysis <span className="material-symbols-outlined">arrow_forward</span>
+          <div className="article-footer">
+            <span className="article-date-text font-label-caps text-label-caps">
+               {new Date(article.published_at || '2026-05-28').toLocaleDateString('en-GB')}
+            </span>
           </div>
         </div>
       </Link>
@@ -101,9 +103,6 @@ export default function ArticleCard({ article, variant = 'standard' }) {
             <span className="article-date-text font-label-caps text-label-caps">
                {new Date(article.published_at || '2026-05-28').toLocaleDateString('en-GB')}
             </span>
-            <button className="article-bookmark-btn" onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}>
-              <span className="material-symbols-outlined">bookmark_add</span>
-            </button>
           </div>
         )}
       </div>

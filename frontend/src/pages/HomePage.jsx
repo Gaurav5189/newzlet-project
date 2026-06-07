@@ -1,6 +1,7 @@
 import { useArticles } from '../hooks/useArticles';
 import { useCategoryArticles } from '../hooks/useCategoryArticles';
 import ArticleCard from '../components/common/ArticleCard';
+import SkeletonCard from '../components/common/SkeletonCard';
 import { Link } from 'react-router-dom';
 import '../styles/HomePage.css';
 
@@ -42,7 +43,12 @@ export default function HomePage() {
               <span className="material-symbols-outlined text-headline-md">ink_pen</span>
             </div>
             {isFactLoading ? (
-              <p className="text-body-md">Loading daily fact...</p>
+              <div className="skeleton-day-fact">
+                <div className="skeleton-icon skeleton-block mb-2"></div>
+                <div className="skeleton-title skeleton-block"></div>
+                <div className="skeleton-text skeleton-block"></div>
+                <div className="skeleton-text short skeleton-block"></div>
+              </div>
             ) : dayFactArticle ? (
               <>
                 <p className="text-headline-md mb-2" style={{ color: 'var(--on-surface-variant)' }}>
@@ -66,7 +72,31 @@ export default function HomePage() {
 
       {/* Bento Grid Layout */}
       {isLoading ? (
-        <p className="text-body-md text-center">Loading the morning paper...</p>
+        <>
+          <section className="bento-grid">
+            <div className="bento-featured">
+              <SkeletonCard variant="featured" />
+            </div>
+            <div className="bento-sidebar">
+              <SkeletonCard variant="side" />
+              <SkeletonCard variant="side" />
+            </div>
+          </section>
+          <section>
+            <div className="latest-clippings-header">
+              <h2 className="text-headline-lg">Latest Clippings</h2>
+              <div className="header-line"></div>
+              <Link to="/search" viewTransition className="archive-btn text-label-caps font-bold">
+                See All Archive
+              </Link>
+            </div>
+            <div className="latest-grid">
+              <SkeletonCard variant="no-image" />
+              <SkeletonCard variant="no-image" />
+              <SkeletonCard variant="no-image" />
+            </div>
+          </section>
+        </>
       ) : (
         <>
           <section className="bento-grid">

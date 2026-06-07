@@ -2,6 +2,7 @@ import { useParams } from 'react-router-dom';
 import { useCategoryArticles } from '../hooks/useCategoryArticles';
 import { useCategories } from '../hooks/useCategories';
 import ArticleCard from '../components/common/ArticleCard';
+import SkeletonCard from '../components/common/SkeletonCard';
 import Pagination from '../components/common/Pagination';
 import '../styles/CategoryPage.css';
 import { useState } from 'react';
@@ -36,7 +37,13 @@ export default function CategoryPage() {
       </section>
 
       {isLoading ? (
-        <p className="text-body-md text-center">Fetching clippings...</p>
+        <section className="date-group">
+          <div className="category-grid">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </div>
+        </section>
       ) : (
         <>
           {todayArticles.length > 0 && (
