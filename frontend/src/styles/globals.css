@@ -189,8 +189,13 @@ img {
   -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 10px), transparent 100%);
 }
 
-.rotate-slight-pos { transform: rotate(1.2deg); }
-.rotate-slight-neg { transform: rotate(-0.8deg); }
+.rotate-slight-pos {
+  transform: rotate(1.2deg);
+}
+
+.rotate-slight-neg {
+  transform: rotate(-0.8deg);
+}
 
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined' !important;
@@ -201,6 +206,7 @@ img {
   position: relative;
   display: inline-block;
 }
+
 .wobbly-underline::after {
   content: '';
   position: absolute;
@@ -221,6 +227,7 @@ img {
 .clipping-card {
   transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+
 .clipping-card:hover {
   transform: translateY(-4px) rotate(1deg);
 }
@@ -232,6 +239,7 @@ img {
   padding-left: var(--margin-mobile);
   padding-right: var(--margin-mobile);
 }
+
 @media (min-width: 768px) {
   .container {
     padding-left: var(--margin-desktop);
@@ -248,9 +256,64 @@ img {
 }
 
 /* Utilities */
-.text-center { text-align: center; }
-.text-uppercase { text-transform: uppercase; }
-.tracking-tight { letter-spacing: -0.025em; }
-.text-error { color: var(--error); }
-.justify-center { justify-content: center; }
-.flex-grow { flex-grow: 1; }
+.text-center {
+  text-align: center;
+}
+
+.text-uppercase {
+  text-transform: uppercase;
+}
+
+.tracking-tight {
+  letter-spacing: -0.025em;
+}
+
+.text-error {
+  color: var(--error);
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.flex-grow {
+  flex-grow: 1;
+}
+
+/* View Transitions */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+
+  .page-transition-wrapper {
+    view-transition-name: page-wrapper;
+  }
+
+  @keyframes paper-slide-out {
+    to {
+      transform: translateX(-20px) rotate(-0.5deg);
+      opacity: 0;
+    }
+  }
+
+  @keyframes paper-slide-in {
+    from {
+      transform: translateX(20px) rotate(0.5deg);
+      opacity: 0;
+    }
+  }
+
+  ::view-transition-group(page-wrapper) {
+    animation-duration: 200ms;
+    animation-timing-function: ease-in-out;
+  }
+
+  ::view-transition-old(page-wrapper) {
+    animation-name: paper-slide-out;
+  }
+
+  ::view-transition-new(page-wrapper) {
+    animation-name: paper-slide-in;
+  }
+}

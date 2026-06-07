@@ -87,7 +87,7 @@ export default function HomePage() {
             <div className="latest-clippings-header">
               <h2 className="text-headline-lg">Latest Clippings</h2>
               <div className="header-line"></div>
-              <Link to="/search" className="archive-btn text-label-caps font-bold">
+              <Link to="/search" viewTransition className="archive-btn text-label-caps font-bold">
                 See All Archive
               </Link>
             </div>
