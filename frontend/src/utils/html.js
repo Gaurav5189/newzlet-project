@@ -9,11 +9,13 @@
 export function sanitizeHtml(htmlString) {
   if (!htmlString) return '';
   
-  // 1. Unescape HTML entities first so we process actual tag characters
+  // 1. Unescape HTML entities first so we process actual tag characters.
+  // IMPORTANT: &amp; must be decoded FIRST before &lt;/&gt; to prevent
+  // double-encoded entities like &amp;lt; from producing real tag characters.
   let decoded = htmlString
+    .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
-    .replace(/&amp;/g, '&')
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
     .replace(/&#x27;/g, "'");

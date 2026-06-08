@@ -88,9 +88,11 @@ export default function CategoryPage() {
           {data && data.count > data.results.length && (
              <div style={{ marginTop: '2rem' }}>
                 <Pagination
+                  count={data.count}
+                  next={data.next}
+                  previous={data.previous}
                   currentPage={page}
-                  totalPages={Math.ceil(data.count / 12)}
-                  onPageChange={handlePageChange}
+                  setPage={handlePageChange}
                 />
              </div>
           )}

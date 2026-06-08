@@ -71,6 +71,10 @@ class IngestArticleView(APIView):
 
         for item in unique_incoming_items:
             title = item.get('title')
+            if not title:
+                # title is NOT NULL in the DB; skip rather than crash on bulk_create
+                skipped_invalid += 1
+                continue
             summary = item.get('summary', '')
             image_url = item.get('image_url')
             source_url = item.get('source_url')

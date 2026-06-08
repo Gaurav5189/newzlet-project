@@ -26,13 +26,21 @@ export default function ArticleModal() {
     return paragraphs.map((p, idx) => {
       const sanitizedP = sanitizeHtml(p);
       if (idx === 0) {
-        if (sanitizedP.startsWith('<')) {
+        // Guard against empty string after sanitization
+        const trimmed = sanitizedP.trim();
+        if (!trimmed) return null;
+
+        if (trimmed.startsWith('<')) {
           return (
-            <p key={idx} className="first-paragraph" dangerouslySetInnerHTML={{ __html: sanitizedP }} />
+            <p key={idx} className="first-paragraph" dangerouslySetInnerHTML={{ __html: trimmed }} />
           );
         }
-        const firstLetter = sanitizedP.charAt(0);
-        const restOfText = sanitizedP.slice(1);
+        // Extract first visible character, skipping any leading whitespace
+        const match = trimmed.match(/^(\s*)(.)/);
+        if (!match) return <p key={idx} dangerouslySetInnerHTML={{ __html: sanitizedP }} />;
+
+        const firstLetter = match[2];
+        const restOfText = trimmed.slice(match[0].length);
         return (
           <p key={idx} className="first-paragraph">
             <span className="dropcap">{firstLetter}</span>
@@ -81,7 +89,9 @@ export default function ArticleModal() {
             {getCategoryName()}
           </span>
           <span className="font-body-md text-body-md text-on-surface-variant italic">
-            {new Date(activeArticle.published_at || '2026-05-28').toLocaleDateString('en-GB')}
+            {activeArticle.published_at
+              ? new Date(activeArticle.published_at).toLocaleDateString('en-GB')
+              : 'Date unavailable'}
           </span>
           <span className="modal-source-badge">
             Source: {activeArticle.source_name || 'The Global Ledger'}

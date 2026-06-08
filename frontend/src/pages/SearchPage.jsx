@@ -1,5 +1,5 @@
 import { useSearchParams } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearch } from '../hooks/useSearch';
 import ArticleCard from '../components/common/ArticleCard';
 import SkeletonCard from '../components/common/SkeletonCard';
@@ -17,10 +17,15 @@ export default function SearchPage() {
 
   const [currentQuery, setCurrentQuery] = useState(`${q}-${category}`);
 
-  if (`${q}-${category}` !== currentQuery) {
-    setCurrentQuery(`${q}-${category}`);
-    setPage(1);
-  }
+  // Reset page to 1 whenever the search query or category changes.
+  // useEffect (not render-phase setState) is the correct React idiom here.
+  useEffect(() => {
+    const newQuery = `${q}-${category}`;
+    if (newQuery !== currentQuery) {
+      setCurrentQuery(newQuery);
+      setPage(1);
+    }
+  }, [q, category, currentQuery]);
 
   return (
     <main className="container search-page">

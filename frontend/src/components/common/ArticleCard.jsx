@@ -51,7 +51,9 @@ export default function ArticleCard({ article, variant = 'standard' }) {
           <p className="article-excerpt font-body-md text-body-md" dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.summary || article.excerpt) }} />
           <div className="article-footer">
             <span className="article-date-text font-label-caps text-label-caps">
-               {new Date(article.published_at || '2026-05-28').toLocaleDateString('en-GB')}
+               {article.published_at
+                 ? new Date(article.published_at).toLocaleDateString('en-GB')
+                 : 'Date unavailable'}
             </span>
           </div>
         </div>
@@ -84,7 +86,9 @@ export default function ArticleCard({ article, variant = 'standard' }) {
           </span>
           {resolvedVariant === 'featured' && (
             <span className="article-date font-label-caps text-label-caps">
-              {new Date(article.published_at || '2026-05-28').toLocaleDateString('en-GB')}
+              {article.published_at
+                ? new Date(article.published_at).toLocaleDateString('en-GB')
+                : 'Date unavailable'}
             </span>
           )}
         </div>
@@ -104,7 +108,9 @@ export default function ArticleCard({ article, variant = 'standard' }) {
         {resolvedVariant === 'standard' && (
           <div className="article-footer">
             <span className="article-date-text font-label-caps text-label-caps">
-               {new Date(article.published_at || '2026-05-28').toLocaleDateString('en-GB')}
+               {article.published_at
+                 ? new Date(article.published_at).toLocaleDateString('en-GB')
+                 : 'Date unavailable'}
             </span>
           </div>
         )}
