@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import '../../styles/Sidebar.css';
 
-export default function Sidebar({ isOpen, onClose, categories }) {
+export default function Sidebar({ isOpen, onClose, categories = [] }) {
   // Prevent body scroll when sidebar is open
   useEffect(() => {
     if (isOpen) {

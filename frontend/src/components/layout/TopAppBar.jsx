@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import { getCategories } from '../../services/api';
@@ -9,6 +9,7 @@ export default function TopAppBar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [categories, setCategories] = useState([]);
+  const popupTimeoutRef = useRef(null);
 
   const isActive = (path) => location.pathname === path;
 
@@ -22,13 +23,12 @@ export default function TopAppBar() {
       .catch(err => console.error("Error fetching categories:", err));
   }, []);
 
-  let popupTimeout;
   const handleMouseEnter = () => {
-    clearTimeout(popupTimeout);
+    clearTimeout(popupTimeoutRef.current);
     setIsPopupOpen(true);
   };
   const handleMouseLeave = () => {
-    popupTimeout = setTimeout(() => {
+    popupTimeoutRef.current = setTimeout(() => {
       setIsPopupOpen(false);
     }, 200); // 200ms delay to allow moving mouse into popup
   };
