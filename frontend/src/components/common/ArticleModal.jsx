@@ -70,8 +70,6 @@ export default function ArticleModal() {
   return (
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-container">
-        {/* Tape Decorations */}
-        <div className="modal-tape-top"></div>
 
         {/* Close Button */}
         <button className="modal-close-btn" onClick={closeArticle} aria-label="Close modal">
