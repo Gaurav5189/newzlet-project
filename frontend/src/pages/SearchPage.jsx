@@ -2,8 +2,10 @@ import { useSearchParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useSearch } from '../hooks/useSearch';
 import ArticleCard from '../components/common/ArticleCard';
+import SkeletonCard from '../components/common/SkeletonCard';
 import SearchBar from '../components/common/SearchBar';
 import Pagination from '../components/common/Pagination';
+import '../styles/SearchPage.css';
 
 export default function SearchPage() {
   const [searchParams] = useSearchParams();
@@ -11,42 +13,70 @@ export default function SearchPage() {
   const q = searchParams.get('q') || '';
   const category = searchParams.get('category') || '';
 
-  const { data, isLoading } = useSearch({ q, category, page });
+  const { data, isLoading, error } = useSearch({ q, category, page });
 
+  const [currentQuery, setCurrentQuery] = useState(`${q}-${category}`);
+
+  // Reset page to 1 whenever the search query or category changes.
+  // useEffect (not render-phase setState) is the correct React idiom here.
   useEffect(() => {
-    setPage(1); // Reset page on new search
-  }, [q, category]);
+    const newQuery = `${q}-${category}`;
+    if (newQuery !== currentQuery) {
+      setCurrentQuery(newQuery);
+      setPage(1);
+    }
+  }, [q, category, currentQuery]);
 
   return (
-    <main style={{ padding: '2rem' }}>
-      <div style={{ marginBottom: '3rem' }}>
-        <h1 className="font-boogaloo" style={{ fontSize: '3rem', margin: '0 0 1rem 0' }}>SEARCH RESULTS</h1>
+    <main className="container search-page">
+      <div className="search-header">
+        <h1 className="text-display-lg text-uppercase rotate-slight-neg">
+          Search Results
+        </h1>
         <SearchBar />
       </div>
 
-      {isLoading ? (
-        <p className="font-dm">Searching...</p>
-      ) : (
-        <>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: '2rem'
-          }}>
-            {data?.results?.map(article => (
-              <ArticleCard key={article.id} article={article} />
+      <section>
+        {isLoading ? (
+          <div className="search-results-grid">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <SkeletonCard key={i} />
             ))}
           </div>
-          
-          <Pagination 
-            count={data?.count} 
-            next={data?.next} 
-            previous={data?.previous}
-            currentPage={page}
-            setPage={setPage}
-          />
-        </>
-      )}
+        ) : error ? (
+          <p className="text-body-lg text-error">
+            Error loading search results. Please try again.
+          </p>
+        ) : !q && !category ? (
+          <p className="text-body-lg text-on-surface-variant">
+            Enter a search term or select a category to find articles.
+          </p>
+        ) : (
+          <>
+            <div className="search-results-grid">
+              {data?.results?.map(article => (
+                <ArticleCard key={article.id} article={article} />
+              ))}
+            </div>
+
+            {data?.results?.length === 0 && (
+              <p className="text-body-lg text-on-surface-variant text-center" style={{ margin: '3rem 0' }}>
+                No articles found. Try a different search term or category.
+              </p>
+            )}
+
+            {data?.results && data.results.length > 0 && (
+              <Pagination
+                count={data?.count}
+                next={data?.next}
+                previous={data?.previous}
+                currentPage={page}
+                setPage={setPage}
+              />
+            )}
+          </>
+        )}
+      </section>
     </main>
   );
 }

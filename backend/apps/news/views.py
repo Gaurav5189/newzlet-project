@@ -11,16 +11,18 @@ from .filters import ArticleFilter
 @method_decorator(cache_page(60 * 60 * 24), name='get')
 @method_decorator(vary_on_headers('Accept'), name='get')
 class ArticleListView(generics.ListAPIView):
-    queryset = Article.objects.filter(is_visible=True)
+    queryset = Article.objects.filter(is_visible=True).exclude(category__slug='day-fact')
     serializer_class = ArticleSerializer
 
 # Cache the breaking news ticker for 5 minutes (300 seconds) since it changes quickly
 @method_decorator(cache_page(60 * 5), name='get')
 @method_decorator(vary_on_headers('Accept'), name='get')
 class BreakingArticlesView(generics.ListAPIView):
-    queryset = Article.objects.filter(is_breaking=True, is_visible=True)
     serializer_class = ArticleSerializer
     pagination_class = None
+
+    def get_queryset(self):
+        return Article.objects.filter(is_visible=True).exclude(category__slug='day-fact')[:5]
 
 # Cache categories list for 24 hours
 @method_decorator(cache_page(60 * 60 * 24), name='get')
@@ -41,6 +43,6 @@ class CategoryArticleListView(generics.ListAPIView):
         return Article.objects.filter(category__slug=slug, is_visible=True)
 
 class SearchArticlesView(generics.ListAPIView):
-    queryset = Article.objects.filter(is_visible=True)
+    queryset = Article.objects.filter(is_visible=True).exclude(category__slug='day-fact')
     serializer_class = ArticleSerializer
     filterset_class = ArticleFilter

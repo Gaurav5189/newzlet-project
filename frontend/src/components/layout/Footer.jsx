@@ -1,14 +1,18 @@
+import { Link } from 'react-router-dom';
+import '../../styles/Footer.css';
+
 export default function Footer() {
   return (
-    <footer style={{ 
-      padding: '2rem', 
-      borderTop: 'var(--border-width) solid var(--border)', 
-      background: 'var(--bg)',
-      textAlign: 'center',
-      marginTop: '4rem'
-    }}>
-      <p className="font-dm" style={{ fontWeight: 'bold' }}>
-        © {new Date().getFullYear()} NEWZLET. Grogg-inspired daily news.
+    <footer className="footer mt-auto">
+      <div className="footer-brand font-headline-md text-headline-md">The Daily Newzlet</div>
+      <nav className="footer-nav">
+        <Link to="#" className="footer-link font-body-md text-body-md">Editorial Policy</Link>
+        <Link to="#" className="footer-link font-body-md text-body-md">Privacy</Link>
+        <Link to="#" className="footer-link font-body-md text-body-md">Terms</Link>
+        <Link to="#" className="footer-link font-body-md text-body-md">Contact</Link>
+      </nav>
+      <p className="footer-copy font-body-md text-body-md text-sm">
+        © 2026 The Daily Newzlet.
       </p>
     </footer>
   );

@@ -4,7 +4,7 @@ from .models import Article, Category
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ['name', 'slug', 'color', 'emoji']
+        fields = ['name', 'slug', 'color']
 
 class ArticleSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
@@ -14,5 +14,5 @@ class ArticleSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'title', 'summary', 'image_url', 'source_url', 
             'source_name', 'category', 'published_at', 
-            'created_at', 'read_time', 'is_breaking'
+            'created_at'
         ]

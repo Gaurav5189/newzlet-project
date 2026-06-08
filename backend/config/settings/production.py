@@ -25,11 +25,12 @@ DATABASE_URL = config(
 )
 
 # this is for production where we use postgresql
+ssl_require = config("DB_SSL_REQUIRE", default=DATABASE_URL.startswith("postgres"), cast=bool)
 DATABASES = {
     "default": dj_database_url.parse(
         DATABASE_URL,
         conn_max_age=600,
-        ssl_require=DATABASE_URL.startswith("postgres")
+        ssl_require=ssl_require
     )
 }
 

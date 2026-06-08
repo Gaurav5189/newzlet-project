@@ -1,0 +1,9 @@
+[tool.pyrefly]
+# Exclude non-Python files from type analysis
+project_excludes = [
+    ".env",
+    "*.env",
+    ".env.*",
+    "staticfiles/**",
+    "**/migrations/**",
+]
