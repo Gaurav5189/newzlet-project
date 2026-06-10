@@ -105,3 +105,10 @@
     padding-left: calc(var(--margin-desktop) + 0.75rem);
   }
 }
+
+/* Accessibility: disable animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-overlay {
+    animation: none;
+  }
+}
