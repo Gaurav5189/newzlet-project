@@ -1,16 +1,23 @@
 import { useModal } from '../../context/ModalContext';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { sanitizeHtml } from '../../utils/html';
 import '../../styles/ArticleModal.css';
 
 export default function ArticleModal() {
   const { activeArticle, closeArticle } = useModal();
+  const prevArticleIdRef = useRef(activeArticle ? activeArticle.id : null);
   const [imageError, setImageError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
 
   useEffect(() => {
-    setImageError(false);
-  }, [activeArticle]);
+    const currentId = activeArticle?.id ?? null;
+    if (currentId !== prevArticleIdRef.current) {
+      prevArticleIdRef.current = currentId;
+      setImageError(false);
+      setImageLoading(true);
+    }
+  }, [activeArticle?.id]);
 
   if (!activeArticle) return null;
 
@@ -105,10 +112,19 @@ export default function ArticleModal() {
         {activeArticle.image_url && !imageError && (
           <div className="modal-image-container">
             <div className="modal-image-wrapper">
+              {imageLoading && (
+                <div className="article-image-loader">
+                  <div className="article-image-loader-badge font-label-caps">
+                    <span className="material-symbols-outlined loader-spin">sync</span>
+                    <span>Inking Photo...</span>
+                  </div>
+                </div>
+              )}
               <img 
                 src={activeArticle.image_url} 
                 alt={activeArticle.title} 
-                className="modal-image"
+                className={`modal-image ${imageLoading ? 'loading' : 'loaded'}`}
+                onLoad={() => setImageLoading(false)}
                 onError={() => setImageError(true)}
               />
             </div>

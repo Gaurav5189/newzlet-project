@@ -317,3 +317,114 @@ img {
     animation-name: paper-slide-in;
   }
 }
+
+/* ==========================================================================
+   Organic Newsprint Brutalist Image Loader Styles
+   ========================================================================== */
+
+/* Image loader container */
+.article-image-loader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--surface-container-high);
+  /* Organic Newsprint halftone pattern background */
+  background-image: 
+    radial-gradient(rgba(30, 27, 25, 0.15) 15%, transparent 16%),
+    radial-gradient(rgba(30, 27, 25, 0.15) 15%, transparent 16%);
+  background-size: 10px 10px;
+  background-position: 0 0, 5px 5px;
+  overflow: hidden;
+}
+
+/* Printing press sweep bar */
+.article-image-loader::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background-color: var(--secondary); /* Vibrant brutalist blue */
+  box-shadow: 0 0 10px var(--secondary-container);
+  animation: print-scan 3s ease-in-out infinite;
+  opacity: 0.8;
+}
+
+/* Highlighter yellow badge */
+.article-image-loader-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: var(--primary-container); /* Yellow */
+  border: 2px solid var(--on-surface);
+  box-shadow: 3px 3px 0px var(--on-surface);
+  font-family: var(--font-label);
+  font-weight: 700;
+  font-size: 0.75rem;
+  color: var(--on-surface);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  z-index: 3;
+  animation: badge-wiggle 1.5s ease-in-out infinite;
+}
+
+/* Spin animation for sync icon */
+.loader-spin {
+  animation: spin-clockwise 2s linear infinite;
+  font-size: 1.1rem !important;
+}
+
+@keyframes print-scan {
+  0% {
+    top: 0%;
+  }
+  50% {
+    top: 100%;
+    transform: translateY(-100%);
+  }
+  100% {
+    top: 0%;
+  }
+}
+
+@keyframes badge-wiggle {
+  0%, 100% {
+    transform: rotate(-1.5deg) scale(1);
+  }
+  50% {
+    transform: rotate(1.5deg) scale(1.03);
+  }
+}
+
+@keyframes spin-clockwise {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Accessibility: disable all loader animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .article-image-loader::after {
+    animation: none;
+    top: 50%; /* Keep stripe visible as static decorative bar */
+  }
+
+  .article-image-loader-badge {
+    animation: none;
+  }
+
+  .loader-spin {
+    animation: none;
+  }
+}

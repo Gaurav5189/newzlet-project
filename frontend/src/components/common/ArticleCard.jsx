@@ -1,12 +1,22 @@
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useModal } from '../../context/ModalContext';
 import { sanitizeHtml } from '../../utils/html';
 import '../../styles/ArticleCard.css';
 
 export default function ArticleCard({ article, variant = 'standard' }) {
   const { openArticle } = useModal();
+  const prevArticleIdRef = useRef(article.id);
   const [imageError, setImageError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
+
+  useEffect(() => {
+    if (article.id !== prevArticleIdRef.current) {
+      prevArticleIdRef.current = article.id;
+      setImageError(false);
+      setImageLoading(true);
+    }
+  }, [article.id]);
 
   const handleClick = (e) => {
     e.preventDefault();
@@ -68,10 +78,19 @@ export default function ArticleCard({ article, variant = 'standard' }) {
       onClick={handleClick}
     >
       <div className="article-image-wrapper">
+        {imageLoading && (
+          <div className="article-image-loader">
+            <div className="article-image-loader-badge font-label-caps">
+              <span className="material-symbols-outlined loader-spin">sync</span>
+              <span>Inking Photo...</span>
+            </div>
+          </div>
+        )}
         <img 
           src={article.image_url} 
           alt={article.title} 
-          className="article-image"
+          className={`article-image ${imageLoading ? 'loading' : 'loaded'}`}
+          onLoad={() => setImageLoading(false)}
           onError={() => setImageError(true)}
         />
       </div>
