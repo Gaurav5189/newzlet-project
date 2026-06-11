@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useRouteLoaderData } from 'react-router';
 import Sidebar from './Sidebar';
 import '../../styles/TopAppBar.css';
@@ -23,6 +23,15 @@ export default function TopAppBar() {
       setIsPopupOpen(false);
     }, 200); // 200ms delay to allow moving mouse into popup
   };
+
+  // Clean up pending timeout on unmount to prevent setState on unmounted component
+  useEffect(() => {
+    return () => {
+      if (popupTimeoutRef.current) {
+        clearTimeout(popupTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <>

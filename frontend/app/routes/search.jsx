@@ -19,15 +19,8 @@ export async function loader({ request }) {
   }
 }
 
-// Cache keyed by query string so each unique search is cached
-const searchCache = {};
 export async function clientLoader({ request, serverLoader }) {
-  const url = new URL(request.url);
-  const cacheKey = url.search; // e.g. "?q=sports&page=1"
-  if (searchCache[cacheKey]) return searchCache[cacheKey];
-  const data = await serverLoader();
-  searchCache[cacheKey] = data;
-  return data;
+  return await serverLoader();
 }
 clientLoader.hydrate = true;
 

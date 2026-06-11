@@ -9,41 +9,34 @@ export async function loader({ params, request }) {
   const url = new URL(request.url);
   const page = parseInt(url.searchParams.get('page') || '1', 10);
   
+  const oneDayAgo = new Date();
+  oneDayAgo.setHours(oneDayAgo.getHours() - 24);
+
   try {
     const [categoriesData, articlesData] = await Promise.all([
       getCategories().catch(() => []),
       getCategoryArticles(slug, page).catch(() => ({ results: [], count: 0 }))
     ]);
-    return { categoriesData, articlesData, page, slug, error: null };
+    return { categoriesData, articlesData, page, slug, oneDayAgo: oneDayAgo.toISOString(), error: null };
   } catch (error) {
-    return { categoriesData: [], articlesData: { results: [], count: 0 }, page, slug, error: error.message };
+    return { categoriesData: [], articlesData: { results: [], count: 0 }, page, slug, oneDayAgo: oneDayAgo.toISOString(), error: error.message };
   }
 }
 
-// Cache keyed by slug+page so each category page is cached independently
-const categoryCache = {};
 export async function clientLoader({ params, request, serverLoader }) {
-  const slug = params.slug;
-  const url = new URL(request.url);
-  const page = url.searchParams.get('page') || '1';
-  const cacheKey = `${slug}-${page}`;
-  if (categoryCache[cacheKey]) return categoryCache[cacheKey];
-  const data = await serverLoader();
-  categoryCache[cacheKey] = data;
-  return data;
+  return await serverLoader();
 }
 clientLoader.hydrate = true;
 
 export default function Category() {
-  const { categoriesData, articlesData, page, slug } = useLoaderData();
+  const { categoriesData, articlesData, page, slug, oneDayAgo: oneDayAgoISO } = useLoaderData();
   const [, setSearchParams] = useSearchParams();
 
   const category = categoriesData?.find((c) => c.slug === slug);
   const articles = articlesData?.results || [];
-  
-  // Group by last 24 hours dynamically
-  const oneDayAgo = new Date();
-  oneDayAgo.setHours(oneDayAgo.getHours() - 24);
+
+  // Use server-calculated timestamp to prevent SSR/client hydration mismatch
+  const oneDayAgo = new Date(oneDayAgoISO);
 
   const todayArticles = articles.filter(
     (article) => new Date(article.published_at) >= oneDayAgo

@@ -101,7 +101,7 @@ export default function ArticleCard({ article, variant = 'standard' }) {
             className={`category-pill font-label-caps ${resolvedVariant === 'featured' ? 'rotate-slight-neg border-2 border-on-surface' : ''}`}
             style={{ backgroundColor: article.category?.color || 'var(--secondary-container)' }}
           >
-            {article.category_slug || (article.category?.name) || 'General'}
+            {article.category?.name || article.category_slug || 'General'}
           </span>
           {resolvedVariant === 'featured' && (
             <span className="article-date font-label-caps text-label-caps">

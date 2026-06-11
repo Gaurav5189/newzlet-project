@@ -29,7 +29,10 @@ export function sanitizeHtml(htmlString) {
     .replace(/<more>/gi, '')
     .replace(/<\/more>/gi, ''); // remove more tags entirely
 
-  // 3. Regex-based tag sanitizer with whitelist of safe tags
+  // 3. Strip HTML comments to prevent information disclosure from backend content
+  decoded = decoded.replace(/<!--[\s\S]*?-->/g, '');
+
+  // 4. Regex-based tag sanitizer with whitelist of safe tags
   const allowedTags = ['br', 'i', 'b', 'strong', 'em', 'span', 'p'];
   
   const cleanHtml = decoded.replace(/<(\/?)(\w+)([^>]*?)>/g, (match, isClosing, tagName, attributes) => {

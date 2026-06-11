@@ -22,7 +22,7 @@ export default function ArticleModal() {
   if (!activeArticle) return null;
 
   const handleOverlayClick = (e) => {
-    if (e.target.classList.contains('modal-overlay')) {
+    if (e.target === e.currentTarget) {
       closeArticle();
     }
   };

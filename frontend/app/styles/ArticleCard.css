@@ -220,7 +220,7 @@
   transition: color 0.2s ease;
 }
 
-.article-read-analysis:hover {
+.article-card.no-image .article-read-analysis:hover {
   color: var(--surface-bright); /* Since the card background is --primary-fixed, bright text is good */
 }
 

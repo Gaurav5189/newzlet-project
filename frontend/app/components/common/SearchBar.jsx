@@ -21,6 +21,7 @@ export default function SearchBar() {
         onChange={e => setQ(e.target.value)}
         placeholder="ENTER KEYWORD"
         className="search-input"
+        aria-label="Search articles"
       />
       <button 
         type="submit" 

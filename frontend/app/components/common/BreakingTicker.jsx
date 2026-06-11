@@ -3,12 +3,12 @@ import { stripHtml } from '../../utils/html';
 import '../../styles/BreakingTicker.css';
 
 export default function BreakingTicker() {
-  const { breakingArticles } = useRouteLoaderData("root") as any || { breakingArticles: [] };
+  const { breakingArticles } = useRouteLoaderData("root") || { breakingArticles: [] };
   const articles = breakingArticles || [];
 
   if (!articles || articles.length === 0) return null;
 
-  const tickerText = articles.map((a: any) => stripHtml(a.title)).join(' • ');
+  const tickerText = articles.map(a => stripHtml(a.title)).join(' • ');
 
   return (
     <div className="breaking-ticker">

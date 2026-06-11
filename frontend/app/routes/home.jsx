@@ -7,14 +7,19 @@ import "../styles/HomePage.css";
 // Server Loader — runs once on initial SSR
 export async function loader() {
   try {
+    const oneDayAgo = new Date();
+    oneDayAgo.setHours(oneDayAgo.getHours() - 24);
+
     const [articlesData, factData] = await Promise.all([
       getArticles(1, 100).catch(() => ({ results: [] })),
       getCategoryArticles('day-fact', 1).catch(() => ({ results: [] }))
     ]);
-    return { articlesData, factData, error: null };
+    return { articlesData, factData, oneDayAgo: oneDayAgo.toISOString(), error: null };
   } catch (error) {
+    const oneDayAgo = new Date();
+    oneDayAgo.setHours(oneDayAgo.getHours() - 24);
     console.error("Error loading home page data:", error);
-    return { articlesData: { results: [] }, factData: { results: [] }, error: error.message || "Failed to load data" };
+    return { articlesData: { results: [] }, factData: { results: [] }, oneDayAgo: oneDayAgo.toISOString(), error: error.message || "Failed to load data" };
   }
 }
 
@@ -29,7 +34,7 @@ clientLoader.hydrate = true;
 
 // 2. The Component
 export default function Home() {
-  const { articlesData, factData } = useLoaderData();
+  const { articlesData, factData, oneDayAgo: oneDayAgoISO } = useLoaderData();
 
   // Filter out the day-fact and fun-fact articles from the main general feed
   const baseArticles = (articlesData?.results || []).filter(
@@ -45,8 +50,8 @@ export default function Home() {
   // Exclude bento articles from the latest section
   const bentoArticleIds = new Set(bentoArticles.map((a) => a.id));
 
-  const oneDayAgo = new Date();
-  oneDayAgo.setHours(oneDayAgo.getHours() - 24);
+  // Use server-calculated timestamp to prevent SSR/client hydration mismatch
+  const oneDayAgo = new Date(oneDayAgoISO);
 
   const recentArticles = baseArticles.filter((a) => {
     if (bentoArticleIds.has(a.id)) return false;
@@ -96,7 +101,7 @@ export default function Home() {
             {dayFactArticle ? (
               <>
                 <p className="text-headline-md mb-2" style={{ color: 'var(--on-surface-variant)' }}>
-                  {new Date(dayFactArticle.published_at).toLocaleDateString(undefined, {
+                  {new Date(dayFactArticle.published_at).toLocaleDateString('en-US', {
                     weekday: 'long',
                     year: 'numeric',
                     month: 'long',
