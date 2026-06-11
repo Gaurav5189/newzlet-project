@@ -147,6 +147,7 @@
 }
 
 .modal-image-wrapper {
+  position: relative;
   border: 4px solid var(--on-surface);
   border-radius: 20px 255px 25px 225px/255px 25px 225px 25px;
   overflow: hidden;
@@ -157,6 +158,16 @@
   width: 100%;
   height: auto;
   object-fit: cover;
+  transition: opacity 0.5s ease;
+  opacity: 1;
+}
+
+.modal-image.loading {
+  opacity: 0;
+}
+
+.modal-image.loaded {
+  opacity: 1;
 }
 
 .modal-image-source {
@@ -249,4 +260,12 @@
 
 .modal-action-btn.secondary:active {
   box-shadow: 0px 0px 0px 0px var(--on-surface);
+}
+
+/* Accessibility: disable animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .modal-overlay,
+  .modal-container {
+    animation: none;
+  }
 }

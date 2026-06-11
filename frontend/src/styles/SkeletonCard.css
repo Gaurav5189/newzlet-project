@@ -213,3 +213,11 @@
 .skeleton-day-fact .skeleton-text.short {
   width: 50%;
 }
+
+/* Accessibility: disable animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-card,
+  .skeleton-block {
+    animation: none;
+  }
+}
