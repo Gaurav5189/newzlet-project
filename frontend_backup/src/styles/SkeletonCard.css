@@ -1,0 +1,223 @@
+/* SkeletonCard.css */
+
+.skeleton-card {
+  background-color: var(--surface-container);
+  border: 2px solid var(--on-surface);
+  border-radius: 4px 12px 6px 8px;
+  /* Irregular brutalist borders */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  animation: skeleton-fade-in 0.3s ease-in 0.2s both;
+}
+
+@keyframes skeleton-fade-in {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.skeleton-card.standard {
+  box-shadow: 6px 6px 0px 0px var(--on-surface);
+  height: 100%;
+}
+
+.skeleton-card.featured {
+  flex-direction: column;
+  box-shadow: 8px 8px 0px 0px var(--on-surface);
+  grid-column: 1 / -1;
+  border-radius: 8px 16px 12px 10px;
+}
+
+@media (min-width: 768px) {
+  .skeleton-card.featured {
+    flex-direction: row;
+    height: 400px;
+  }
+}
+
+.skeleton-card.side {
+  flex-direction: row;
+  box-shadow: 4px 4px 0px 0px var(--on-surface);
+  border-radius: 2px 8px 4px 6px;
+  min-height: 140px;
+}
+
+.skeleton-card.no-image {
+  box-shadow: 4px 4px 0px 0px var(--on-surface);
+  height: 100%;
+}
+
+/* Skeleton Pulse Animation */
+@keyframes brutal-pulse {
+  0% {
+    background-color: var(--surface-dim);
+    opacity: 0.8;
+  }
+
+  50% {
+    background-color: var(--outline-variant);
+    opacity: 0.4;
+  }
+
+  100% {
+    background-color: var(--surface-dim);
+    opacity: 0.8;
+  }
+}
+
+.skeleton-block {
+  animation: brutal-pulse 1s ease-in-out infinite;
+  border-radius: 2px;
+}
+
+/* Internal Areas */
+.skeleton-image {
+  width: 100%;
+  height: 200px;
+  border-bottom: 2px solid var(--on-surface);
+}
+
+.skeleton-card.featured .skeleton-image {
+  height: 250px;
+}
+
+@media (min-width: 768px) {
+  .skeleton-card.featured .skeleton-image {
+    height: 100%;
+    width: 60%;
+    border-bottom: none;
+    border-right: 2px solid var(--on-surface);
+  }
+}
+
+.skeleton-card.side .skeleton-image {
+  width: 120px;
+  height: auto;
+  border-bottom: none;
+  border-right: 2px solid var(--on-surface);
+}
+
+.skeleton-content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  gap: 1rem;
+}
+
+.skeleton-card.featured .skeleton-content {
+  padding: 2.5rem;
+  justify-content: center;
+}
+
+.skeleton-card.side .skeleton-content {
+  padding: 1rem;
+}
+
+.skeleton-title {
+  height: 2rem;
+  width: 90%;
+  margin-bottom: 0.5rem;
+}
+
+.skeleton-title.short {
+  width: 70%;
+}
+
+.skeleton-card.featured .skeleton-title {
+  height: 3rem;
+  width: 85%;
+}
+
+.skeleton-card.side .skeleton-title {
+  height: 1.5rem;
+  width: 100%;
+}
+
+.skeleton-text {
+  height: 1rem;
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.skeleton-text.short {
+  width: 80%;
+}
+
+.skeleton-card.side .skeleton-text {
+  display: none;
+}
+
+.skeleton-footer {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 2px solid var(--on-surface);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.skeleton-card.featured .skeleton-footer {
+  border-top: none;
+  padding-top: 2rem;
+  margin-top: 2rem;
+}
+
+.skeleton-card.side .skeleton-footer {
+  border-top: none;
+  padding-top: 0;
+  margin-top: auto;
+}
+
+.skeleton-tag {
+  height: 1.5rem;
+  width: 80px;
+}
+
+.skeleton-icon {
+  height: 1.5rem;
+  width: 1.5rem;
+  border-radius: 50%;
+}
+
+/* Day Fact Skeleton */
+.skeleton-day-fact {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  animation: skeleton-fade-in 0.3s ease-in 0.2s both;
+}
+
+.skeleton-day-fact .skeleton-block {
+  background-color: var(--surface-dim);
+}
+
+.skeleton-day-fact .skeleton-title {
+  width: 60%;
+  height: 1.5rem;
+}
+
+.skeleton-day-fact .skeleton-text {
+  width: 80%;
+}
+
+.skeleton-day-fact .skeleton-text.short {
+  width: 50%;
+}
+
+/* Accessibility: disable animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-card,
+  .skeleton-block {
+    animation: none;
+  }
+}
