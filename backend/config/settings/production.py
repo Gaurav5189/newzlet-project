@@ -11,6 +11,13 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = [h.strip() for h in config('ALLOWED_HOSTS', default='').split(',') if h.strip()]
 
+# Always allow localhost and 127.0.0.1 for local health checks
+if "localhost" not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append("localhost")
+if "127.0.0.1" not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append("127.0.0.1")
+
+
 # DATABASES = {
 #     'default': dj_database_url.config(
 #         default=config('DATABASE_URL', default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'))
