@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.html import strip_tags
 
 class Category(models.Model):
     name  = models.CharField(max_length=100)        # "Technology"
@@ -37,7 +38,6 @@ class ContactMessage(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
-        from django.utils.html import strip_tags
         self.name = strip_tags(self.name).strip()
         self.email = self.email.strip().lower()
         self.message = strip_tags(self.message).strip()
