@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Article, Category
+from .models import Article, Category, ContactMessage
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -19,3 +19,9 @@ class ArticleAdmin(admin.ModelAdmin):
     @admin.action(description="Hide selected articles")
     def hide_selected(self, request, queryset):
         queryset.update(is_visible=False)
+
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = ['name', 'email', 'created_at']
+    search_fields = ['name', 'email', 'message']
+    readonly_fields = ['name', 'email', 'message', 'created_at']

@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.html import strip_tags
 
 class Category(models.Model):
     name  = models.CharField(max_length=100)        # "Technology"
@@ -29,3 +30,18 @@ class Article(models.Model):
 
     def __str__(self):
         return self.title
+
+class ContactMessage(models.Model):
+    name = models.CharField(max_length=255)
+    email = models.EmailField()
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        self.name = strip_tags(self.name).strip()
+        self.email = self.email.strip().lower()
+        self.message = strip_tags(self.message).strip()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Message from {self.name} ({self.email})"

@@ -59,6 +59,9 @@ export default function Sidebar({ isOpen, onClose, categories = [] }) {
               {cat.name}
             </Link>
           ))}
+          <Link to="/contact" className="sidebar-link text-title-md" onClick={onClose} style={{ marginTop: '2rem' }}>
+            Contact Me
+          </Link>
         </div>
       </div>
     </>
