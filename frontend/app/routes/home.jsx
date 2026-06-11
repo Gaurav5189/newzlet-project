@@ -42,7 +42,32 @@ export default function Home() {
   );
 
   // Safety measure: Ensure bento grid articles have images. We need 4 total (1 featured, 3 side)
-  const bentoArticles = baseArticles.filter((a) => a.image_url).slice(0, 4);
+  const eligibleArticles = baseArticles.filter((a) => a.image_url);
+  const selectedArticles = [];
+  const selectedCategories = new Set();
+
+  // First pass: select one article per unique category
+  for (const article of eligibleArticles) {
+    if (selectedArticles.length >= 4) break;
+    const catSlug = article.category?.slug || 'general';
+    if (!selectedCategories.has(catSlug)) {
+      selectedArticles.push(article);
+      selectedCategories.add(catSlug);
+    }
+  }
+
+  // Second pass: if we have fewer than 4 articles, fill up the remaining slots
+  if (selectedArticles.length < 4) {
+    const selectedIds = new Set(selectedArticles.map((a) => a.id));
+    for (const article of eligibleArticles) {
+      if (selectedArticles.length >= 4) break;
+      if (!selectedIds.has(article.id)) {
+        selectedArticles.push(article);
+      }
+    }
+  }
+
+  const bentoArticles = selectedArticles;
 
   const featuredArticle = bentoArticles.length > 0 ? bentoArticles[0] : null;
   const sideArticles = bentoArticles.length > 1 ? bentoArticles.slice(1, 4) : [];

@@ -46,3 +46,7 @@ class SearchArticlesView(generics.ListAPIView):
     queryset = Article.objects.filter(is_visible=True).exclude(category__slug='day-fact')
     serializer_class = ArticleSerializer
     filterset_class = ArticleFilter
+
+class ContactMessageCreateView(generics.CreateAPIView):
+    from .serializers import ContactMessageSerializer
+    serializer_class = ContactMessageSerializer

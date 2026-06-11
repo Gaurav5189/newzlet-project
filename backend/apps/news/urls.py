@@ -4,7 +4,8 @@ from .views import (
     BreakingArticlesView,
     CategoryListView,
     CategoryArticleListView,
-    SearchArticlesView
+    SearchArticlesView,
+    ContactMessageCreateView
 )
 
 urlpatterns = [
@@ -13,4 +14,5 @@ urlpatterns = [
     path('categories/', CategoryListView.as_view(), name='category-list'),
     path('categories/<slug:slug>/articles/', CategoryArticleListView.as_view(), name='category-articles'),
     path('search/', SearchArticlesView.as_view(), name='article-search'),
+    path('contact/', ContactMessageCreateView.as_view(), name='contact-submit'),
 ]
