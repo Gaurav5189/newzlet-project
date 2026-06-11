@@ -1,17 +1,32 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Link } from 'react-router';
 import '../../styles/Sidebar.css';
 
 export default function Sidebar({ isOpen, onClose, categories = [] }) {
+  // Store the body overflow value that existed before the sidebar ever opened
+  const originalOverflowRef = useRef(null);
+
   // Prevent body scroll when sidebar is open
   useEffect(() => {
     if (isOpen) {
+      // Capture original value only on first open (before we change it)
+      if (originalOverflowRef.current === null) {
+        originalOverflowRef.current = document.body.style.overflow;
+      }
       document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = 'unset';
+      // Restore only if we previously captured a value
+      if (originalOverflowRef.current !== null) {
+        document.body.style.overflow = originalOverflowRef.current;
+        originalOverflowRef.current = null;
+      }
     }
     return () => {
-      document.body.style.overflow = 'unset';
+      // On unmount, restore if the sidebar was open
+      if (originalOverflowRef.current !== null) {
+        document.body.style.overflow = originalOverflowRef.current;
+        originalOverflowRef.current = null;
+      }
     };
   }, [isOpen]);
 

@@ -95,7 +95,7 @@ export default function Category() {
         </section>
       )}
 
-      {articlesData && articlesData.count > articles.length && (
+      {articlesData && (articlesData.next || articlesData.previous) && (
           <div style={{ marginTop: '2rem' }}>
             <Pagination
               count={articlesData.count}

@@ -1,9 +1,9 @@
 import '../../styles/SearchPage.css';
 
-export default function Pagination({ count, next, previous, currentPage, setPage }) {
-  if (!count || count <= 12) return null;
+export default function Pagination({ count, next, previous, currentPage, setPage, pageSize = 12 }) {
+  if (!count || count <= pageSize) return null;
   
-  const totalPages = Math.ceil(count / 12);
+  const totalPages = Math.ceil(count / pageSize);
   const pages = Array.from({length: totalPages}, (_, i) => i + 1);
 
   return (
@@ -11,7 +11,7 @@ export default function Pagination({ count, next, previous, currentPage, setPage
       <div className="pagination-list">
         <button 
           disabled={!previous}
-          onClick={() => setPage(currentPage - 1)}
+          onClick={() => setPage(Math.max(1, currentPage - 1))}
           className="pagination-btn inactive" 
         >
           ← Prev
@@ -29,7 +29,7 @@ export default function Pagination({ count, next, previous, currentPage, setPage
 
         <button 
           disabled={!next}
-          onClick={() => setPage(currentPage + 1)}
+          onClick={() => setPage(Math.min(totalPages, currentPage + 1))}
           className="pagination-btn inactive" 
         >
           Next →

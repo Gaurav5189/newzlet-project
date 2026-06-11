@@ -11,14 +11,21 @@ const fetchApi = async (endpoint, options = {}) => {
     },
   });
   if (!response.ok) {
-    throw new Error(`API error: ${response.status}`);
+    let errorMessage = `API error: ${response.status} ${response.statusText}`;
+    try {
+      const errorBody = await response.json();
+      errorMessage += ` - ${errorBody.message || errorBody.detail || JSON.stringify(errorBody)}`;
+    } catch {
+      // Response body is not JSON, use status text only
+    }
+    throw new Error(errorMessage);
   }
   return response.json();
 };
 
 export const getBreaking          = ()               => fetchApi('/articles/breaking/');
 export const getCategories        = ()               => fetchApi('/categories/');
-export const getCategoryArticles  = (slug, page = 1) => fetchApi(`/categories/${slug}/articles/?page=${page}`);
+export const getCategoryArticles  = (slug, page = 1) => fetchApi(`/categories/${encodeURIComponent(slug)}/articles/?page=${page}`);
 export const searchArticles       = (params)         => {
   const query = new URLSearchParams();
   Object.entries(params).forEach(([k, v]) => {

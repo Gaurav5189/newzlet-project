@@ -142,7 +142,11 @@ export default function ArticleModal() {
         {/* Action Area */}
         <div className="modal-footer">
           <a 
-            href={activeArticle.source_url} 
+            href={
+              activeArticle.source_url?.startsWith('http://') || activeArticle.source_url?.startsWith('https://')
+                ? activeArticle.source_url
+                : '#'
+            }
             target="_blank" 
             rel="noopener noreferrer"
             className="modal-action-btn"
