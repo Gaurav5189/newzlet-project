@@ -7,8 +7,17 @@ import '../../styles/ArticleCard.css';
 export default function ArticleCard({ article, variant = 'standard' }) {
   const { openArticle } = useModal();
   const prevArticleIdRef = useRef(article.id);
+  const imgRef = useRef(null);
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
+
+  // If the image is already loaded (e.g. from cache) by the time React mounts,
+  // the onLoad event won't fire. We check .complete to handle this.
+  useEffect(() => {
+    if (imgRef.current && imgRef.current.complete) {
+      setImageLoading(false);
+    }
+  }, [article.image_url]);
 
   useEffect(() => {
     if (article.id !== prevArticleIdRef.current) {
@@ -87,6 +96,7 @@ export default function ArticleCard({ article, variant = 'standard' }) {
           </div>
         )}
         <img 
+          ref={imgRef}
           src={article.image_url} 
           alt={article.title} 
           className={`article-image ${imageLoading ? 'loading' : 'loaded'}`}

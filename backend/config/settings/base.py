@@ -73,4 +73,18 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'apps.news.pagination.StandardResultsSetPagination',
     'PAGE_SIZE': 12,
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    # --- Global rate limiting ---
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/hour',
+        'user': '200/hour',
+    },
+    # --- JSON-only in production (development.py re-enables BrowsableAPIRenderer) ---
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
 }
+
