@@ -13,9 +13,9 @@
 .sidebar-container {
   position: fixed;
   top: 0;
-  right: -350px;
-  width: 350px;
-  max-width: 100vw;
+  right: -100%;
+  width: 100%;
+  max-width: 350px;
   height: 100vh;
   background-color: var(--surface);
   border-left: 2px solid var(--on-surface);

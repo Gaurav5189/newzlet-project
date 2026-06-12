@@ -7,8 +7,19 @@ import '../../styles/ArticleCard.css';
 export default function ArticleCard({ article, variant = 'standard' }) {
   const { openArticle } = useModal();
   const prevArticleIdRef = useRef(article.id);
+  const imgRef = useRef(null);
+  const cardRef = useRef(null);
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
+  const [isInView, setIsInView] = useState(false);
+
+  // If the image is already loaded (e.g. from cache) by the time React mounts,
+  // the onLoad event won't fire. We check .complete to handle this.
+  useEffect(() => {
+    if (imgRef.current && imgRef.current.complete) {
+      setImageLoading(false);
+    }
+  }, [article.image_url]);
 
   useEffect(() => {
     if (article.id !== prevArticleIdRef.current) {
@@ -17,6 +28,37 @@ export default function ArticleCard({ article, variant = 'standard' }) {
       setImageLoading(true);
     }
   }, [article.id]);
+
+  useEffect(() => {
+    // Only observe if on a device that lacks hover
+    const isMobile = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+    if (!isMobile) return;
+
+    // Capture the node now — React clears refs before cleanup runs on unmount,
+    // so reading cardRef.current inside the return function would be null.
+    const node = cardRef.current;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting);
+      },
+      {
+        root: null,
+        rootMargin: '-33% 0px -33% 0px',
+        threshold: 0
+      }
+    );
+
+    if (node) {
+      observer.observe(node);
+    }
+
+    return () => {
+      // disconnect() is safer than unobserve(node) — it always fires cleanly
+      // even if the node has already been removed from the DOM.
+      observer.disconnect();
+    };
+  }, []);
 
   const handleClick = (e) => {
     e.preventDefault();
@@ -28,14 +70,16 @@ export default function ArticleCard({ article, variant = 'standard' }) {
 
   // We'll map the variant to specific CSS classes
   const getContainerClass = () => {
+    let baseClass = '';
     switch (resolvedVariant) {
-      case 'featured': return 'article-card featured wobbly-border neo-shadow';
-      case 'side': return 'article-card side neo-shadow-sm rotate-slight-neg';
-      case 'no-image': return 'article-card no-image brutalist-shadow-lg rotate-slight-pos';
+      case 'featured': baseClass = 'article-card featured wobbly-border neo-shadow'; break;
+      case 'side': baseClass = 'article-card side neo-shadow-sm rotate-slight-neg'; break;
+      case 'no-image': baseClass = 'article-card no-image brutalist-shadow-lg rotate-slight-pos'; break;
       case 'standard': 
       default:
-        return 'article-card standard brutalist-shadow-lg clipping-card';
+        baseClass = 'article-card standard brutalist-shadow-lg clipping-card';
     }
+    return isInView ? `${baseClass} in-view` : baseClass;
   };
 
   const getTitleClass = () => {
@@ -52,6 +96,7 @@ export default function ArticleCard({ article, variant = 'standard' }) {
         to={`/article/${article.slug || article.id}`} 
         className={getContainerClass()}
         onClick={handleClick}
+        ref={cardRef}
       >
         <div className="article-content">
           <div className="article-no-image-icon">
@@ -76,6 +121,7 @@ export default function ArticleCard({ article, variant = 'standard' }) {
       to={`/article/${article.slug || article.id}`} 
       className={getContainerClass()}
       onClick={handleClick}
+      ref={cardRef}
     >
       <div className="article-image-wrapper">
         {imageLoading && (
@@ -87,6 +133,7 @@ export default function ArticleCard({ article, variant = 'standard' }) {
           </div>
         )}
         <img 
+          ref={imgRef}
           src={article.image_url} 
           alt={article.title} 
           className={`article-image ${imageLoading ? 'loading' : 'loaded'}`}

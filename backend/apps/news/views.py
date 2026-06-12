@@ -1,5 +1,4 @@
 from rest_framework import generics
-from rest_framework.throttling import AnonRateThrottle
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_headers  # for redis cache 
@@ -7,6 +6,7 @@ from django.views.decorators.vary import vary_on_headers  # for redis cache
 from .models import Article, Category
 from .serializers import ArticleSerializer, CategorySerializer, ContactMessageSerializer
 from .filters import ArticleFilter
+from config.middleware.throttling import CloudflareContactThrottle
 
 # Cache the standard article timeline feed for 24 hours (86400 seconds)
 @method_decorator(cache_page(60 * 60 * 24), name='get')
@@ -48,11 +48,7 @@ class SearchArticlesView(generics.ListAPIView):
     serializer_class = ArticleSerializer
     filterset_class = ArticleFilter
 
-# Rate-limit the contact form: 3 submissions per IP per hour to prevent spam
-class ContactFormThrottle(AnonRateThrottle):
-    rate = '3/hour'
-
 class ContactMessageCreateView(generics.CreateAPIView):
     serializer_class = ContactMessageSerializer
-    throttle_classes = [ContactFormThrottle]
+    throttle_classes = [CloudflareContactThrottle]
 

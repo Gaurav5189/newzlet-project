@@ -91,6 +91,12 @@
   filter: grayscale(0%);
 }
 
+@media (hover: none) and (pointer: coarse) {
+  .article-card.in-view .article-image {
+    filter: grayscale(0%);
+  }
+}
+
 .article-content {
   display: flex;
   flex-direction: column;
