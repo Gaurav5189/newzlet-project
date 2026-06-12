@@ -34,6 +34,10 @@ export default function ArticleCard({ article, variant = 'standard' }) {
     const isMobile = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
     if (!isMobile) return;
 
+    // Capture the node now — React clears refs before cleanup runs on unmount,
+    // so reading cardRef.current inside the return function would be null.
+    const node = cardRef.current;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         setIsInView(entry.isIntersecting);
@@ -45,14 +49,14 @@ export default function ArticleCard({ article, variant = 'standard' }) {
       }
     );
 
-    if (cardRef.current) {
-      observer.observe(cardRef.current);
+    if (node) {
+      observer.observe(node);
     }
 
     return () => {
-      if (cardRef.current) {
-        observer.unobserve(cardRef.current);
-      }
+      // disconnect() is safer than unobserve(node) — it always fires cleanly
+      // even if the node has already been removed from the DOM.
+      observer.disconnect();
     };
   }, []);
 

@@ -73,14 +73,15 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'apps.news.pagination.StandardResultsSetPagination',
     'PAGE_SIZE': 12,
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
-    # --- Global rate limiting ---
+    # --- Global rate limiting (Cloudflare-aware) ---
+    # CloudflareAnonThrottle keys on CF-Connecting-IP so each real visitor
+    # gets their own counter instead of sharing the Cloudflare edge IP.
     'DEFAULT_THROTTLE_CLASSES': [
-        'rest_framework.throttling.AnonRateThrottle',
-        'rest_framework.throttling.UserRateThrottle',
+        'config.middleware.throttling.CloudflareAnonThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '100/hour',
-        'user': '200/hour',
+        'anon': '60/min',
+        'contact': '3/hour',    # Contact form: 3 submissions per real IP per hour
     },
     # --- JSON-only in production (development.py re-enables BrowsableAPIRenderer) ---
     'DEFAULT_RENDERER_CLASSES': [
