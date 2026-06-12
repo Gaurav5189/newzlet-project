@@ -1,6 +1,7 @@
 .top-app-bar {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: space-between;
   align-items: center;
   gap: 0.75rem;
   width: 100%;
@@ -18,8 +19,6 @@
 
 @media (min-width: 768px) {
   .top-app-bar {
-    flex-direction: row;
-    justify-content: space-between;
     gap: 0;
     padding-left: var(--margin-desktop);
     padding-right: var(--margin-desktop);
@@ -41,17 +40,17 @@
 }
 
 .top-app-bar-nav {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 1.25rem;
-  flex: 1;
+  display: none;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .top-app-bar-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: nowrap;
     gap: 2rem;
+    flex: 1;
   }
 }
 
