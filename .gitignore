@@ -21,6 +21,10 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+logs/
+backend/logs/
+security.log*
+
 
 # Virtual Environments
 .venv/
