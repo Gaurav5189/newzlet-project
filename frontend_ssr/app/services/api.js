@@ -1,0 +1,50 @@
+const isServer = typeof window === 'undefined';
+
+let baseURL = '/api';
+
+if (import.meta.env.VITE_API_BASE_URL) {
+  // Production or explicitly set absolute URL
+  baseURL = `${import.meta.env.VITE_API_BASE_URL}/api`;
+} else if (isServer) {
+  // Node.js SSR requires an absolute URL. We bypass the proxy and hit the target directly.
+  baseURL = import.meta.env.VITE_DEV_PROXY_TARGET
+    ? `${import.meta.env.VITE_DEV_PROXY_TARGET}/api`
+    : 'http://localhost:5173/api';
+}
+
+const fetchApi = async (endpoint, options = {}) => {
+  const response = await fetch(`${baseURL}${endpoint}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+  if (!response.ok) {
+    let errorMessage = `API error: ${response.status} ${response.statusText}`;
+    try {
+      const errorBody = await response.json();
+      errorMessage += ` - ${errorBody.message || errorBody.detail || JSON.stringify(errorBody)}`;
+    } catch {
+      // Response body is not JSON, use status text only
+    }
+    throw new Error(errorMessage);
+  }
+  return response.json();
+};
+
+export const getBreaking = () => fetchApi('/articles/breaking/');
+export const getCategories = () => fetchApi('/categories/');
+export const getCategoryArticles = (slug, page = 1) => fetchApi(`/categories/${encodeURIComponent(slug)}/articles/?page=${page}`);
+export const searchArticles = (params, clientIp = null) => {
+  const query = new URLSearchParams();
+  Object.entries(params).forEach(([k, v]) => {
+    if (v) query.append(k, String(v));
+  });
+  // When called from the SSR loader, forward the real visitor IP so Django's
+  // CloudflareAnonThrottle keys on the correct per-person IP, not the Worker IP.
+  const headers = clientIp ? { 'cf-connecting-ip': clientIp } : {};
+  return fetchApi(`/search/?${query.toString()}`, { headers });
+};
+export const getArticles = (page = 1, pageSize = 12) => fetchApi(`/articles/?page=${page}&page_size=${pageSize}`);
+export const submitContactForm = (data) => fetchApi('/contact/', { method: 'POST', body: JSON.stringify(data) });

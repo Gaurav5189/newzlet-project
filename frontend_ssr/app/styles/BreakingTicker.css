@@ -1,0 +1,59 @@
+/* BreakingTicker.css */
+
+.breaking-ticker {
+  background-color: var(--primary-container);
+  color: var(--on-primary-container);
+  border-top: 3px solid var(--on-surface);
+  border-bottom: 3px solid var(--on-surface);
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 0 0 #1e1b19;
+  margin-left: calc(-1 * var(--margin-mobile));
+  margin-right: calc(-1 * var(--margin-mobile));
+  padding-left: var(--margin-mobile);
+  padding-right: var(--margin-mobile);
+}
+
+@media (min-width: 1024px) {
+  .breaking-ticker {
+    margin-left: calc(-1 * var(--margin-desktop));
+    margin-right: calc(-1 * var(--margin-desktop));
+    padding-left: var(--margin-desktop);
+    padding-right: var(--margin-desktop);
+  }
+}
+
+.breaking-ticker-label {
+  padding-right: 1rem;
+  z-index: 10;
+  background-color: var(--primary-container);
+  border-right: 3px solid var(--on-surface);
+}
+
+.marquee-container {
+  overflow: hidden;
+  flex: 1;
+  padding-left: 1rem;
+  position: relative;
+}
+
+.marquee-content {
+  font-weight: bold;
+  text-transform: uppercase;
+  white-space: nowrap;
+  animation: marquee 20s linear infinite;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Accessibility: disable animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-content {
+    animation: none;
+  }
+}
