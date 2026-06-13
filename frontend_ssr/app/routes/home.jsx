@@ -19,7 +19,7 @@ export async function loader() {
     const oneDayAgo = new Date();
     oneDayAgo.setHours(oneDayAgo.getHours() - 24);
     console.error("Error loading home page data:", error);
-    return { articlesData: { results: [] }, factData: { results: [] }, oneDayAgo: oneDayAgo.toISOString(), error: error.message || "Failed to load data" };
+    return { articlesData: { results: [] }, factData: { results: [] }, oneDayAgo: oneDayAgo.toISOString(), error: 'Failed to load data' };
   }
 }
 
@@ -40,7 +40,7 @@ export async function clientLoader() {
   } catch (error) {
     const oneDayAgo = new Date();
     oneDayAgo.setHours(oneDayAgo.getHours() - 24);
-    homeCache = { articlesData: { results: [] }, factData: { results: [] }, oneDayAgo: oneDayAgo.toISOString(), error: error.message || "Failed to load data" };
+    homeCache = { articlesData: { results: [] }, factData: { results: [] }, oneDayAgo: oneDayAgo.toISOString(), error: 'Failed to load data' };
     return homeCache;
   }
 }

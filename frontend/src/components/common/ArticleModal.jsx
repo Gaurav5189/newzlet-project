@@ -4,6 +4,12 @@ import { Link } from 'react-router-dom';
 import { sanitizeHtml } from '../../utils/html';
 import '../../styles/ArticleModal.css';
 
+// Only allow 6-digit hex colors from Django backend (e.g. #F59E0B).
+const getSafeColor = (color) => {
+  if (!color) return 'var(--secondary-container)';
+  return /^#[0-9a-fA-F]{6}$/.test(color) ? color : 'var(--secondary-container)';
+};
+
 export default function ArticleModal() {
   const { activeArticle, closeArticle } = useModal();
   const prevArticleIdRef = useRef(activeArticle ? activeArticle.id : null);
@@ -89,14 +95,16 @@ export default function ArticleModal() {
         <div className="modal-meta">
           <span 
             className="category-pill font-label-caps rotate-slight-neg border-2 border-on-surface"
-            style={{ backgroundColor: activeArticle.category?.color || 'var(--secondary-container)' }}
+            style={{ backgroundColor: getSafeColor(activeArticle.category?.color) }}
           >
             {getCategoryName()}
           </span>
           <span className="font-body-md text-body-md text-on-surface-variant italic">
-            {activeArticle.published_at
-              ? new Date(activeArticle.published_at).toLocaleDateString('en-GB')
-              : 'Date unavailable'}
+            {(() => {
+              if (!activeArticle.published_at) return 'Date unavailable';
+              const date = new Date(activeArticle.published_at);
+              return isNaN(date.getTime()) ? 'Date unavailable' : date.toLocaleDateString('en-GB');
+            })()}
           </span>
           <span className="modal-source-badge">
             Source: {activeArticle.source_name || 'The Global Ledger'}
@@ -141,19 +149,17 @@ export default function ArticleModal() {
 
         {/* Action Area */}
         <div className="modal-footer">
-          <a 
-            href={
-              activeArticle.source_url?.startsWith('http://') || activeArticle.source_url?.startsWith('https://')
-                ? activeArticle.source_url
-                : '#'
-            }
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="modal-action-btn"
-          >
-            <span>Read Full Source</span>
-            <span className="material-symbols-outlined">arrow_forward</span>
-          </a>
+          {(activeArticle.source_url?.startsWith('http://') || activeArticle.source_url?.startsWith('https://')) && (
+            <a 
+              href={activeArticle.source_url}
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="modal-action-btn"
+            >
+              <span>Read Full Source</span>
+              <span className="material-symbols-outlined">arrow_forward</span>
+            </a>
+          )}
           <Link 
             to={`/category/${getCategorySlug()}`}
             onClick={closeArticle}

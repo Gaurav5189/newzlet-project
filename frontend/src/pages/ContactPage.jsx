@@ -43,7 +43,7 @@ export default function Contact() {
           <h2 className="text-headline-sm mb-4">Send me a Message</h2>
 
           {status === "success" ? (
-            <div className="success-message text-body-lg" style={{ color: 'green' }}>
+            <div className="success-message text-body-lg" style={{ color: 'var(--primary)' }}>
               Thank you for your message! I will get back to you soon.
             </div>
           ) : (
@@ -88,7 +88,7 @@ export default function Contact() {
               </div>
 
               {status === "error" && (
-                <div className="error-message text-body-md" style={{ color: 'red' }}>
+                <div className="error-message text-body-md" style={{ color: 'var(--error)' }}>
                   {errorMessage}
                 </div>
               )}
@@ -116,12 +116,12 @@ export default function Contact() {
           <h2 className="text-headline-sm mb-4">Connect with Me</h2>
           <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <li>
-              <a href="https://github.com/dummy-repo" target="_blank" rel="noopener noreferrer" className="text-body-lg" style={{ textDecoration: 'underline', color: 'var(--primary)' }}>
+              <a href="https://github.com/Gaurav5189" target="_blank" rel="noopener noreferrer" className="text-body-lg" style={{ textDecoration: 'underline', color: 'var(--primary)' }}>
                 GitHub Repository
               </a>
             </li>
             <li>
-              <a href="https://linkedin.com/in/dummy-profile" target="_blank" rel="noopener noreferrer" className="text-body-lg" style={{ textDecoration: 'underline', color: 'var(--primary)' }}>
+              <a href="https://linkedin.com/in/gaurav-s-4b36b624b" target="_blank" rel="noopener noreferrer" className="text-body-lg" style={{ textDecoration: 'underline', color: 'var(--primary)' }}>
                 LinkedIn Profile
               </a>
             </li>

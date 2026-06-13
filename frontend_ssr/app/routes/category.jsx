@@ -4,7 +4,7 @@ import ArticleCard from '../components/common/ArticleCard';
 import Pagination from '../components/common/Pagination';
 import '../styles/CategoryPage.css';
 
-export async function loader({ params, request }) {
+async function loadCategoryData({ params, request }) {
   const slug = params.slug;
   const url = new URL(request.url);
   const page = parseInt(url.searchParams.get('page') || '1', 10);
@@ -19,27 +19,16 @@ export async function loader({ params, request }) {
     ]);
     return { categoriesData, articlesData, page, slug, oneDayAgo: oneDayAgo.toISOString(), error: null };
   } catch (error) {
-    return { categoriesData: [], articlesData: { results: [], count: 0 }, page, slug, oneDayAgo: oneDayAgo.toISOString(), error: error.message };
+    return { categoriesData: [], articlesData: { results: [], count: 0 }, page, slug, oneDayAgo: oneDayAgo.toISOString(), error: 'Failed to load category data' };
   }
 }
 
-export async function clientLoader({ params, request }) {
-  const slug = params.slug;
-  const url = new URL(request.url);
-  const page = parseInt(url.searchParams.get('page') || '1', 10);
-  
-  const oneDayAgo = new Date();
-  oneDayAgo.setHours(oneDayAgo.getHours() - 24);
+export async function loader({ params, request }) {
+  return loadCategoryData({ params, request });
+}
 
-  try {
-    const [categoriesData, articlesData] = await Promise.all([
-      getCategories().catch(() => []),
-      getCategoryArticles(slug, page).catch(() => ({ results: [], count: 0 }))
-    ]);
-    return { categoriesData, articlesData, page, slug, oneDayAgo: oneDayAgo.toISOString(), error: null };
-  } catch (error) {
-    return { categoriesData: [], articlesData: { results: [], count: 0 }, page, slug, oneDayAgo: oneDayAgo.toISOString(), error: error.message };
-  }
+export async function clientLoader({ params, request }) {
+  return loadCategoryData({ params, request });
 }
 clientLoader.hydrate = true;
 

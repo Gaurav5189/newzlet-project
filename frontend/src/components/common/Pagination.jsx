@@ -12,7 +12,7 @@ export default function Pagination({ count, next, previous, currentPage, setPage
         <button 
           disabled={!previous}
           onClick={() => setPage(Math.max(1, currentPage - 1))}
-          className="pagination-btn inactive" 
+          className={`pagination-btn ${!previous ? 'inactive' : ''}`}
         >
           ← Prev
         </button>
@@ -30,7 +30,7 @@ export default function Pagination({ count, next, previous, currentPage, setPage
         <button 
           disabled={!next}
           onClick={() => setPage(Math.min(totalPages, currentPage + 1))}
-          className="pagination-btn inactive" 
+          className={`pagination-btn ${!next ? 'inactive' : ''}`}
         >
           Next →
         </button>

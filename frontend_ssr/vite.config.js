@@ -15,13 +15,15 @@ export default defineConfig(({ mode }) => {
     resolve: {
       tsconfigPaths: true,
     },
-    server: {
-      proxy: {
-        '/api': {
-          target: env.VITE_DEV_PROXY_TARGET,
-          changeOrigin: true,
+    ...(env.VITE_DEV_PROXY_TARGET && {
+      server: {
+        proxy: {
+          '/api': {
+            target: env.VITE_DEV_PROXY_TARGET,
+            changeOrigin: true,
+          }
         }
       }
-    }
+    })
   };
 });

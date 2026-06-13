@@ -1,5 +1,6 @@
-const baseURL = import.meta.env.VITE_API_BASE_URL
-  ? `${import.meta.env.VITE_API_BASE_URL}/api`
+const envBase = import.meta.env.VITE_API_BASE_URL || '';
+const baseURL = envBase
+  ? (envBase.endsWith('/api') ? envBase : `${envBase}/api`)
   : '/api';
 
 const fetchApi = async (endpoint, options = {}) => {
@@ -29,7 +30,7 @@ export const getCategoryArticles  = (slug, page = 1) => fetchApi(`/categories/${
 export const searchArticles       = (params, clientIp = null) => {
   const query = new URLSearchParams();
   Object.entries(params).forEach(([k, v]) => {
-    if (v) query.append(k, String(v));
+    if (v != null && v !== '') query.append(k, String(v));
   });
   // When called from the SSR loader, forward the real visitor IP so Django's
   // CloudflareAnonThrottle keys on the correct per-person IP, not the Worker IP.
