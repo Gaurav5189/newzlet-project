@@ -6,6 +6,7 @@ import {
   Scripts,
   ScrollRestoration,
   useRouteLoaderData,
+  useNavigation,
 } from "react-router";
 
 import "./styles/globals.css";
@@ -41,7 +42,6 @@ export async function clientLoader() {
     return { breakingArticles: [], categories: [] };
   }
 }
-clientLoader.hydrate = true;
 
 export function links() {
   return [
@@ -77,9 +77,13 @@ export function Layout({ children }) {
 }
 
 export default function App() {
+  const navigation = useNavigation();
+  const isTransitioning = navigation.state !== "idle";
+
   return (
     <ModalProvider>
       <div className="main-content">
+        {isTransitioning && <div className="global-progress-bar" />}
         <TopAppBar />
         <div className="flex-grow">
           <div className="page-transition-wrapper">

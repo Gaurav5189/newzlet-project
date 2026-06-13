@@ -16,11 +16,16 @@ if (import.meta.env.VITE_API_BASE_URL) {
 }
 
 const fetchApi = async (endpoint, options = {}) => {
+  const { headers, ...restOptions } = options;
   const response = await fetch(`${baseURL}${endpoint}`, {
-    ...options,
+    cache: 'no-store',
+    ...restOptions,
     headers: {
       'Content-Type': 'application/json',
-      ...options.headers,
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+      ...headers,
     },
   });
   if (!response.ok) {

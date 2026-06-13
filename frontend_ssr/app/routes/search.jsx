@@ -36,7 +36,6 @@ export async function clientLoader({ request }) {
     return { data: { results: [], count: 0 }, q, category, page };
   }
 }
-clientLoader.hydrate = true;
 
 export default function Search() {
   const { data, q, category, page } = useLoaderData();

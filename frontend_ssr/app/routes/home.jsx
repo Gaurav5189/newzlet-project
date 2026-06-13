@@ -44,11 +44,15 @@ export async function clientLoader() {
     return homeCache;
   }
 }
-clientLoader.hydrate = true;
 
 // 2. The Component
 export default function Home() {
-  const { articlesData, factData, oneDayAgo: oneDayAgoISO } = useLoaderData();
+  const data = useLoaderData();
+  const { articlesData, factData, oneDayAgo: oneDayAgoISO } = data;
+
+  if (typeof window !== "undefined" && !homeCache && data && !data.error) {
+    homeCache = data;
+  }
 
   // Filter out the day-fact and fun-fact articles from the main general feed
   const baseArticles = (articlesData?.results || []).filter(

@@ -1,5 +1,5 @@
-import { useLoaderData, useSearchParams } from 'react-router';
-import { getCategories, getCategoryArticles } from '../services/api';
+import { useLoaderData, useSearchParams, useRouteLoaderData } from 'react-router';
+import { getCategoryArticles } from '../services/api';
 import ArticleCard from '../components/common/ArticleCard';
 import Pagination from '../components/common/Pagination';
 import '../styles/CategoryPage.css';
@@ -13,13 +13,10 @@ async function loadCategoryData({ params, request }) {
   oneDayAgo.setHours(oneDayAgo.getHours() - 24);
 
   try {
-    const [categoriesData, articlesData] = await Promise.all([
-      getCategories().catch(() => []),
-      getCategoryArticles(slug, page).catch(() => ({ results: [], count: 0 }))
-    ]);
-    return { categoriesData, articlesData, page, slug, oneDayAgo: oneDayAgo.toISOString(), error: null };
+    const articlesData = await getCategoryArticles(slug, page).catch(() => ({ results: [], count: 0 }));
+    return { articlesData, page, slug, oneDayAgo: oneDayAgo.toISOString(), error: null };
   } catch (error) {
-    return { categoriesData: [], articlesData: { results: [], count: 0 }, page, slug, oneDayAgo: oneDayAgo.toISOString(), error: 'Failed to load category data' };
+    return { articlesData: { results: [], count: 0 }, page, slug, oneDayAgo: oneDayAgo.toISOString(), error: 'Failed to load category data' };
   }
 }
 
@@ -30,13 +27,14 @@ export async function loader({ params, request }) {
 export async function clientLoader({ params, request }) {
   return loadCategoryData({ params, request });
 }
-clientLoader.hydrate = true;
 
 export default function Category() {
-  const { categoriesData, articlesData, page, slug, oneDayAgo: oneDayAgoISO } = useLoaderData();
+  const { articlesData, page, slug, oneDayAgo: oneDayAgoISO } = useLoaderData();
   const [, setSearchParams] = useSearchParams();
 
-  const category = categoriesData?.find((c) => c.slug === slug);
+  const rootData = useRouteLoaderData("root") || {};
+  const categoriesData = rootData.categories || [];
+  const category = categoriesData.find((c) => c.slug === slug);
   const articles = articlesData?.results || [];
 
   // Use server-calculated timestamp to prevent SSR/client hydration mismatch

@@ -437,3 +437,30 @@ img {
     animation: none;
   }
 }
+
+/* Global Loading Progress Bar (NProgress-style) */
+.global-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 4px;
+  background-color: var(--secondary); /* Vibrant brutalist blue */
+  z-index: 9999;
+  width: 0%;
+  animation: load-progress 2s cubic-bezier(0.1, 0.85, 0.45, 1) forwards;
+}
+
+@keyframes load-progress {
+  0% {
+    width: 0%;
+  }
+  50% {
+    width: 70%;
+  }
+  90% {
+    width: 95%;
+  }
+  100% {
+    width: 99%;
+  }
+}
