@@ -26,12 +26,15 @@ const fetchApi = async (endpoint, options = {}) => {
 export const getBreaking          = ()               => fetchApi('/articles/breaking/');
 export const getCategories        = ()               => fetchApi('/categories/');
 export const getCategoryArticles  = (slug, page = 1) => fetchApi(`/categories/${encodeURIComponent(slug)}/articles/?page=${page}`);
-export const searchArticles       = (params)         => {
+export const searchArticles       = (params, clientIp = null) => {
   const query = new URLSearchParams();
   Object.entries(params).forEach(([k, v]) => {
     if (v) query.append(k, String(v));
   });
-  return fetchApi(`/search/?${query.toString()}`);
+  // When called from the SSR loader, forward the real visitor IP so Django's
+  // CloudflareAnonThrottle keys on the correct per-person IP, not the Worker IP.
+  const headers = clientIp ? { 'cf-connecting-ip': clientIp } : {};
+  return fetchApi(`/search/?${query.toString()}`, { headers });
 };
 export const getArticles          = (page = 1, pageSize = 12) => fetchApi(`/articles/?page=${page}&page_size=${pageSize}`);
 export const submitContactForm    = (data)           => fetchApi('/contact/', { method: 'POST', body: JSON.stringify(data) });

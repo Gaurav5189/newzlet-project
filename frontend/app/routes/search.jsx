@@ -10,9 +10,13 @@ export async function loader({ request }) {
   const q = url.searchParams.get('q') || '';
   const category = url.searchParams.get('category') || '';
   const page = parseInt(url.searchParams.get('page') || '1', 10);
+  // Cloudflare sets this header on the incoming Worker request with the real
+  // visitor IP. We forward it to Django so throttling is per-person, not
+  // per-Worker-egress-IP. Falls back to empty string in local dev (no Cloudflare).
+  const clientIp = request.headers.get('cf-connecting-ip') || '';
 
   try {
-    const data = await searchArticles({ q, category, page }).catch(() => ({ results: [], count: 0 }));
+    const data = await searchArticles({ q, category, page }, clientIp).catch(() => ({ results: [], count: 0 }));
     return { data, q, category, page };
   } catch (error) {
     return { data: { results: [], count: 0 }, q, category, page };
