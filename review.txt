@@ -1,0 +1,575 @@
+────────────────────────────────────────
+CodeRabbit Review
+
+Diff      : all local changes (committed + uncommitted)
+Compare   : main → HEAD~2
+Directory : newzlet-project
+────────────────────────────────────────
+
+(\(\
+(• .•)  Your code and I are going to be best friends. Very critical best friends.
+
+
+────────────────────────────────────────────────────────────────────────
+  major [potential_issue]
+  → ]8;;vscode://file//home/gaurav/git-play/newzlet-project/frontend_backup/.vite/deps/_metadata.json:1frontend_backup/.vite/deps/_metadata.json:1-8]8;;
+
+  Backup directory files are being added instead of removed.
+
+  The PR layer description states this change should "remove deprecated
+  backup directory configurations," but this file is being added to the
+  frontend_backup directory. This contradicts the stated goal. The
+  frontend_backup/.vite/deps/ directory should likely be removed entirely
+  as part of cleanup, not have new metadata files added.
+
+  Please verify whether these backup files should be deleted rather than
+  committed.
+
+
+────────────────────────────────────────────────────────────────────────
+  minor [potential_issue]
+  → ]8;;vscode://file//home/gaurav/git-play/newzlet-project/frontend/src/components/common/ArticleCard.jsx:7frontend/src/components/common/ArticleCard.jsx:7-14]8;;
+
+  Missing null/undefined guard for article prop.
+
+  If article is passed as undefined or null, accessing article.id on
+  line 9 will throw a TypeError. Consider adding an early guard or
+  PropTypes/TypeScript to enforce the required prop.
+
+   export default function ArticleCard({ article, variant = 'standard' }) {
+  +  if (!article) return null;
+  +
+     const { openArticle } = useModal();
+     const prevArticleIdRef = useRef(article.id);
+
+
+────────────────────────────────────────────────────────────────────────
+  minor [potential_issue]
+  → ]8;;vscode://file//home/gaurav/git-play/newzlet-project/frontend/src/components/common/ArticleModal.jsx:30frontend/src/components/common/ArticleModal.jsx:30-60]8;;
+
+  Dropcap extraction may break HTML entities at text start.
+
+  The regex /^(\s*)(.)/ captures a single character. If the sanitized
+  paragraph starts with an HTML entity (e.g., &ldquo;Hello), it will
+  extract & as the dropcap and render ldquo;Hello as the rest, breaking
+  the entity.
+
+  Consider checking for entities before extracting:
+
+
+  🛠️ Proposed fix
+
+           // Extract first visible character, skipping any leading whitespace
+  -        const match = trimmed.match(/^(\s*)(.)/);
+  +        // Check if text starts with an HTML entity
+  +        const entityMatch = trimmed.match(/^(&[a-zA-Z]+;|&#\d+;)/);
+  +        if (entityMatch) {
+  +          // Don't apply dropcap to entities, render normally
+  +          return <p key={idx} className="first-paragraph" dangerouslySetInnerHTML={{ __html: trimmed }} />;
+  +        }
+  +        const match = trimmed.match(/^(\s*)(.)/);
+           if (!match) return <p key={idx} dangerouslySetInnerHTML={{ __html: sanitizedP }} />;
+
+
+────────────────────────────────────────────────────────────────────────
+  major [refactor_suggestion]
+  → ]8;;vscode://file//home/gaurav/git-play/newzlet-project/frontend/src/styles/TopAppBar.css:15frontend/src/styles/TopAppBar.css:15]8;;
+
+  Replace hardcoded color with CSS variable for design system consistency.
+
+  Line 15 uses a hardcoded RGBA value rgba(255, 250, 245, 0.85) instead of
+  following the established pattern of using CSS variables. This breaks
+  consistency with the rest of the codebase (which uses variables like
+  --surface, --primary, etc.) and makes theming/maintenance harder.
+
+  Consider defining a dedicated glassmorphism variable in globals.css
+  (e.g., --surface-glass or --app-bar-background-glass) or using an
+  existing surface variable with opacity.
+
+
+
+
+
+
+  ♻️ Proposed fix using CSS variable
+
+  -  background-color: rgba(255, 250, 245, 0.85); /* Slightly transparent theme background */
+  +  background-color: var(--surface-glass, rgba(255, 250, 245, 0.85));
+
+  Then define --surface-glass in globals.css alongside other color
+  variables for centralized theme management.
+
+
+────────────────────────────────────────────────────────────────────────
+  major [potential_issue]
+  → ]8;;vscode://file//home/gaurav/git-play/newzlet-project/frontend/src/components/common/Pagination.jsx:30frontend/src/components/common/Pagination.jsx:30-36]8;;
+
+  Fix hardcoded "inactive" class on Next button.
+
+  The Next button always receives className="pagination-btn inactive" even
+  when enabled, mirroring the same issue as the Prev button. This causes
+  inconsistent styling behavior.
+
+
+
+
+
+
+  🎨 Proposed fix to apply conditional class
+
+         <button 
+           disabled={!next}
+           onClick={() => setPage(Math.min(totalPages, currentPage + 1))}
+  -        className="pagination-btn inactive" 
+  +        className={`pagination-btn ${!next ? 'inactive' : ''}`}
+         >
+           Next →
+         </button>
+
+
+────────────────────────────────────────────────────────────────────────
+  minor [potential_issue]
+  → ]8;;vscode://file//home/gaurav/git-play/newzlet-project/frontend/src/styles/globals.css:173frontend/src/styles/globals.css:173-176]8;;
+
+  External texture dependency creates privacy and reliability concerns.
+
+  The paper grain effect loads a texture from transparenttextures.com,
+  creating an external dependency that could impact privacy (tracking),
+  performance (network latency), and reliability (third-party availability).
+
+  Consider self-hosting the texture file or using a CSS-based grain effect
+  pattern.
+
+
+
+
+
+
+  💡 Alternative: CSS-based grain pattern
+
+   .paper-grain {
+     background-color: var(--background);
+  -  background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png");
+  +  background-image: 
+  +    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.03) 2px, rgba(0,0,0,.03) 4px),
+  +    repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,.03) 2px, rgba(0,0,0,.03) 4px);
+   }
+
+
+────────────────────────────────────────────────────────────────────────
+  critical [potential_issue]
+  → ]8;;vscode://file//home/gaurav/git-play/newzlet-project/frontend/src/styles/globals.css:1frontend/src/styles/globals.css:1-2]8;;
+
+  Missing font imports for typography.css utilities.
+
+  The typography.css file defines classes for Boogaloo, Archivo Black,
+  and DM Sans fonts, but none of these fonts are imported here. Without
+  corresponding @import statements, these font classes will fall back to
+  generic sans-serif, breaking the intended typography system.
+
+
+
+
+
+
+  🔧 Proposed fix to import missing fonts
+
+   @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Space+Grotesk:wght@300..700&display=swap');
+   @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+  +@import url('https://fonts.googleapis.com/css2?family=Boogaloo&family=Archivo+Black&family=DM+Sans:wght@400;700&display=swap');
+
+
+────────────────────────────────────────────────────────────────────────
+  minor [potential_issue]
+  → ]8;;vscode://file//home/gaurav/git-play/newzlet-project/frontend/src/services/api.js:29frontend/src/services/api.js:29-38]8;;
+
+  Clarify clientIp parameter and SSR loader comment in client-side
+  context.
+
+  The comment on lines 34-35 mentions "SSR loader" and forwarding visitor IP
+  via cf-connecting-ip, but the PR context indicates this is a client-side
+  rendering migration. In a pure client-side context:
+
+  1. The clientIp parameter would never be passed (no server-side caller)
+  2. Setting cf-connecting-ip from client code is ineffective (headers set
+  by the client can be ignored or stripped by the backend)
+  3. The Django throttle would see the user's actual IP from the TCP
+  connection, not this header
+
+  Is this code intended to be shared with a server-side context, or is this
+  residual SSR code?
+
+
+────────────────────────────────────────────────────────────────────────
+  minor [potential_issue]
+  → ]8;;vscode://file//home/gaurav/git-play/newzlet-project/frontend/src/pages/TermsPage.jsx:1frontend/src/pages/TermsPage.jsx:1]8;;
+
+  Remove unused Link import.
+
+  The Link component is imported but never used in this file.
+
+
+
+
+
+
+  🧹 Proposed fix
+
+  -import { Link } from "react-router";
+   import "../styles/HomePage.css"; // Reuse styling
+
+
+────────────────────────────────────────────────────────────────────────
+  minor [potential_issue]
+  → ]8;;vscode://file//home/gaurav/git-play/newzlet-project/frontend/src/hooks/useCategoryArticles.js:4frontend/src/hooks/useCategoryArticles.js:4-10]8;;
+
+  Add default value for page parameter to prevent cache fragmentation.
+
+  The page parameter has no default value. When called without an explicit
+  page (e.g., useCategoryArticles(slug)), the query key becomes
+  ['categoryArticles', slug, undefined]. A subsequent call with page=1
+  creates a different cache key ['categoryArticles', slug, 1], even though
+  both resolve to the same API call (since getCategoryArticles defaults
+  page to 1).
+
+
+  🗂️ Proposed fix to add default page value
+
+  -export const useCategoryArticles = (slug, page) => {
+  +export const useCategoryArticles = (slug, page = 1) => {
+     return useQuery({
+       queryKey: ['categoryArticles', slug, page],
+       queryFn: () => getCategoryArticles(slug, page),
+       enabled: !!slug,
+     });
+   };
+
+
+────────────────────────────────────────────────────────────────────────
+  minor [potential_issue]
+  → ]8;;vscode://file//home/gaurav/git-play/newzlet-project/frontend/src/services/api.js:1frontend/src/services/api.js:1-3]8;;
+
+  Clarify baseURL construction to prevent double /api suffix.
+
+  The current logic appends /api when VITE_API_BASE_URL is set. If the
+  environment variable already includes /api (e.g.,
+  https://example.com/api), the result would be
+  https://example.com/api/api.
+
+  Consider documenting that VITE_API_BASE_URL should never include the
+  /api suffix, or handle both cases:
+
+
+  🛠️ Proposed fix to handle trailing /api
+
+  -const baseURL = import.meta.env.VITE_API_BASE_URL
+  -  ? `${import.meta.env.VITE_API_BASE_URL}/api`
+  -  : '/api';
+  +const base = import.meta.env.VITE_API_BASE_URL || '';
+  +const baseURL = base.endsWith('/api') ? base : `${base}/api`;
+
+
+────────────────────────────────────────────────────────────────────────
+  minor [potential_issue]
+  → ]8;;vscode://file//home/gaurav/git-play/newzlet-project/frontend/src/services/api.js:31frontend/src/services/api.js:31-32]8;;
+
+  Truthy check may skip intentional falsy parameter values.
+
+  The condition if (v) filters out all falsy values including 0,
+  false, and empty string ''. If a caller intentionally passes page: 0
+  or an empty category filter, those will be silently dropped.
+
+  Consider checking for null/undefined specifically:
+
+
+  🔍 Proposed fix to preserve intentional falsy values
+
+     Object.entries(params).forEach(([k, v]) => {
+  -    if (v) query.append(k, String(v));
+  +    if (v != null && v !== '') query.append(k, String(v));
+     });
+
+
+────────────────────────────────────────────────────────────────────────
+  major [potential_issue]
+  → ]8;;vscode://file//home/gaurav/git-play/newzlet-project/frontend/src/services/api.js:5frontend/src/services/api.js:5-24]8;;
+
+  Add request timeout to prevent indefinite hangs.
+
+  The fetchApi helper has no timeout configuration. If the backend becomes
+  unresponsive or network issues occur, requests will hang indefinitely,
+  degrading user experience.
+
+
+  ⏱️ Proposed fix to add timeout using AbortSignal
+
+   const fetchApi = async (endpoint, options = {}) => {
+  +  const controller = new AbortController();
+  +  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+  +  
+  +  try {
+  -    const response = await fetch(`${baseURL}${endpoint}`, {
+  -      ...options,
+  -      headers: {
+  -        'Content-Type': 'application/json',
+  -        ...options.headers,
+  -      },
+  -    });
+  +    const response = await fetch(`${baseURL}${endpoint}`, {
+  +      ...options,
+  +      signal: controller.signal,
+  +      headers: {
+  +        'Content-Type': 'application/json',
+  +        ...options.headers,
+  +      },
+  +    });
+  +    clearTimeout(timeoutId);
+  +    
+       if (!response.ok) {
+         let errorMessage = `API error: ${response.status} ${response.statusText}`;
+         try {
+           const errorBody = await response.json();
+           errorMessage += ` - ${errorBody.message || errorBody.detail || JSON.stringify(errorBody)}`;
+         } catch {
+           // Response body is not JSON, use status text only
+         }
+         throw new Error(errorMessage);
+       }
+       return response.json();
+  +  } catch (error) {
+  +    clearTimeout(timeoutId);
+  +    if (error.name === 'AbortError') {
+  +      throw new Error('Request timeout - please try again');
+  +    }
+  +    throw error;
+  +  }
+   };
+
+
+────────────────────────────────────────────────────────────────────────
+  major [potential_issue]
+  → ]8;;vscode://file//home/gaurav/git-play/newzlet-project/frontend/src/components/layout/TopAppBar.jsx:39frontend/src/components/layout/TopAppBar.jsx:39-77]8;;
+
+  Verify the viewTransition prop on Link components.
+
+  The viewTransition prop is used on multiple Link components (lines 39,
+  45, 52, 59, 66, 73), but this is not a standard React Router v6 prop.
+  Please confirm whether this is a valid prop for the version of React
+  Router in use, or if this is a custom implementation related to the View
+  Transition API.
+
+  Does React Router v6 or v7 Link component support a viewTransition prop?
+
+
+────────────────────────────────────────────────────────────────────────
+  minor [potential_issue]
+  → ]8;;vscode://file//home/gaurav/git-play/newzlet-project/frontend/src/pages/PrivacyPage.jsx:1frontend/src/pages/PrivacyPage.jsx:1]8;;
+
+  Remove unused Link import.
+
+  The Link component is imported but never used in this file.
+
+
+
+
+
+
+  🧹 Proposed fix
+
+  -import { Link } from "react-router";
+   import "../styles/HomePage.css"; // Reuse styling
+
+
+────────────────────────────────────────────────────────────────────────
+  critical [potential_issue]
+  → ]8;;vscode://file//home/gaurav/git-play/newzlet-project/frontend/src/utils/html.js:41frontend/src/utils/html.js:41-50]8;;
+
+  Critical XSS: Entity decoding after whitelist filtering allows script
+  injection.
+
+  The whitelist regex on line 33 matches literal `` syntax but not
+  entity-encoded &lt;tag&gt;. Entity-encoded payloads bypass the filter,
+  then decoding at lines 48-49 promotes them to real tags:
+
+  Input:  &lt;script&gt;alert(1)&lt;/script&gt;
+  After whitelist: unchanged (no literal < > to match)
+  After decode:    <script>alert(1)</script>  ← executable
+
+  When rendered via dangerouslySetInnerHTML (per ArticleModal context),
+  this executes arbitrary JavaScript.
+
+  Recommended fix: Remove &lt; and &gt; decoding entirely. These
+  entities exist specifically to render angle brackets as visible text
+  without creating tags. Decoding them defeats their security purpose.
+
+
+
+
+
+
+  🔒 Proposed fix: Remove angle-bracket entity decoding
+
+     // 4. Decode safe HTML entities LAST — after all tag processing is complete.
+  -  //    Decoding last means entity-encoded tags (e.g. &lt;script&gt;) are never
+  -  //    promoted into real HTML tags; they become visible text characters instead.
+  +  //    Only decode entities that don't affect HTML structure.
+  +  //    DO NOT decode &lt; or &gt; — they exist to safely display angle brackets.
+     const decoded = cleanHtml
+       .replace(/&quot;/g, '"')
+       .replace(/&#39;/g, "'")
+  -    .replace(/&#x27;/g, "'")
+  -    .replace(/&lt;/g, '<')
+  -    .replace(/&gt;/g, '>')
+  +    .replace(/&#x27;/g, "'");
+  -    .replace(/&amp;/g, '&'); // &amp; must be last to avoid double-decoding
+  +  // Note: &amp;, &lt;, &gt; are intentionally NOT decoded to prevent
+  +  // entity-encoded tags from becoming real HTML elements.
+   
+     return decoded;
+   }
+
+  If literal `` characters are needed for display (e.g., math expressions),
+  use a proper DOM-based sanitizer like DOMPurify that can safely handle
+  this after parsing.
+
+
+────────────────────────────────────────────────────────────────────────
+  critical [potential_issue]
+  → ]8;;vscode://file//home/gaurav/git-play/newzlet-project/frontend/src/pages/NotFoundPage.jsx:3frontend/src/pages/NotFoundPage.jsx:3-5]8;;
+
+  Remove SSR loader() — incompatible with client-side routing.
+
+  The loader() function returning a Response object is a React Router
+  SSR pattern. This migration converts to pure client-side rendering with
+  browser routing, where loaders don't execute and HTTP status codes aren't
+  applicable. Remove this export.
+
+
+
+
+
+
+  🗑️ Proposed fix
+
+  -export function loader() {
+  -  return new Response("Not Found", { status: 404 });
+  -}
+  -
+   export default function NotFound() {
+
+
+────────────────────────────────────────────────────────────────────────
+  major [potential_issue]
+  → ]8;;vscode://file//home/gaurav/git-play/newzlet-project/frontend/src/hooks/useSearch.js:4frontend/src/hooks/useSearch.js:4-10]8;;
+
+  Query key with object reference may cause cache instability.
+
+  The queryKey includes the entire params object. React Query uses
+  referential equality by default, so if params is recreated on each
+  render (e.g., useSearch({ q: searchTerm })), each render creates a new
+  cache entry even when the search term hasn't changed.
+
+  Consider destructuring params into the query key for stable cache
+  behavior:
+
+
+  🔑 Proposed fix to destructure params in query key
+
+   export const useSearch = (params) => {
+     return useQuery({
+  -    queryKey: ['search', params],
+  +    queryKey: ['search', { q: params.q, category: params.category, page: params.page }],
+       queryFn: () => searchArticles(params),
+       enabled: !!params.q || !!params.category,
+     });
+   };
+
+  Or, if params can contain arbitrary fields, use sorted entries:
+
+   export const useSearch = (params) => {
+  +  const stableKey = Object.entries(params || {}).sort(([a], [b]) => a.localeCompare(b));
+     return useQuery({
+  -    queryKey: ['search', params],
+  +    queryKey: ['search', stableKey],
+       queryFn: () => searchArticles(params),
+       enabled: !!params.q || !!params.category,
+     });
+   };
+
+
+────────────────────────────────────────────────────────────────────────
+  minor [potential_issue]
+  → ]8;;vscode://file//home/gaurav/git-play/newzlet-project/frontend/vite.config.js:10frontend/vite.config.js:10-17]8;;
+
+  Add fallback or validation for proxy target.
+
+  The proxy configuration references env.VITE_DEV_PROXY_TARGET without a
+  fallback or validation. If this environment variable is undefined, the
+  development server will start but the /api proxy will not function
+  correctly, potentially confusing developers.
+
+  Consider adding a fallback value or validation:
+
+
+  🛡️ Suggested fix with fallback
+
+       server: {
+         proxy: {
+           '/api': {
+  -          target: env.VITE_DEV_PROXY_TARGET,
+  +          target: env.VITE_DEV_PROXY_TARGET || 'http://localhost:3000',
+             changeOrigin: true,
+           }
+         }
+       }
+
+  Or add validation:
+
+   export default defineConfig(({ mode }) => {
+     const env = loadEnv(mode, process.cwd(), '');
+  +  
+  +  if (!env.VITE_DEV_PROXY_TARGET) {
+  +    throw new Error('VITE_DEV_PROXY_TARGET environment variable is required');
+  +  }
+     
+     return {
+
+
+────────────────────────────────────────────────────────────────────────
+  major [potential_issue]
+  → ]8;;vscode://file//home/gaurav/git-play/newzlet-project/frontend/src/components/common/Pagination.jsx:12frontend/src/components/common/Pagination.jsx:12-18]8;;
+
+  Fix hardcoded "inactive" class on Prev button.
+
+  The Prev button always receives className="pagination-btn inactive" even
+  when enabled. This conflicts with the disabled state and may cause
+  incorrect styling. The page number buttons (line 24) correctly toggle
+  between "active" and "inactive" based on state.
+
+
+
+
+
+
+  🎨 Proposed fix to apply conditional class
+
+         <button 
+           disabled={!previous}
+           onClick={() => setPage(Math.max(1, currentPage - 1))}
+  -        className="pagination-btn inactive" 
+  +        className={`pagination-btn ${!previous ? 'inactive' : ''}`}
+         >
+           ← Prev
+         </button>
+
+
+────────────────────────────────────────
+Review complete
+20 findings ✔
+
+Critical 3
+Major    7
+Minor    10
+────────────────────────────────────────
+
+Print all AI prompts: coderabbit review --show-prompts
