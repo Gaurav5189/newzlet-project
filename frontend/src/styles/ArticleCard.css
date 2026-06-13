@@ -48,12 +48,18 @@
 
 .article-card.featured .article-image-wrapper {
   width: 100%;
-  height: 400px;
+  height: 240px;
   border-bottom: 2px solid var(--on-surface);
   margin-bottom: 1.5rem;
   border-left: none;
   border-right: none;
   border-top: none;
+}
+
+@media (min-width: 768px) {
+  .article-card.featured .article-image-wrapper {
+    height: 400px;
+  }
 }
 
 .article-card.side .article-image-wrapper {

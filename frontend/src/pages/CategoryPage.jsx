@@ -5,11 +5,17 @@ import ArticleCard from '../components/common/ArticleCard';
 import SkeletonCard from '../components/common/SkeletonCard';
 import Pagination from '../components/common/Pagination';
 import '../styles/CategoryPage.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function CategoryPage() {
   const { slug } = useParams();
   const [page, setPage] = useState(1);
+  
+  // Reset page to 1 when navigating to a different category
+  useEffect(() => {
+    setPage(1);
+  }, [slug]);
+
   const { data: categoryData } = useCategories();
   const { data, isLoading } = useCategoryArticles(slug, page);
 

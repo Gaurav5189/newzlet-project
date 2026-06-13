@@ -127,9 +127,15 @@ img {
 
 .text-headline-lg {
   font-family: var(--font-headline);
-  font-size: 48px;
+  font-size: 32px;
   line-height: 1.2;
   font-weight: 700;
+}
+
+@media (min-width: 768px) {
+  .text-headline-lg {
+    font-size: 48px;
+  }
 }
 
 .text-headline-lg-mobile {
