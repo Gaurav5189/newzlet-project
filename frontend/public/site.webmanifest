@@ -1,0 +1,21 @@
+{
+  "name": "The Daily Newzlet",
+  "short_name": "Newzlet",
+  "description": "No-Nonsense News, Hand-Inked Every Morning",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#FFFFFF",
+  "icons": [
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

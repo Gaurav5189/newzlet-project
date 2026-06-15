@@ -4,6 +4,7 @@ import { useCategories } from '../hooks/useCategories';
 import ArticleCard from '../components/common/ArticleCard';
 import SkeletonCard from '../components/common/SkeletonCard';
 import Pagination from '../components/common/Pagination';
+import { Helmet } from 'react-helmet-async';
 import '../styles/CategoryPage.css';
 import { useState, useEffect } from 'react';
 
@@ -38,8 +39,57 @@ export default function CategoryPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const siteOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://newzlet.pages.dev';
+  const canonicalUrl = `${siteOrigin}/category/${slug}`;
+
+  const categoryJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": category?.name || slug,
+    "description": category?.description || `${category?.name || slug} news articles.`,
+    "url": canonicalUrl
+  };
+
+  const itemListJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "itemListElement": articles.map((article, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "url": article.source_url || `${siteOrigin}/article/${article.slug || article.id}`,
+      "name": article.title
+    }))
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": `${siteOrigin}/`
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": category?.name || slug,
+        "item": canonicalUrl
+      }
+    ]
+  };
+
   return (
     <main className="container category-page">
+      <Helmet>
+        <title>{category?.name || slug} News — The Daily Newzlet</title>
+        <meta name="description" content={category?.description || `Latest breaking news in ${category?.name || slug}.`} />
+        <link rel="canonical" href={canonicalUrl} />
+        <script type="application/ld+json">{JSON.stringify(categoryJsonLd)}</script>
+        <script type="application/ld+json">{JSON.stringify(itemListJsonLd)}</script>
+        <script type="application/ld+json">{JSON.stringify(breadcrumbJsonLd)}</script>
+      </Helmet>
       <section className="category-header">
         <h1 className="text-display-lg text-uppercase tracking-tight">
           {category?.name || slug}

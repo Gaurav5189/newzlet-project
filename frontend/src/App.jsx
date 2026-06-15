@@ -1,4 +1,5 @@
 import { createBrowserRouter, RouterProvider, Outlet, ScrollRestoration } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import { ModalProvider } from './context/ModalContext';
 import TopAppBar from './components/layout/TopAppBar';
 import Footer from './components/layout/Footer';
@@ -45,8 +46,10 @@ const router = createBrowserRouter([
 
 export default function App() {
   return (
-    <ModalProvider>
-      <RouterProvider router={router} />
-    </ModalProvider>
+    <HelmetProvider>
+      <ModalProvider>
+        <RouterProvider router={router} />
+      </ModalProvider>
+    </HelmetProvider>
   );
 }

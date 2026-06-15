@@ -144,6 +144,8 @@ export default function ArticleCard({ article, variant = 'standard' }) {
           ref={imgRef}
           src={article.image_url} 
           alt={article.title} 
+          loading="lazy"
+          style={{ aspectRatio: '16/9', width: '100%', objectFit: 'cover' }}
           className={`article-image ${imageLoading ? 'loading' : 'loaded'}`}
           onLoad={() => setImageLoading(false)}
           onError={() => setImageError(true)}

@@ -3,6 +3,7 @@ import { useCategoryArticles } from '../hooks/useCategoryArticles';
 import ArticleCard from '../components/common/ArticleCard';
 import SkeletonCard from '../components/common/SkeletonCard';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import '../styles/HomePage.css';
 
 export default function HomePage() {
@@ -74,8 +75,25 @@ export default function HomePage() {
 
   const dayFactArticle = factData?.results?.[0];
 
+  const siteOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://newzlet.pages.dev';
+  const latestArticlesJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "itemListElement": recentArticles.map((article, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "url": article.source_url || `${siteOrigin}/article/${article.slug || article.id}`,
+      "name": article.title
+    }))
+  };
+
   return (
     <main className="container home-page">
+      <Helmet>
+        <script type="application/ld+json">
+          {JSON.stringify(latestArticlesJsonLd)}
+        </script>
+      </Helmet>
       {/* Hero Section & Fun Fact */}
       <section className="home-hero-section">
         <div>

@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /search
+Disallow: /crm
+
+Sitemap: https://newzlet.pages.dev/sitemap.xml

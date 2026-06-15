@@ -1,0 +1,3 @@
+/admin/*  https://sudo-server.alwaysdata.net/admin/:splat  200
+/api/*    https://sudo-server.alwaysdata.net/api/:splat    200
+/*        /index.html                                     200
