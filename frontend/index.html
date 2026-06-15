@@ -1,22 +1,81 @@
 <!doctype html>
 <html lang="en" class="light">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Space+Grotesk:wght@700&display=block" rel="stylesheet" />
-    
-    <!-- Material Symbols -->
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block" rel="stylesheet" />
-    
-    <title>Newzlet</title>
-  </head>
-  <body class="app-container">
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Primary SEO -->
+  <title>The Daily Newzlet — No-Nonsense News, Hand-Inked Every Morning</title>
+  <meta name="description"
+    content="The Daily Newzlet aggregates breaking news across technology, politics, sports, business, international affairs, medical, and entertainment — updated automatically every morning." />
+  <meta name="keywords"
+    content="news, daily news, breaking news, technology news, politics news, sports news, business news, international news, news aggregator" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <link rel="canonical" href="https://newzlet.pages.dev/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="The Daily Newzlet" />
+  <meta property="og:title" content="The Daily Newzlet — No-Nonsense News, Hand-Inked Every Morning" />
+  <meta property="og:description"
+    content="Categorized breaking news across technology, politics, sports, business, international affairs, medical, and entertainment." />
+  <meta property="og:url" content="https://newzlet.pages.dev/" />
+  <meta property="og:image" content="https://newzlet.pages.dev/og-image.png" />
+  <meta property="og:locale" content="en_US" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="The Daily Newzlet — No-Nonsense News, Hand-Inked Every Morning" />
+  <meta name="twitter:description"
+    content="Categorized breaking news across technology, politics, sports, business, international affairs, medical, and entertainment." />
+  <meta name="twitter:image" content="https://newzlet.pages.dev/og-image.png" />
+
+  <meta name="theme-color" content="#FFFFFF" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="google-site-verification" content="muzMZev7jaWnZyNdL5j9YEKWPjHAooR-Je946WMWyuA" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Space+Grotesk:wght@700&display=block"
+    rel="stylesheet" />
+
+  <!-- Material Symbols -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block"
+    rel="stylesheet" />
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "NewsMediaOrganization",
+    "name": "The Daily Newzlet",
+    "url": "https://newzlet.pages.dev/",
+    "logo": "https://newzlet.pages.dev/logo.png"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "The Daily Newzlet",
+    "url": "https://newzlet.pages.dev/",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://newzlet.pages.dev/search?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+</head>
+
+<body class="app-container">
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+  <noscript>The Daily Newzlet requires JavaScript to display the latest news.</noscript>
+</body>
+
 </html>
