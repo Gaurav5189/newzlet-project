@@ -28,7 +28,22 @@ export default function Contact() {
       setFormData({ name: "", email: "", message: "" });
     } catch (err) {
       setStatus("error");
-      setErrorMessage(err.message || "Failed to send message. Please try again later.");
+      
+      let finalMessage = err.message || "Failed to send message. Please try again later.";
+      
+      // Make rate limit (429) error more consumer-friendly
+      if (finalMessage.includes("429") && finalMessage.includes("throttled")) {
+        const secondsMatch = finalMessage.match(/available in (\d+) seconds/);
+        if (secondsMatch) {
+          const seconds = parseInt(secondsMatch[1], 10);
+          const minutes = Math.ceil(seconds / 60);
+          finalMessage = `You've reached the maximum message limit (3 per hour). Please try again in ${minutes} minute${minutes !== 1 ? 's' : ''}.`;
+        } else {
+          finalMessage = "You've reached the maximum message limit (3 per hour). Please try again later.";
+        }
+      }
+
+      setErrorMessage(finalMessage);
     }
   };
 

@@ -8,8 +8,8 @@ from .serializers import ArticleSerializer, CategorySerializer, ContactMessageSe
 from .filters import ArticleFilter
 from config.middleware.throttling import CloudflareContactThrottle
 
-# Cache the standard article timeline feed for 24 hours (86400 seconds)
-@method_decorator(cache_page(60 * 60 * 24), name='get')
+# Cache the standard article timeline feed for 6 hours (21600 seconds)
+@method_decorator(cache_page(60 * 60 * 6), name='get')
 @method_decorator(vary_on_headers('Accept'), name='get')
 class ArticleListView(generics.ListAPIView):
     queryset = Article.objects.filter(is_visible=True).exclude(category__slug='day-fact')
@@ -25,8 +25,8 @@ class BreakingArticlesView(generics.ListAPIView):
     def get_queryset(self):
         return Article.objects.filter(is_visible=True).exclude(category__slug='day-fact')[:5]
 
-# Cache categories list for 24 hours
-@method_decorator(cache_page(60 * 60 * 24), name='get')
+# Cache categories list for 12 hour (categories change rarely but not daily)
+@method_decorator(cache_page(60 * 60 * 12), name='get')
 @method_decorator(vary_on_headers('Accept'), name='get')
 class CategoryListView(generics.ListAPIView):
     queryset = Category.objects.all()

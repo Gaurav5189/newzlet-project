@@ -1,5 +1,13 @@
+# Content-hashed JS/CSS bundles — safe to cache forever
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
+
+# SPA shell (index.html) — must always revalidate so mobile browsers
+# don't serve a stale HTML page from their disk cache.
+/
+  Cache-Control: no-cache
+
+# Security headers for all routes
 /*
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
