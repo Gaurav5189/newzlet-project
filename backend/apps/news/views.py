@@ -1,3 +1,7 @@
+from decouple import config
+import threading
+import requests
+import logging
 from rest_framework import generics
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -7,6 +11,20 @@ from .models import Article, Category
 from .serializers import ArticleSerializer, CategorySerializer, ContactMessageSerializer
 from .filters import ArticleFilter
 from config.middleware.throttling import CloudflareContactThrottle
+
+logger = logging.getLogger(__name__)
+
+def send_n8n_webhook(data):
+    # Using the webhook URL from environment variables loaded via python-decouple
+    webhook_url = config("N8N_WEBHOOK_URL", default="")
+    if not webhook_url:
+        logger.error("N8N_WEBHOOK_URL not configured in environment.")
+        return
+        
+    try:
+        requests.post(webhook_url, json=data, timeout=5)
+    except Exception as e:
+        logger.error(f"Failed to send webhook to n8n: {e}")
 
 # Cache the standard article timeline feed for 6 hours (21600 seconds)
 @method_decorator(cache_page(60 * 60 * 6), name='get')
@@ -51,4 +69,16 @@ class SearchArticlesView(generics.ListAPIView):
 class ContactMessageCreateView(generics.CreateAPIView):
     serializer_class = ContactMessageSerializer
     throttle_classes = [CloudflareContactThrottle]
+
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        
+        # Fire off webhook to n8n asynchronously so we don't block the API response
+        data = {
+            "name": instance.name,
+            "email": instance.email,
+            "message": instance.message,
+            "created_at": instance.created_at.isoformat() if instance.created_at else None
+        }
+        threading.Thread(target=send_n8n_webhook, args=(data,)).start()
 
