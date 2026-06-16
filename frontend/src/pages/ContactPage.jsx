@@ -28,9 +28,9 @@ export default function Contact() {
       setFormData({ name: "", email: "", message: "" });
     } catch (err) {
       setStatus("error");
-      
+
       let finalMessage = err.message || "Failed to send message. Please try again later.";
-      
+
       // Make rate limit (429) error more consumer-friendly
       if (finalMessage.includes("429") && finalMessage.includes("throttled")) {
         const secondsMatch = finalMessage.match(/available in (\d+) seconds/);
@@ -131,7 +131,7 @@ export default function Contact() {
           <h2 className="text-headline-sm mb-4">Connect with Me</h2>
           <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <li>
-              <a href="https://github.com/Gaurav5189" target="_blank" rel="noopener noreferrer" className="text-body-lg" style={{ textDecoration: 'underline', color: 'var(--primary)' }}>
+              <a href="https://github.com/Gaurav5189/newzlet-project" target="_blank" rel="noopener noreferrer" className="text-body-lg" style={{ textDecoration: 'underline', color: 'var(--primary)' }}>
                 GitHub Repository
               </a>
             </li>

@@ -1,10 +1,13 @@
 import { useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import '../../styles/Sidebar.css';
 
 export default function Sidebar({ isOpen, onClose, categories = [] }) {
   // Store the body overflow value that existed before the sidebar ever opened
   const originalOverflowRef = useRef(null);
+  const location = useLocation();
+
+  const isActive = (path) => location.pathname === path;
 
   // Prevent body scroll when sidebar is open
   useEffect(() => {
@@ -43,23 +46,23 @@ export default function Sidebar({ isOpen, onClose, categories = [] }) {
           </button>
         </div>
         <div className="sidebar-content">
-          <Link to="/" className="sidebar-link text-title-md" onClick={onClose}>
+          <Link to="/" className={`sidebar-link text-title-md ${isActive('/') ? 'active' : ''}`} onClick={onClose}>
             Main Page
           </Link>
-          <Link to="/search" className="sidebar-link text-title-md" onClick={onClose}>
+          <Link to="/search" className={`sidebar-link text-title-md ${isActive('/search') ? 'active' : ''}`} onClick={onClose}>
             Search
           </Link>
           {categories.map((cat) => (
             <Link 
               key={cat.id || cat.slug} 
               to={`/category/${cat.slug}`} 
-              className="sidebar-link text-title-md"
+              className={`sidebar-link text-title-md ${isActive(`/category/${cat.slug}`) ? 'active' : ''}`}
               onClick={onClose}
             >
               {cat.name}
             </Link>
           ))}
-          <Link to="/contact" className="sidebar-link text-title-md" onClick={onClose} style={{ marginTop: '2rem' }}>
+          <Link to="/contact" className={`sidebar-link text-title-md ${isActive('/contact') ? 'active' : ''}`} onClick={onClose} style={{ marginTop: '2rem' }}>
             Contact Me
           </Link>
         </div>
