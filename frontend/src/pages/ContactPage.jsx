@@ -29,11 +29,11 @@ export default function Contact() {
     } catch (err) {
       setStatus("error");
 
-      let finalMessage = err.message || "Failed to send message. Please try again later.";
+      let finalMessage = "Something went wrong. Please try again later.";
 
       // Make rate limit (429) error more consumer-friendly
-      if (finalMessage.includes("429") && finalMessage.includes("throttled")) {
-        const secondsMatch = finalMessage.match(/available in (\d+) seconds/);
+      if (err.message && err.message.includes("429") && err.message.includes("throttled")) {
+        const secondsMatch = err.message.match(/available in (\d+) seconds/);
         if (secondsMatch) {
           const seconds = parseInt(secondsMatch[1], 10);
           const minutes = Math.ceil(seconds / 60);
