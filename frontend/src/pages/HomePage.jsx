@@ -101,7 +101,7 @@ export default function HomePage() {
             The Daily Newzlet
           </h1>
           <p className="text-body-lg hero-subtitle">
-            Your No-Nonsense News Roundup, Hand-Inked Every Morning.
+            Your Daily News Roundup.
           </p>
         </div>
 

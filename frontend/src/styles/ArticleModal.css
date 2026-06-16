@@ -32,7 +32,7 @@
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 8px 8px 0px 0px var(--on-surface);
-  border-radius: 255px 25px 225px 25px/25px 225px 25px 255px; /* wobbly styling */
+  border-radius: 15px 25px 15px 25px / 25px 15px 25px 15px; /* Safer wobbly styling for Firefox */
   transform-origin: center;
   animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
@@ -149,9 +149,12 @@
 .modal-image-wrapper {
   position: relative;
   border: 4px solid var(--on-surface);
-  border-radius: 20px 255px 25px 225px/255px 25px 225px 25px;
-  overflow: hidden;
+  border-radius: 15px 25px 15px 25px / 25px 15px 25px 15px;
   box-shadow: 6px 6px 0px 0px var(--on-surface);
+  /* Firefox WebRender hardware acceleration workarounds */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  isolation: isolate;
 }
 
 .modal-image {
@@ -160,6 +163,8 @@
   object-fit: cover;
   transition: opacity 0.5s ease;
   opacity: 1;
+  display: block;
+  border-radius: 11px 21px 11px 21px / 21px 11px 21px 11px; /* Match wrapper to prevent overflow */
 }
 
 .modal-image.loading {
