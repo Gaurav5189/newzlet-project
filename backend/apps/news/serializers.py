@@ -12,7 +12,7 @@ class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
         fields = [
-            'id', 'title', 'summary', 'image_url', 'source_url', 
+            'id', 'title', 'summary', 'ai_summary', 'image_url', 'source_url', 
             'source_name', 'category', 'published_at', 
             'created_at'
         ]

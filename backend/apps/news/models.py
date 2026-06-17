@@ -13,6 +13,7 @@ class Category(models.Model):
 class Article(models.Model):
     title        = models.CharField(max_length=500)
     summary      = models.TextField()
+    ai_summary   = models.TextField(blank=True, null=True)
     image_url    = models.URLField(blank=True, null=True)
     source_url   = models.URLField(unique=True)      # deduplication key
     source_name  = models.CharField(max_length=200)  # "BBC News"

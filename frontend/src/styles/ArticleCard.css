@@ -256,3 +256,23 @@
 .article-no-image-icon .material-symbols-outlined {
   font-size: 1.875rem;
 }
+
+.why-it-matters-box {
+  margin: 12px 0;
+  padding: 12px 16px;
+  background-color: var(--surface-container-high);
+  border-left: 4px solid var(--secondary);
+  border-radius: 0 4px 4px 0;
+}
+
+.why-it-matters-title {
+  display: block;
+  color: var(--secondary);
+  margin-bottom: 6px;
+}
+
+.why-it-matters-text {
+  font-style: italic;
+  color: var(--on-surface-variant);
+  margin: 0;
+}
