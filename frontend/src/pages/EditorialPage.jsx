@@ -14,11 +14,13 @@ export default function EditorialPolicy() {
       <h1 className="text-display-md text-uppercase mb-4">Editorial Policy</h1>
       <div className="neo-shadow" style={{ padding: '2rem', backgroundColor: 'var(--surface-container)' }}>
         <p className="text-body-lg mb-4">
-          Newzlet is an automated news aggregator. We do not write, edit, or endorse the articles displayed. 
-          Our system automatically pulls headlines and summaries from publicly available RSS feeds to provide a centralized reading hub.
+          Newzlet is an automated news aggregator. We do not write, edit, or endorse the original articles displayed.
+          Our system automatically pulls headlines and descriptions from publicly available RSS feeds to provide a centralized reading hub.
+          To assist readers, we utilize Artificial Intelligence to automatically generate the brief 'Why it matters' summaries.
+          These AI-generated summaries do not represent the views of the original publishers or Newzlet.
         </p>
         <p className="text-body-lg mb-4">
-          All copyright and credit belong to the original publishers. If you are a publisher and wish to have your feed removed from our platform, please <Link to="/contact" className="font-bold text-primary" style={{textDecoration: 'underline'}}>contact us</Link>.
+          All copyright and credit belong to the original publishers. If you are a publisher and wish to have your feed removed from our platform, please <Link to="/contact" className="font-bold text-primary" style={{ textDecoration: 'underline' }}>contact us</Link>.
         </p>
       </div>
     </main>
