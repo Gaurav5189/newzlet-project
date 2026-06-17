@@ -3,7 +3,11 @@ import atexit
 from concurrent.futures import ThreadPoolExecutor
 import requests
 import logging
+from django.core.cache import cache
+from django.utils import timezone
 from rest_framework import generics
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_headers  # for redis cache 
@@ -21,6 +25,25 @@ logger = logging.getLogger(__name__)
 _webhook_executor = ThreadPoolExecutor(max_workers=2)
 atexit.register(_webhook_executor.shutdown, wait=False)
 
+class NoBrowserCacheMixin:
+    """
+    Overrides the Cache-Control header on API responses to 'no-store'.
+
+    Django's cache_page decorator does two things at once:
+      1. Caches the response server-side in Redis (we want this).
+      2. Sets Cache-Control: max-age=N on the HTTP response (we don't want
+         this — it causes browsers to serve stale API JSON for hours).
+
+    This mixin runs after cache_page has already stored the response in
+    Redis, then replaces the header so browsers always make a fresh
+    network request. Redis still serves those requests instantly.
+    """
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        response['Cache-Control'] = 'no-store'
+        return response
+
+
 def send_n8n_webhook(data):
     # Using the webhook URL from environment variables loaded via python-decouple
     webhook_url = config("N8N_WEBHOOK_URL", default="")
@@ -36,14 +59,14 @@ def send_n8n_webhook(data):
 # Cache the standard article timeline feed for 6 hours (21600 seconds)
 @method_decorator(cache_page(60 * 60 * 6), name='get')
 @method_decorator(vary_on_headers('Accept'), name='get')
-class ArticleListView(generics.ListAPIView):
+class ArticleListView(NoBrowserCacheMixin, generics.ListAPIView):
     queryset = Article.objects.filter(is_visible=True).exclude(category__slug='day-fact')
     serializer_class = ArticleSerializer
 
 # Cache the breaking news ticker for 5 minutes (300 seconds) since it changes quickly
 @method_decorator(cache_page(60 * 5), name='get')
 @method_decorator(vary_on_headers('Accept'), name='get')
-class BreakingArticlesView(generics.ListAPIView):
+class BreakingArticlesView(NoBrowserCacheMixin, generics.ListAPIView):
     serializer_class = ArticleSerializer
     pagination_class = None
 
@@ -53,7 +76,7 @@ class BreakingArticlesView(generics.ListAPIView):
 # Cache categories list for 12 hour (categories change rarely but not daily)
 @method_decorator(cache_page(60 * 60 * 12), name='get')
 @method_decorator(vary_on_headers('Accept'), name='get')
-class CategoryListView(generics.ListAPIView):
+class CategoryListView(NoBrowserCacheMixin, generics.ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     pagination_class = None
@@ -61,7 +84,7 @@ class CategoryListView(generics.ListAPIView):
 # Cache specific category lists for 1 hour
 @method_decorator(cache_page(60 * 60), name='get')
 @method_decorator(vary_on_headers('Accept'), name='get')
-class CategoryArticleListView(generics.ListAPIView):
+class CategoryArticleListView(NoBrowserCacheMixin, generics.ListAPIView):
     serializer_class = ArticleSerializer
 
     def get_queryset(self):
@@ -89,3 +112,23 @@ class ContactMessageCreateView(generics.CreateAPIView):
         }
         _webhook_executor.submit(send_n8n_webhook, data)
 
+
+class NewsVersionView(APIView):
+    """
+    Returns the Unix timestamp of the last article/category update.
+
+    The frontend polls this lightweight endpoint every 3 minutes instead
+    of polling the full article payload. The response is ~30 bytes and is
+    served from a single Redis key — no database queries involved.
+
+    When the timestamp changes, the frontend shows a 'Refresh' banner so
+    the user can pull fresh articles into view without a disruptive reload.
+    """
+    def get(self, request):
+        version = cache.get('news_last_updated')
+        if version is None:
+            # Cold start (first request after deploy or Redis flush).
+            # Establish a baseline so the next real update is detectable.
+            version = int(timezone.now().timestamp())
+            cache.set('news_last_updated', version, timeout=86400)
+        return Response({'version': version})

@@ -7,6 +7,7 @@ import HomePage from './pages/HomePage';
 import CategoryPage from './pages/CategoryPage';
 import SearchPage from './pages/SearchPage';
 import ArticleModal from './components/common/ArticleModal';
+import NewsBanner from './components/common/NewsBanner';
 import ContactPage from './pages/ContactPage';
 import EditorialPage from './pages/EditorialPage';
 import PrivacyPage from './pages/PrivacyPage';
@@ -17,6 +18,7 @@ const RootLayout = () => (
   <div className="main-content">
     <ScrollRestoration />
     <TopAppBar />
+    <NewsBanner />
     <div className="flex-grow">
       <div className="page-transition-wrapper">
         <Outlet />

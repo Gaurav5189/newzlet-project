@@ -39,3 +39,5 @@ export const searchArticles       = (params, clientIp = null) => {
 };
 export const getArticles          = (page = 1, pageSize = 12) => fetchApi(`/articles/?page=${page}&page_size=${pageSize}`);
 export const submitContactForm    = (data)           => fetchApi('/contact/', { method: 'POST', body: JSON.stringify(data) });
+export const getNewsVersion       = ()               => fetchApi('/news-version/');
+

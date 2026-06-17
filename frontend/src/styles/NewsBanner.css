@@ -1,0 +1,149 @@
+/* ==========================================================================
+   NewsBanner — "Fresh stories just arrived" notification strip
+   Matches the site's brutalist / newsprint design system.
+   ========================================================================== */
+
+.news-banner {
+  /* Fixed below the sticky TopAppBar.
+     The AppBar has no fixed pixel height in CSS so we use a comfortable
+     offset that clears it on both mobile and desktop. */
+  position: fixed;
+  top: 68px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-0.4deg);
+  z-index: 200; /* above page content, below modal (modal is higher) */
+
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  white-space: nowrap;
+
+  /* Brutalist newsprint style */
+  background-color: var(--primary-container);   /* yellow */
+  color: var(--on-primary-container);
+  border: 2px solid var(--on-surface);
+  box-shadow: 4px 4px 0px var(--on-surface);
+  padding: 10px 16px;
+
+  /* Wobbly organic border matching .wobbly-border in globals.css */
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+
+  /* Slide-down entrance */
+  animation: banner-slide-in 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* ── Text label ─────────────────────────────────────────────────────────── */
+
+.news-banner-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--on-primary-container);
+}
+
+/* ── Action buttons row ─────────────────────────────────────────────────── */
+
+.news-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* "Refresh" button — filled dark pill */
+.news-banner-refresh {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  background-color: var(--on-surface);
+  color: var(--surface);
+  padding: 6px 12px;
+  border: 2px solid var(--on-surface);
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  cursor: pointer;
+
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.news-banner-refresh:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px var(--on-surface);
+  background-color: var(--on-surface);
+}
+
+.news-banner-refresh:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+/* Dismiss (×) — icon-only ghost button */
+.news-banner-dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--on-primary-container);
+  opacity: 0.6;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.12s ease;
+  padding: 2px;
+}
+
+.news-banner-dismiss:hover {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+/* ── Entrance animation ─────────────────────────────────────────────────── */
+
+@keyframes banner-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-18px) rotate(-0.4deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) rotate(-0.4deg);
+  }
+}
+
+/* ── Reduced motion ─────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .news-banner {
+    animation: none;
+    transform: translateX(-50%);
+  }
+}
+
+/* ── Mobile: full-width strip ───────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  .news-banner {
+    top: 60px;
+    left: 12px;
+    right: 12px;
+    transform: none;
+    white-space: normal;
+    flex-wrap: wrap;
+    gap: 10px;
+    border-radius: 12px 4px 10px 4px / 4px 10px 4px 12px;
+  }
+
+  @keyframes banner-slide-in {
+    from {
+      opacity: 0;
+      transform: translateY(-14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .news-banner {
+      animation: none;
+      transform: none;
+    }
+  }
+}
