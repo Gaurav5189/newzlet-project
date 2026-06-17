@@ -85,6 +85,19 @@
   padding-left: calc(var(--margin-mobile) + 0.5rem);
 }
 
+.sidebar-link.active {
+  background-color: var(--primary-container);
+  color: var(--on-primary-container);
+  padding-left: calc(var(--margin-mobile) + 0.5rem);
+  border-left: 8px solid var(--on-surface);
+  border-bottom: 1px solid var(--on-surface);
+}
+
+.sidebar-link.active::before {
+  content: "☛ ";
+  margin-right: 0.25rem;
+}
+
 .sidebar-link:last-child {
   border-bottom: none;
 }
@@ -102,6 +115,9 @@
     padding: 1.25rem var(--margin-desktop);
   }
   .sidebar-link:hover {
+    padding-left: calc(var(--margin-desktop) + 0.75rem);
+  }
+  .sidebar-link.active {
     padding-left: calc(var(--margin-desktop) + 0.75rem);
   }
 }

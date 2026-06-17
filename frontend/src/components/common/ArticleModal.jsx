@@ -142,6 +142,20 @@ export default function ArticleModal() {
           </div>
         )}
 
+        {/* Why It Matters */}
+        {activeArticle.ai_summary && (
+          <div className="why-it-matters-box">
+            <span className="why-it-matters-title text-label-caps">
+              <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', verticalAlign: 'text-bottom', marginRight: '4px' }}>lightbulb</span>
+              Why It Matters
+            </span>
+            <p
+              className="why-it-matters-text text-body-md"
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(activeArticle.ai_summary) }}
+            />
+          </div>
+        )}
+
         {/* Article Body */}
         <div className="modal-body">
           {renderBodyParagraphs(activeArticle.summary)}

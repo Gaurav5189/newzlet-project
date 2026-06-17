@@ -14,10 +14,19 @@ class IngestArticleView(APIView):
         data = request.data
 
         # Support both single object (dict) and multiple objects (list)
+        # Also handles nested 'articles_array' format from n8n
+        items = []
         if isinstance(data, list):
-            items = data
+            for entry in data:
+                if isinstance(entry, dict) and 'articles_array' in entry:
+                    items.extend(entry['articles_array'])
+                else:
+                    items.append(entry)
         elif isinstance(data, dict):
-            items = [data]
+            if 'articles_array' in data:
+                items.extend(data['articles_array'])
+            else:
+                items.append(data)
         else:
             return Response(
                 {"error": "Invalid request body format. Expected JSON object or JSON array."}, 
@@ -76,6 +85,7 @@ class IngestArticleView(APIView):
                 skipped_invalid += 1
                 continue
             summary = item.get('summary', '')
+            ai_summary = item.get('ai_summary')
             image_url = item.get('image_url')
             source_url = item.get('source_url')
             source_name = item.get('source_name')
@@ -92,6 +102,7 @@ class IngestArticleView(APIView):
             articles_to_create.append(Article(
                 title=title,
                 summary=summary,
+                ai_summary=ai_summary,
                 image_url=image_url,
                 source_url=source_url,
                 source_name=source_name,

@@ -1,3 +1,8 @@
+from decouple import config
+import atexit
+from concurrent.futures import ThreadPoolExecutor
+import requests
+import logging
 from rest_framework import generics
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -8,8 +13,28 @@ from .serializers import ArticleSerializer, CategorySerializer, ContactMessageSe
 from .filters import ArticleFilter
 from config.middleware.throttling import CloudflareContactThrottle
 
-# Cache the standard article timeline feed for 24 hours (86400 seconds)
-@method_decorator(cache_page(60 * 60 * 24), name='get')
+logger = logging.getLogger(__name__)
+
+# Bounded pool for async webhook dispatch — max_workers=2 keeps memory
+# predictable on the free-tier host (0.25 CPU / 256 MB RAM). The
+# CloudflareContactThrottle already limits burst, so 2 workers is plenty.
+_webhook_executor = ThreadPoolExecutor(max_workers=2)
+atexit.register(_webhook_executor.shutdown, wait=False)
+
+def send_n8n_webhook(data):
+    # Using the webhook URL from environment variables loaded via python-decouple
+    webhook_url = config("N8N_WEBHOOK_URL", default="")
+    if not webhook_url:
+        logger.error("N8N_WEBHOOK_URL not configured in environment.")
+        return
+        
+    try:
+        requests.post(webhook_url, json=data, timeout=5)
+    except Exception as e:
+        logger.error(f"Failed to send webhook to n8n: {e}")
+
+# Cache the standard article timeline feed for 6 hours (21600 seconds)
+@method_decorator(cache_page(60 * 60 * 6), name='get')
 @method_decorator(vary_on_headers('Accept'), name='get')
 class ArticleListView(generics.ListAPIView):
     queryset = Article.objects.filter(is_visible=True).exclude(category__slug='day-fact')
@@ -25,8 +50,8 @@ class BreakingArticlesView(generics.ListAPIView):
     def get_queryset(self):
         return Article.objects.filter(is_visible=True).exclude(category__slug='day-fact')[:5]
 
-# Cache categories list for 24 hours
-@method_decorator(cache_page(60 * 60 * 24), name='get')
+# Cache categories list for 12 hour (categories change rarely but not daily)
+@method_decorator(cache_page(60 * 60 * 12), name='get')
 @method_decorator(vary_on_headers('Accept'), name='get')
 class CategoryListView(generics.ListAPIView):
     queryset = Category.objects.all()
@@ -51,4 +76,16 @@ class SearchArticlesView(generics.ListAPIView):
 class ContactMessageCreateView(generics.CreateAPIView):
     serializer_class = ContactMessageSerializer
     throttle_classes = [CloudflareContactThrottle]
+
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        
+        # Fire off webhook to n8n asynchronously so we don't block the API response
+        data = {
+            "name": instance.name,
+            "email": instance.email,
+            "message": instance.message,
+            "created_at": instance.created_at.isoformat() if instance.created_at else None
+        }
+        _webhook_executor.submit(send_n8n_webhook, data)
 

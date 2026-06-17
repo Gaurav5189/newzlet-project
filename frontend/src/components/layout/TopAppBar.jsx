@@ -36,7 +36,7 @@ export default function TopAppBar() {
   return (
     <>
       <header className="top-app-bar glassmorphic">
-        <Link to="/" viewTransition={!isActive('/')} className="top-app-bar-brand text-headline-md font-headline-md">
+        <Link to="/" viewTransition={!isActive('/')} className="top-app-bar-brand">
           The Daily Newzlet
         </Link>
         <nav className="top-app-bar-nav">

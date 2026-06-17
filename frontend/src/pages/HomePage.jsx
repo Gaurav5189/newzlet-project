@@ -10,13 +10,14 @@ export default function HomePage() {
   const { data, isLoading } = useArticles(1, 100);
   const { data: factData, isLoading: isFactLoading } = useCategoryArticles('day-fact', 1);
 
-  // Filter out the day-fact and fun-fact articles from the main general feed
+  // Filter out only the day-fact articles from the main general feed
   const baseArticles = (data?.results || []).filter(
-    article => article.category?.slug !== 'day-fact' && article.category?.slug !== 'fun-fact'
+    article => article.category?.slug !== 'day-fact'
   );
 
-  // Safety measure: Ensure bento grid articles have images. We need 4 total (1 featured, 3 side)
-  const eligibleArticles = baseArticles.filter(a => a.image_url);
+  // Safety measure: Ensure bento grid articles have images, and exclude fun-fact from bento.
+  // We need 4 total (1 featured, 3 side)
+  const eligibleArticles = baseArticles.filter(a => a.image_url && a.category?.slug !== 'fun-fact');
   const selectedArticles = [];
   const selectedCategories = new Set();
 
@@ -101,7 +102,7 @@ export default function HomePage() {
             The Daily Newzlet
           </h1>
           <p className="text-body-lg hero-subtitle">
-            Your No-Nonsense News Roundup, Hand-Inked Every Morning.
+            Your Daily News Roundup.
           </p>
         </div>
 
