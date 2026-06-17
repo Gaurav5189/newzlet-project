@@ -75,9 +75,12 @@ export function useNewsVersion({ onNewVersion }) {
     return () => broadcastChannel.removeEventListener('message', handler);
   }, []);
 
-  // Invalidates all React Query caches → every hook refetches from Redis.
+  // Invalidates dynamic news caches → refetches updated content from the server
+  // without hammering static endpoints (like categories) at the same time.
   const refreshAll = useCallback(() => {
-    queryClient.invalidateQueries();
+    queryClient.invalidateQueries({ queryKey: ['articles'] });
+    queryClient.invalidateQueries({ queryKey: ['category-articles'] });
+    queryClient.invalidateQueries({ queryKey: ['breaking'] });
   }, [queryClient]);
 
   return { refreshAll };

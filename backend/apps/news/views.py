@@ -57,10 +57,10 @@ def send_n8n_webhook(data):
         logger.error(f"Failed to send webhook to n8n: {e}")
 
 # Cache the standard article timeline feed for 6 hours (21600 seconds)
-@method_decorator(cache_page(60 * 60 * 6), name='get')
+@method_decorator(cache_page(60 * 6 * 6), name='get')
 @method_decorator(vary_on_headers('Accept'), name='get')
 class ArticleListView(NoBrowserCacheMixin, generics.ListAPIView):
-    queryset = Article.objects.filter(is_visible=True).exclude(category__slug='day-fact')
+    queryset = Article.objects.filter(is_visible=True).exclude(category__slug='day-fact').select_related('category')
     serializer_class = ArticleSerializer
 
 # Cache the breaking news ticker for 5 minutes (300 seconds) since it changes quickly
@@ -71,7 +71,7 @@ class BreakingArticlesView(NoBrowserCacheMixin, generics.ListAPIView):
     pagination_class = None
 
     def get_queryset(self):
-        return Article.objects.filter(is_visible=True).exclude(category__slug='day-fact')[:5]
+        return Article.objects.filter(is_visible=True).exclude(category__slug='day-fact').select_related('category')[:5]
 
 # Cache categories list for 12 hour (categories change rarely but not daily)
 @method_decorator(cache_page(60 * 60 * 12), name='get')
@@ -89,10 +89,10 @@ class CategoryArticleListView(NoBrowserCacheMixin, generics.ListAPIView):
 
     def get_queryset(self):
         slug = self.kwargs['slug']
-        return Article.objects.filter(category__slug=slug, is_visible=True)
+        return Article.objects.filter(category__slug=slug, is_visible=True).select_related('category')
 
 class SearchArticlesView(generics.ListAPIView):
-    queryset = Article.objects.filter(is_visible=True).exclude(category__slug='day-fact')
+    queryset = Article.objects.filter(is_visible=True).exclude(category__slug='day-fact').select_related('category')
     serializer_class = ArticleSerializer
     filterset_class = ArticleFilter
 
