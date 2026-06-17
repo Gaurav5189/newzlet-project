@@ -1,5 +1,6 @@
 from decouple import config
-import threading
+import atexit
+from concurrent.futures import ThreadPoolExecutor
 import requests
 import logging
 from rest_framework import generics
@@ -13,6 +14,12 @@ from .filters import ArticleFilter
 from config.middleware.throttling import CloudflareContactThrottle
 
 logger = logging.getLogger(__name__)
+
+# Bounded pool for async webhook dispatch — max_workers=2 keeps memory
+# predictable on the free-tier host (0.25 CPU / 256 MB RAM). The
+# CloudflareContactThrottle already limits burst, so 2 workers is plenty.
+_webhook_executor = ThreadPoolExecutor(max_workers=2)
+atexit.register(_webhook_executor.shutdown, wait=False)
 
 def send_n8n_webhook(data):
     # Using the webhook URL from environment variables loaded via python-decouple
@@ -80,5 +87,5 @@ class ContactMessageCreateView(generics.CreateAPIView):
             "message": instance.message,
             "created_at": instance.created_at.isoformat() if instance.created_at else None
         }
-        threading.Thread(target=send_n8n_webhook, args=(data,)).start()
+        _webhook_executor.submit(send_n8n_webhook, data)
 

@@ -149,9 +149,10 @@ export default function ArticleModal() {
               <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', verticalAlign: 'text-bottom', marginRight: '4px' }}>lightbulb</span>
               Why It Matters
             </span>
-            <p className="why-it-matters-text text-body-md">
-              {activeArticle.ai_summary}
-            </p>
+            <p
+              className="why-it-matters-text text-body-md"
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(activeArticle.ai_summary) }}
+            />
           </div>
         )}
 
