@@ -111,17 +111,6 @@ export default function ArticleCard({ article, variant = 'standard' }) {
             <span className="material-symbols-outlined">public</span>
           </div>
           <h3 className={getTitleClass()} dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.title) }} />
-          {article.ai_summary && (
-            <div className="why-it-matters-box">
-              <span className="why-it-matters-title text-label-caps">
-                <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', verticalAlign: 'text-bottom', marginRight: '4px' }}>lightbulb</span>
-                Why It Matters
-              </span>
-              <p className="why-it-matters-text text-body-md">
-                {article.ai_summary}
-              </p>
-            </div>
-          )}
           <p className="article-excerpt font-body-md text-body-md" dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.summary || article.excerpt) }} />
           <div className="article-footer">
             <span className="article-date-text font-label-caps text-label-caps">
@@ -181,18 +170,6 @@ export default function ArticleCard({ article, variant = 'standard' }) {
         </div>
 
         <h3 className={getTitleClass()} dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.title) }} />
-
-        {article.ai_summary && (
-          <div className="why-it-matters-box">
-            <span className="why-it-matters-title text-label-caps">
-              <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', verticalAlign: 'text-bottom', marginRight: '4px' }}>lightbulb</span>
-              Why It Matters
-            </span>
-            <p className="why-it-matters-text text-body-md">
-              {article.ai_summary}
-            </p>
-          </div>
-        )}
 
         {resolvedVariant !== 'side' && (
           <p className="article-excerpt font-body-lg text-body-lg" dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.summary || article.excerpt) }} />
