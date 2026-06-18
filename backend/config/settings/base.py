@@ -89,3 +89,6 @@ REST_FRAMEWORK = {
     ],
 }
 
+# Allow large formsets for the Django admin (e.g., 100 rows with list_editable)
+# The default is 1000, which is quickly exceeded by the article feed.
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000

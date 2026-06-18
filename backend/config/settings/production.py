@@ -122,7 +122,7 @@ CSRF_TRUSTED_ORIGINS = [o.strip() for o in config('CSRF_TRUSTED_ORIGINS', defaul
 # Request size limits — prevent abuse
 # ---------------------------------------------------------------------------
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5_242_880       # 5 MB
-DATA_UPLOAD_MAX_NUMBER_FIELDS = 100
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 
 # ---------------------------------------------------------------------------
 # Security logging

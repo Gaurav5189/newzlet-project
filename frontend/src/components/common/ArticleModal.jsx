@@ -2,6 +2,7 @@ import { useModal } from '../../context/ModalContext';
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { sanitizeHtml } from '../../utils/html';
+import { getOptimizedImageUrl } from '../../utils/image';
 import '../../styles/ArticleModal.css';
 
 // Only allow 6-digit hex colors from Django backend (e.g. #F59E0B).
@@ -129,7 +130,7 @@ export default function ArticleModal() {
                 </div>
               )}
               <img 
-                src={activeArticle.image_url} 
+                src={getOptimizedImageUrl(activeArticle.image_url, 1200)} 
                 alt={activeArticle.title} 
                 className={`modal-image ${imageLoading ? 'loading' : 'loaded'}`}
                 onLoad={() => setImageLoading(false)}

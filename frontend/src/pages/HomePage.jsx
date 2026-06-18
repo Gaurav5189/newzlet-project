@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useArticles } from '../hooks/useArticles';
 import { useCategoryArticles } from '../hooks/useCategoryArticles';
 import ArticleCard from '../components/common/ArticleCard';
@@ -7,73 +8,89 @@ import { Helmet } from 'react-helmet-async';
 import '../styles/HomePage.css';
 
 export default function HomePage() {
-  const { data, isLoading } = useArticles(1, 100);
+  // NOTE: Page size is set to 30 to optimize load times. If added more categories
+  // in the future, increase this count accordingly to ensure there are enough
+  // articles to populate all clippings rails.
+  const { data, isLoading } = useArticles(1, 30);
   const { data: factData, isLoading: isFactLoading } = useCategoryArticles('day-fact', 1);
 
-  // Filter out only the day-fact articles from the main general feed
-  const baseArticles = (data?.results || []).filter(
-    article => article.category?.slug !== 'day-fact'
-  );
+  // Memoize all filtering, sorting, and grouping computations to avoid
+  // expensive O(N) calculations on every component render.
+  const processedData = useMemo(() => {
+    const articlesList = data?.results || [];
 
-  // Safety measure: Ensure bento grid articles have images, and exclude fun-fact from bento.
-  // We need 4 total (1 featured, 3 side)
-  const eligibleArticles = baseArticles.filter(a => a.image_url && a.category?.slug !== 'fun-fact');
-  const selectedArticles = [];
-  const selectedCategories = new Set();
+    // Filter out only the day-fact articles from the main general feed
+    const baseArticles = articlesList.filter(
+      article => article.category?.slug !== 'day-fact'
+    );
 
-  // First pass: select one article per unique category
-  for (const article of eligibleArticles) {
-    if (selectedArticles.length >= 4) break;
-    const catSlug = article.category?.slug || 'general';
-    if (!selectedCategories.has(catSlug)) {
-      selectedArticles.push(article);
-      selectedCategories.add(catSlug);
-    }
-  }
+    // Safety measure: Ensure bento grid articles have images, and exclude fun-fact from bento.
+    // We need 4 total (1 featured, 3 side)
+    const eligibleArticles = baseArticles.filter(a => a.image_url && a.category?.slug !== 'fun-fact');
+    const selectedArticles = [];
+    const selectedCategories = new Set();
 
-  // Second pass: if we have fewer than 4 articles, fill up the remaining slots
-  if (selectedArticles.length < 4) {
-    const selectedIds = new Set(selectedArticles.map(a => a.id));
+    // First pass: select one article per unique category
     for (const article of eligibleArticles) {
       if (selectedArticles.length >= 4) break;
-      if (!selectedIds.has(article.id)) {
+      const catSlug = article.category?.slug || 'general';
+      if (!selectedCategories.has(catSlug)) {
         selectedArticles.push(article);
+        selectedCategories.add(catSlug);
       }
     }
-  }
 
-  const bentoArticles = selectedArticles;
-
-  const featuredArticle = bentoArticles.length > 0 ? bentoArticles[0] : null;
-  const sideArticles = bentoArticles.length > 1 ? bentoArticles.slice(1, 4) : [];
-
-  // Exclude bento articles from the latest section
-  const bentoArticleIds = new Set(bentoArticles.map(a => a.id));
-
-  const oneDayAgo = new Date();
-  oneDayAgo.setHours(oneDayAgo.getHours() - 24);
-
-  const recentArticles = baseArticles.filter(a => {
-    if (bentoArticleIds.has(a.id)) return false;
-    const pubDate = new Date(a.published_at);
-    return pubDate >= oneDayAgo;
-  });
-
-  const groupedArticles = recentArticles.reduce((acc, article) => {
-    const catSlug = article.category?.slug || 'general';
-    if (!acc[catSlug]) {
-      acc[catSlug] = {
-        name: article.category?.name || 'General',
-        slug: catSlug,
-        articles: []
-      };
+    // Second pass: if we have fewer than 4 articles, fill up the remaining slots
+    if (selectedArticles.length < 4) {
+      const selectedIds = new Set(selectedArticles.map(a => a.id));
+      for (const article of eligibleArticles) {
+        if (selectedArticles.length >= 4) break;
+        if (!selectedIds.has(article.id)) {
+          selectedArticles.push(article);
+        }
+      }
     }
-    if (acc[catSlug].articles.length < 3) {
-      acc[catSlug].articles.push(article);
-    }
-    return acc;
-  }, {});
 
+    const bentoArticles = selectedArticles;
+    const featuredArticle = bentoArticles.length > 0 ? bentoArticles[0] : null;
+    const sideArticles = bentoArticles.length > 1 ? bentoArticles.slice(1, 4) : [];
+
+    // Exclude bento articles from the latest section
+    const bentoArticleIds = new Set(bentoArticles.map(a => a.id));
+
+    const oneDayAgo = new Date();
+    oneDayAgo.setHours(oneDayAgo.getHours() - 24);
+
+    const recentArticles = baseArticles.filter(a => {
+      if (bentoArticleIds.has(a.id)) return false;
+      const pubDate = new Date(a.published_at);
+      return pubDate >= oneDayAgo;
+    });
+
+    const groupedArticles = recentArticles.reduce((acc, article) => {
+      const catSlug = article.category?.slug || 'general';
+      if (!acc[catSlug]) {
+        acc[catSlug] = {
+          name: article.category?.name || 'General',
+          slug: catSlug,
+          articles: []
+        };
+      }
+      if (acc[catSlug].articles.length < 3) {
+        acc[catSlug].articles.push(article);
+      }
+      return acc;
+    }, {});
+
+    return {
+      featuredArticle,
+      sideArticles,
+      groupedArticles,
+      recentArticles,
+    };
+  }, [data]);
+
+  const { featuredArticle, sideArticles, groupedArticles, recentArticles } = processedData;
   const dayFactArticle = factData?.results?.[0];
 
   const siteOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://newzlet.pages.dev';
