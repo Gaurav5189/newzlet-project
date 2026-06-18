@@ -25,8 +25,10 @@ def pre_warm_cache_task():
     from .views import ArticleListView, BreakingArticlesView, CategoryListView, CategoryArticleListView
 
     factory = RequestFactory()
+    # NOTE: If you increase the frontend homepage page size (e.g. if you add
+    # more categories in the future), make sure to update 'page_size' here to match!
     endpoints = [
-        ('/api/articles/', ArticleListView, {'page': '1', 'page_size': '100'}, {}),
+        ('/api/articles/', ArticleListView, {'page': '1', 'page_size': '30'}, {}),
         ('/api/articles/breaking/', BreakingArticlesView, {}, {}),
         ('/api/categories/', CategoryListView, {}, {}),
         ('/api/categories/day-fact/articles/', CategoryArticleListView, {'page': '1'}, {'slug': 'day-fact'}),
