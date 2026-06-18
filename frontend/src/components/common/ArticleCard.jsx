@@ -27,8 +27,17 @@ export default function ArticleCard({ article, variant = 'standard' }) {
   // the onLoad event won't fire. We check .complete AND .src to handle this.
   // src must match to avoid acting on a cached complete state from a previous image.
   useEffect(() => {
-    if (imgRef.current && imgRef.current.complete && imgRef.current.src === optimizedSrc) {
-      setImageLoading(false);
+    if (imgRef.current && imgRef.current.complete && optimizedSrc) {
+      let isMatched;
+      try {
+        const absoluteOptimized = new URL(optimizedSrc, window.location.href).href;
+        isMatched = imgRef.current.src === absoluteOptimized;
+      } catch {
+        isMatched = imgRef.current.src === optimizedSrc;
+      }
+      if (isMatched) {
+        setImageLoading(false);
+      }
     }
   }, [optimizedSrc]);
 
@@ -81,7 +90,7 @@ export default function ArticleCard({ article, variant = 'standard' }) {
 
   // We'll map the variant to specific CSS classes
   const getContainerClass = () => {
-    let baseClass = '';
+    let baseClass;
     switch (resolvedVariant) {
       case 'featured': baseClass = 'article-card featured wobbly-border neo-shadow'; break;
       case 'side': baseClass = 'article-card side neo-shadow-sm rotate-slight-neg'; break;

@@ -18,9 +18,10 @@ class ArticleAdmin(admin.ModelAdmin):
 
     @admin.action(description="Hide selected articles")
     def hide_selected(self, request, queryset):
-        queryset.update(is_visible=False)
+        count = queryset.update(is_visible=False)
         from .signals import clear_news_cache
         clear_news_cache(sender=Article)
+        self.message_user(request, f"{count} article(s) successfully hidden.")
 
 @admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):
