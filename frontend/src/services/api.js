@@ -8,6 +8,7 @@ const fetchApi = async (endpoint, options = {}) => {
     ...options,
     headers: {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
       ...options.headers,
     },
   });

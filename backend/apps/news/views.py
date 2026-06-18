@@ -19,29 +19,53 @@ from config.middleware.throttling import CloudflareContactThrottle
 
 logger = logging.getLogger(__name__)
 
+from django.middleware.cache import CacheMiddleware
+
 # Bounded pool for async webhook dispatch — max_workers=2 keeps memory
 # predictable on the free-tier host (0.25 CPU / 256 MB RAM). The
 # CloudflareContactThrottle already limits burst, so 2 workers is plenty.
 _webhook_executor = ThreadPoolExecutor(max_workers=2)
 atexit.register(_webhook_executor.shutdown, wait=False)
 
-class NoBrowserCacheMixin:
-    """
-    Overrides the Cache-Control header on API responses to 'no-store'.
 
-    Django's cache_page decorator does two things at once:
-      1. Caches the response server-side in Redis (we want this).
-      2. Sets Cache-Control: max-age=N on the HTTP response (we don't want
-         this — it causes browsers to serve stale API JSON for hours).
-
-    This mixin runs after cache_page has already stored the response in
-    Redis, then replaces the header so browsers always make a fresh
-    network request. Redis still serves those requests instantly.
+def cache_api_page(timeout, cache_alias='default', key_prefix=None):
     """
-    def dispatch(self, request, *args, **kwargs):
-        response = super().dispatch(request, *args, **kwargs)
-        response['Cache-Control'] = 'no-store'
-        return response
+    Custom decorator for caching Django REST Framework (DRF) views on the server
+    (e.g., in Upstash Redis) while ensuring browsers always request fresh content
+    (`Cache-Control: no-store`).
+
+    This solves a known Django/DRF gotcha: DRF views return unrendered Response
+    objects, which raise ContentNotRenderedError when Django tries to pickle them
+    for the cache backend. By forcing response.render() inside this decorator
+    before passing it to the CacheMiddleware, we ensure responses are safely cached
+    while returning correct headers to the browser.
+    """
+    def decorator(view_func):
+        middleware = CacheMiddleware(get_response=view_func, page_timeout=timeout, cache_alias=cache_alias, key_prefix=key_prefix)
+        
+        def _wrapped(request, *args, **kwargs):
+            # 1. Try to fetch from Redis
+            cached_response = middleware.process_request(request)
+            if cached_response is not None:
+                cached_response['Cache-Control'] = 'no-store'
+                return cached_response
+                
+            # 2. Cache miss. Run dispatch to get a finalized response
+            response = view_func(request, *args, **kwargs)
+            
+            # 3. Render the DRF template/JSON response so Django can pickle it
+            if hasattr(response, 'render') and callable(response.render):
+                response.render()
+                
+            # 4. Cache the rendered response (without 'no-store' header)
+            response = middleware.process_response(request, response)
+            
+            # 5. Add 'no-store' for the client browser
+            response['Cache-Control'] = 'no-store'
+            return response
+            
+        return _wrapped
+    return decorator
 
 
 def send_n8n_webhook(data):
@@ -57,16 +81,14 @@ def send_n8n_webhook(data):
         logger.error(f"Failed to send webhook to n8n: {e}")
 
 # Cache the standard article timeline feed for 6 hours (21600 seconds)
-@method_decorator(cache_page(60 * 6 * 6), name='get')
-@method_decorator(vary_on_headers('Accept'), name='get')
-class ArticleListView(NoBrowserCacheMixin, generics.ListAPIView):
+@method_decorator(cache_api_page(60 * 60 * 6), name='dispatch')
+class ArticleListView(generics.ListAPIView):
     queryset = Article.objects.filter(is_visible=True).exclude(category__slug='day-fact').select_related('category')
     serializer_class = ArticleSerializer
 
 # Cache the breaking news ticker for 5 minutes (300 seconds) since it changes quickly
-@method_decorator(cache_page(60 * 5), name='get')
-@method_decorator(vary_on_headers('Accept'), name='get')
-class BreakingArticlesView(NoBrowserCacheMixin, generics.ListAPIView):
+@method_decorator(cache_api_page(60 * 5), name='dispatch')
+class BreakingArticlesView(generics.ListAPIView):
     serializer_class = ArticleSerializer
     pagination_class = None
 
@@ -74,17 +96,15 @@ class BreakingArticlesView(NoBrowserCacheMixin, generics.ListAPIView):
         return Article.objects.filter(is_visible=True).exclude(category__slug='day-fact').select_related('category')[:5]
 
 # Cache categories list for 12 hour (categories change rarely but not daily)
-@method_decorator(cache_page(60 * 60 * 12), name='get')
-@method_decorator(vary_on_headers('Accept'), name='get')
-class CategoryListView(NoBrowserCacheMixin, generics.ListAPIView):
+@method_decorator(cache_api_page(60 * 60 * 12), name='dispatch')
+class CategoryListView(generics.ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     pagination_class = None
 
-# Cache specific category lists for 1 hour
-@method_decorator(cache_page(60 * 60), name='get')
-@method_decorator(vary_on_headers('Accept'), name='get')
-class CategoryArticleListView(NoBrowserCacheMixin, generics.ListAPIView):
+# Cache specific category lists for 6 hours
+@method_decorator(cache_api_page(60 * 60 * 6), name='dispatch')
+class CategoryArticleListView(generics.ListAPIView):
     serializer_class = ArticleSerializer
 
     def get_queryset(self):
@@ -131,4 +151,6 @@ class NewsVersionView(APIView):
             # Establish a baseline so the next real update is detectable.
             version = int(timezone.now().timestamp())
             cache.set('news_last_updated', version, timeout=86400)
-        return Response({'version': version})
+        response = Response({'version': version})
+        response['Cache-Control'] = 'no-store'
+        return response

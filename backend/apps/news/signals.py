@@ -36,8 +36,14 @@ def pre_warm_cache_task():
     for path, view_class, query_params, kwargs in endpoints:
         try:
             # Match the headers (Accept: application/json) so the generated cache key
-            # matches what frontend fetch() requests generate.
-            request = factory.get(path, query_params, HTTP_ACCEPT='application/json')
+            # matches what frontend fetch() requests generate. We set HTTP_HOST to
+            # a valid allowed host to bypass DisallowedHost check when DEBUG=False.
+            request = factory.get(
+                path,
+                query_params,
+                HTTP_HOST='sudo-server.alwaysdata.net',
+                HTTP_ACCEPT='application/json'
+            )
             view = view_class.as_view()
             view(request, **kwargs)
             logger.info(f"Successfully pre-warmed cache for {path}")
