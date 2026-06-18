@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { useModal } from '../../context/ModalContext';
 import { sanitizeHtml } from '../../utils/html';
+import { getOptimizedImageUrl } from '../../utils/image';
 import '../../styles/ArticleCard.css';
 
 // Only allow 6-digit hex colors from Django backend (e.g. #F59E0B).
@@ -20,14 +21,16 @@ export default function ArticleCard({ article, variant = 'standard' }) {
   const [imageLoading, setImageLoading] = useState(true);
   const [isInView, setIsInView] = useState(false);
 
+  const optimizedSrc = getOptimizedImageUrl(article.image_url, variant === 'featured' ? 800 : 400);
+
   // If the image is already loaded (e.g. from cache) by the time React mounts,
   // the onLoad event won't fire. We check .complete AND .src to handle this.
   // src must match to avoid acting on a cached complete state from a previous image.
   useEffect(() => {
-    if (imgRef.current && imgRef.current.complete && imgRef.current.src === article.image_url) {
+    if (imgRef.current && imgRef.current.complete && imgRef.current.src === optimizedSrc) {
       setImageLoading(false);
     }
-  }, [article.image_url]);
+  }, [optimizedSrc]);
 
   useEffect(() => {
     if (article.id !== prevArticleIdRef.current) {
@@ -142,7 +145,7 @@ export default function ArticleCard({ article, variant = 'standard' }) {
         )}
         <img 
           ref={imgRef}
-          src={article.image_url} 
+          src={optimizedSrc} 
           alt={article.title} 
           loading="lazy"
           style={{ aspectRatio: '16/9', width: '100%', objectFit: 'cover' }}
