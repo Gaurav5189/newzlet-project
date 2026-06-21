@@ -5,6 +5,7 @@ import ArticleCard from '../components/common/ArticleCard';
 import SkeletonCard from '../components/common/SkeletonCard';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import { IconAutoAwesome, IconInkPen } from '../components/common/Icons';
 import '../styles/HomePage.css';
 
 export default function HomePage() {
@@ -126,11 +127,11 @@ export default function HomePage() {
         <div className="fun-fact-container rotate-slight-pos">
           <div className="fun-fact-card neo-shadow hand-drawn-bubble">
             <div className="fun-fact-header">
-              <span className="material-symbols-outlined text-headline-md">auto_awesome</span>
+              <IconAutoAwesome className="text-headline-md" />
               <h3 className="text-headline-md text-uppercase">
                 {dayFactArticle?.category?.name || 'Day Fact'}
               </h3>
-              <span className="material-symbols-outlined text-headline-md">ink_pen</span>
+              <IconInkPen className="text-headline-md" />
             </div>
             {isFactLoading ? (
               <div className="skeleton-day-fact">

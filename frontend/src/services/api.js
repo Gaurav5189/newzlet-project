@@ -3,8 +3,19 @@ const baseURL = envBase
   ? (envBase.endsWith('/api') ? envBase : `${envBase}/api`)
   : '/api';
 
+let apiVersion = '';
+export const setApiVersion = (v) => { apiVersion = v; };
+
 const fetchApi = async (endpoint, options = {}) => {
-  const response = await fetch(`${baseURL}${endpoint}`, {
+  const urlStr = `${baseURL}${endpoint}`;
+  let finalUrl = urlStr;
+  // Append cache-busting version token to all endpoints except the version poller itself
+  if (apiVersion && !endpoint.includes('news-version')) {
+    const separator = urlStr.includes('?') ? '&' : '?';
+    finalUrl = `${urlStr}${separator}v=${apiVersion}`;
+  }
+
+  const response = await fetch(finalUrl, {
     ...options,
     headers: {
       'Content-Type': 'application/json',

@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useCallback } from 'react';
-import { getNewsVersion } from '../services/api';
+import { getNewsVersion, setApiVersion } from '../services/api';
 
 const VERSION_POLL_INTERVAL = 3 * 60 * 1000; // 3 minutes
 
@@ -49,11 +49,13 @@ export function useNewsVersion({ onNewVersion }) {
     if (lastVersionRef.current === null) {
       // First load — set baseline. Do NOT show a banner.
       lastVersionRef.current = data.version;
+      setApiVersion(data.version);
       return;
     }
 
     if (data.version !== lastVersionRef.current) {
       lastVersionRef.current = data.version;
+      setApiVersion(data.version);
       onNewVersionRef.current();
       // Notify other open tabs so they show the banner immediately
       // instead of waiting for their own 3-minute poll.
@@ -68,6 +70,7 @@ export function useNewsVersion({ onNewVersion }) {
       if (event.data?.type === 'news-updated') {
         // Update our ref so we don't double-fire when our own poll runs next.
         lastVersionRef.current = event.data.version;
+        setApiVersion(event.data.version);
         onNewVersionRef.current();
       }
     };

@@ -38,7 +38,7 @@ def cache_api_page(timeout, cache_alias='default', key_prefix=None):
     objects, which raise ContentNotRenderedError when Django tries to pickle them
     for the cache backend. By forcing response.render() inside this decorator
     before passing it to the CacheMiddleware, we ensure responses are safely cached
-    while returning correct headers to the browser.
+    while returning correct headers to the browser/CDN using stale-while-revalidate.
     """
     def decorator(view_func):
         middleware = CacheMiddleware(get_response=view_func, page_timeout=timeout, cache_alias=cache_alias, key_prefix=key_prefix)
@@ -47,7 +47,7 @@ def cache_api_page(timeout, cache_alias='default', key_prefix=None):
             # 1. Try to fetch from Redis
             cached_response = middleware.process_request(request)
             if cached_response is not None:
-                cached_response['Cache-Control'] = 'no-store'
+                cached_response['Cache-Control'] = f'public, max-age=0, s-maxage={timeout}, stale-while-revalidate=86400'
                 return cached_response
                 
             # 2. Cache miss. Run dispatch to get a finalized response
@@ -57,11 +57,11 @@ def cache_api_page(timeout, cache_alias='default', key_prefix=None):
             if hasattr(response, 'render') and callable(response.render):
                 response.render()
                 
-            # 4. Cache the rendered response (without 'no-store' header)
+            # 4. Cache the rendered response (without CDN headers)
             response = middleware.process_response(request, response)
             
-            # 5. Add 'no-store' for the client browser
-            response['Cache-Control'] = 'no-store'
+            # 5. Add 'stale-while-revalidate' for the CDN
+            response['Cache-Control'] = f'public, max-age=0, s-maxage={timeout}, stale-while-revalidate=86400'
             return response
             
         return _wrapped

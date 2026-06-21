@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useModal } from '../../context/ModalContext';
 import { sanitizeHtml } from '../../utils/html';
 import { getOptimizedImageUrl } from '../../utils/image';
+import { IconPublic, IconSync, IconArrowRightAlt } from './Icons';
 import '../../styles/ArticleCard.css';
 
 // Only allow 6-digit hex colors from Django backend (e.g. #F59E0B).
@@ -120,7 +121,7 @@ export default function ArticleCard({ article, variant = 'standard' }) {
       >
         <div className="article-content">
           <div className="article-no-image-icon">
-            <span className="material-symbols-outlined">public</span>
+            <IconPublic />
           </div>
           <h3 className={getTitleClass()} dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.title) }} />
           <p className="article-excerpt font-body-md text-body-md" dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.summary || article.excerpt) }} />
@@ -147,7 +148,7 @@ export default function ArticleCard({ article, variant = 'standard' }) {
         {imageLoading && (
           <div className="article-image-loader">
             <div className="article-image-loader-badge font-label-caps">
-              <span className="material-symbols-outlined loader-spin">sync</span>
+              <IconSync className="loader-spin" />
               <span>Inking Photo...</span>
             </div>
           </div>
@@ -156,7 +157,8 @@ export default function ArticleCard({ article, variant = 'standard' }) {
           ref={imgRef}
           src={optimizedSrc} 
           alt={article.title} 
-          loading="lazy"
+          loading={resolvedVariant === 'featured' ? 'eager' : 'lazy'}
+          fetchPriority={resolvedVariant === 'featured' ? 'high' : 'auto'}
           style={{ aspectRatio: '16/9', width: '100%', objectFit: 'cover' }}
           className={`article-image ${imageLoading ? 'loading' : 'loaded'}`}
           onLoad={() => setImageLoading(false)}
@@ -189,7 +191,7 @@ export default function ArticleCard({ article, variant = 'standard' }) {
 
         {resolvedVariant === 'featured' && (
           <div className="article-read-btn font-label-caps text-label-caps">
-            READ FULL SOURCE <span className="material-symbols-outlined">arrow_right_alt</span>
+            READ FULL SOURCE <IconArrowRightAlt />
           </div>
         )}
 

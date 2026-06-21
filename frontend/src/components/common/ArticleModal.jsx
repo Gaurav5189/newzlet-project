@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { sanitizeHtml } from '../../utils/html';
 import { getOptimizedImageUrl } from '../../utils/image';
+import { IconClose, IconSync, IconLightbulb, IconArrowForward, IconCategory } from './Icons';
 import '../../styles/ArticleModal.css';
 
 // Only allow 6-digit hex colors from Django backend (e.g. #F59E0B).
@@ -88,7 +89,7 @@ export default function ArticleModal() {
         {/* Close Button */}
         <button className="modal-close-btn" onClick={closeArticle} aria-label="Close modal">
           <div className="wobbly-border">
-            <span className="material-symbols-outlined font-bold">close</span>
+            <IconClose className="font-bold" />
           </div>
         </button>
 
@@ -124,7 +125,7 @@ export default function ArticleModal() {
               {imageLoading && (
                 <div className="article-image-loader">
                   <div className="article-image-loader-badge font-label-caps">
-                    <span className="material-symbols-outlined loader-spin">sync</span>
+                    <IconSync className="loader-spin" />
                     <span>Inking Photo...</span>
                   </div>
                 </div>
@@ -147,7 +148,7 @@ export default function ArticleModal() {
         {activeArticle.ai_summary && (
           <div className="why-it-matters-box">
             <span className="why-it-matters-title text-label-caps">
-              <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', verticalAlign: 'text-bottom', marginRight: '4px' }}>lightbulb</span>
+              <IconLightbulb style={{ fontSize: '1.1rem', verticalAlign: 'text-bottom', marginRight: '4px' }} />
               Why It Matters
             </span>
             <p
@@ -172,7 +173,7 @@ export default function ArticleModal() {
               className="modal-action-btn"
             >
               <span>Read Full Source</span>
-              <span className="material-symbols-outlined">arrow_forward</span>
+              <IconArrowForward />
             </a>
           )}
           <Link 
@@ -181,7 +182,7 @@ export default function ArticleModal() {
             className="modal-action-btn secondary"
           >
             <span>View More {getCategoryName()}</span>
-            <span className="material-symbols-outlined">category</span>
+            <IconCategory />
           </Link>
         </div>
       </div>
