@@ -1,3 +1,4 @@
-/admin/*  https://sudo-server.alwaysdata.net/admin/:splat  200
-/api/*    https://sudo-server.alwaysdata.net/api/:splat    200
-/*        /index.html                                     200
+/api/*  https://newzlet.alwaysdata.net/api/:splat  200
+/media/*  https://newzlet.alwaysdata.net/media/:splat  200
+/static/*  https://newzlet.alwaysdata.net/static/:splat  200
+/*  /index.html  200

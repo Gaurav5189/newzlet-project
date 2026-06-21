@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useNewsVersion } from '../../hooks/useNewsVersion';
+import { IconNewspaper, IconRefresh, IconClose } from './Icons';
 import '../../styles/NewsBanner.css';
 
 /**
@@ -27,13 +28,10 @@ export default function NewsBanner() {
   return (
     <div className="news-banner" role="status" aria-live="polite" aria-atomic="true">
       <span className="news-banner-text text-label-caps">
-        <span
-          className="material-symbols-outlined"
+        <IconNewspaper
           style={{ fontSize: '1rem', verticalAlign: 'text-bottom' }}
           aria-hidden="true"
-        >
-          newspaper
-        </span>
+        />
         Fresh stories just arrived
       </span>
 
@@ -43,13 +41,10 @@ export default function NewsBanner() {
           className="news-banner-refresh text-label-caps"
           onClick={handleRefresh}
         >
-          <span
-            className="material-symbols-outlined"
+          <IconRefresh
             style={{ fontSize: '1rem', verticalAlign: 'text-bottom' }}
             aria-hidden="true"
-          >
-            refresh
-          </span>
+          />
           Refresh
         </button>
 
@@ -58,13 +53,10 @@ export default function NewsBanner() {
           onClick={() => setVisible(false)}
           aria-label="Dismiss update notification"
         >
-          <span
-            className="material-symbols-outlined"
+          <IconClose
             style={{ fontSize: '1rem' }}
             aria-hidden="true"
-          >
-            close
-          </span>
+          />
         </button>
       </div>
     </div>

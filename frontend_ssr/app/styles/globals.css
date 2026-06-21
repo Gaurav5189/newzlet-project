@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Space+Grotesk:wght@300..700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+@import url('/assets/fonts/fonts_local.css');
 
 :root {
   /* Colors */
@@ -393,14 +392,13 @@ img {
 
 @keyframes print-scan {
   0% {
-    top: 0%;
+    transform: translateY(-6px);
   }
   50% {
-    top: 100%;
-    transform: translateY(-100%);
+    transform: translateY(500px);
   }
   100% {
-    top: 0%;
+    transform: translateY(-6px);
   }
 }
 

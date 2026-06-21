@@ -3,20 +3,17 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { sanitizeHtml } from '../../utils/html';
 import { getOptimizedImageUrl } from '../../utils/image';
+import { IconClose, IconSync, IconLightbulb, IconArrowForward, IconCategory } from './Icons';
 import '../../styles/ArticleModal.css';
-
-// Only allow 6-digit hex colors from Django backend (e.g. #F59E0B).
-const getSafeColor = (color) => {
-  if (!color) return 'var(--secondary-container)';
-  return /^#[0-9a-fA-F]{6}$/.test(color) ? color : 'var(--secondary-container)';
-};
 
 export default function ArticleModal() {
   const { activeArticle, closeArticle } = useModal();
   const prevArticleIdRef = useRef(activeArticle ? activeArticle.id : null);
+  const imgRef = useRef(null);
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
 
+  // Reset state when a different article is opened
   useEffect(() => {
     const currentId = activeArticle?.id ?? null;
     if (currentId !== prevArticleIdRef.current) {
@@ -25,6 +22,27 @@ export default function ArticleModal() {
       setImageLoading(true);
     }
   }, [activeArticle?.id]);
+
+  // If the image is already in browser cache it will be .complete immediately after
+  // React sets the src — the onLoad event won't fire for cached images.
+  const modalImageSrc = activeArticle
+    ? activeArticle.cachedImageUrl || getOptimizedImageUrl(activeArticle.image_url, 800)
+    : null;
+
+  useEffect(() => {
+    if (imgRef.current && imgRef.current.complete && modalImageSrc) {
+      let isMatched;
+      try {
+        const absoluteModalSrc = new URL(modalImageSrc, window.location.href).href;
+        isMatched = imgRef.current.src === absoluteModalSrc;
+      } catch {
+        isMatched = imgRef.current.src === modalImageSrc;
+      }
+      if (isMatched) {
+        setImageLoading(false);
+      }
+    }
+  }, [modalImageSrc]);
 
   if (!activeArticle) return null;
 
@@ -88,7 +106,7 @@ export default function ArticleModal() {
         {/* Close Button */}
         <button className="modal-close-btn" onClick={closeArticle} aria-label="Close modal">
           <div className="wobbly-border">
-            <span className="material-symbols-outlined font-bold">close</span>
+            <IconClose className="font-bold" />
           </div>
         </button>
 
@@ -96,7 +114,6 @@ export default function ArticleModal() {
         <div className="modal-meta">
           <span 
             className="category-pill font-label-caps rotate-slight-neg border-2 border-on-surface"
-            style={{ backgroundColor: getSafeColor(activeArticle.category?.color) }}
           >
             {getCategoryName()}
           </span>
@@ -124,13 +141,14 @@ export default function ArticleModal() {
               {imageLoading && (
                 <div className="article-image-loader">
                   <div className="article-image-loader-badge font-label-caps">
-                    <span className="material-symbols-outlined loader-spin">sync</span>
+                    <IconSync className="loader-spin" />
                     <span>Inking Photo...</span>
                   </div>
                 </div>
               )}
               <img 
-                src={getOptimizedImageUrl(activeArticle.image_url, 1200)} 
+                ref={imgRef}
+                src={modalImageSrc} 
                 alt={activeArticle.title} 
                 className={`modal-image ${imageLoading ? 'loading' : 'loaded'}`}
                 onLoad={() => setImageLoading(false)}
@@ -147,7 +165,7 @@ export default function ArticleModal() {
         {activeArticle.ai_summary && (
           <div className="why-it-matters-box">
             <span className="why-it-matters-title text-label-caps">
-              <span className="material-symbols-outlined" style={{ fontSize: '1.1rem', verticalAlign: 'text-bottom', marginRight: '4px' }}>lightbulb</span>
+              <IconLightbulb style={{ fontSize: '1.1rem', verticalAlign: 'text-bottom', marginRight: '4px' }} />
               Why It Matters
             </span>
             <p
@@ -172,7 +190,7 @@ export default function ArticleModal() {
               className="modal-action-btn"
             >
               <span>Read Full Source</span>
-              <span className="material-symbols-outlined">arrow_forward</span>
+              <IconArrowForward />
             </a>
           )}
           <Link 
@@ -181,7 +199,7 @@ export default function ArticleModal() {
             className="modal-action-btn secondary"
           >
             <span>View More {getCategoryName()}</span>
-            <span className="material-symbols-outlined">category</span>
+            <IconCategory />
           </Link>
         </div>
       </div>

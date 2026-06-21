@@ -3,7 +3,7 @@ import { getCategoryArticles } from '../services/api';
 
 export const useCategoryArticles = (slug, page) => {
   return useQuery({
-    queryKey: ['categoryArticles', slug, page],
+    queryKey: ['category-articles', slug, page],
     queryFn: () => getCategoryArticles(slug, page),
     enabled: !!slug,
   });
