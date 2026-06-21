@@ -13,7 +13,12 @@ headers = {
 }
 
 print("Fetching Google Fonts stylesheet...")
-r = requests.get(google_fonts_url, headers=headers)
+try:
+    r = requests.get(google_fonts_url, headers=headers, timeout=30)
+    r.raise_for_status()
+except requests.RequestException as e:
+    print(f"Error fetching Google Fonts CSS: {e}")
+    exit(1)
 css_content = r.text
 
 with open(os.path.join(font_dir, 'fonts.css'), 'w') as f:
@@ -29,9 +34,17 @@ for i, url in enumerate(urls):
     filename = url.split('/')[-1]
     filepath = os.path.join(font_dir, filename)
     print(f"Downloading [{i+1}/{len(urls)}]: {filename}")
-    font_data = requests.get(url).content
-    with open(filepath, 'wb') as f:
-        f.write(font_data)
+    try:
+        response = requests.get(url, timeout=30)
+        response.raise_for_status()
+        font_data = response.content
+        if len(font_data) < 100:  # Basic sanity check — valid WOFF2 files are hundreds of KB
+            raise ValueError(f"Downloaded file too small: {len(font_data)} bytes")
+        with open(filepath, 'wb') as f:
+            f.write(font_data)
+    except (requests.RequestException, ValueError, OSError) as e:
+        print(f"Error downloading {filename}: {e}")
+        exit(1)
 
 print("All fonts downloaded successfully!")
 

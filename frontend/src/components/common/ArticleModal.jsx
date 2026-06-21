@@ -31,7 +31,16 @@ export default function ArticleModal() {
 
   useEffect(() => {
     if (imgRef.current && imgRef.current.complete && modalImageSrc) {
-      setImageLoading(false);
+      let isMatched;
+      try {
+        const absoluteModalSrc = new URL(modalImageSrc, window.location.href).href;
+        isMatched = imgRef.current.src === absoluteModalSrc;
+      } catch {
+        isMatched = imgRef.current.src === modalImageSrc;
+      }
+      if (isMatched) {
+        setImageLoading(false);
+      }
     }
   }, [modalImageSrc]);
 
