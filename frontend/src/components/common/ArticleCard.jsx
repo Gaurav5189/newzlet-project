@@ -76,7 +76,9 @@ export default function ArticleCard({ article, variant = 'standard' }) {
 
   const handleClick = (e) => {
     e.preventDefault();
-    openArticle(article);
+    // Pass the already-resolved optimizedSrc so the modal can reuse the cached URL
+    // instead of computing a different width and triggering a new network request.
+    openArticle({ ...article, cachedImageUrl: optimizedSrc });
   };
 
   // Dynamically resolve variant: if the article has no image URL or loading fails, fall back to 'no-image'

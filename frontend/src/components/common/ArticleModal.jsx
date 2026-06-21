@@ -9,9 +9,11 @@ import '../../styles/ArticleModal.css';
 export default function ArticleModal() {
   const { activeArticle, closeArticle } = useModal();
   const prevArticleIdRef = useRef(activeArticle ? activeArticle.id : null);
+  const imgRef = useRef(null);
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
 
+  // Reset state when a different article is opened
   useEffect(() => {
     const currentId = activeArticle?.id ?? null;
     if (currentId !== prevArticleIdRef.current) {
@@ -20,6 +22,18 @@ export default function ArticleModal() {
       setImageLoading(true);
     }
   }, [activeArticle?.id]);
+
+  // If the image is already in browser cache it will be .complete immediately after
+  // React sets the src — the onLoad event won't fire for cached images.
+  const modalImageSrc = activeArticle
+    ? activeArticle.cachedImageUrl || getOptimizedImageUrl(activeArticle.image_url, 800)
+    : null;
+
+  useEffect(() => {
+    if (imgRef.current && imgRef.current.complete && modalImageSrc) {
+      setImageLoading(false);
+    }
+  }, [modalImageSrc]);
 
   if (!activeArticle) return null;
 
@@ -124,7 +138,8 @@ export default function ArticleModal() {
                 </div>
               )}
               <img 
-                src={getOptimizedImageUrl(activeArticle.image_url, 1200)} 
+                ref={imgRef}
+                src={modalImageSrc} 
                 alt={activeArticle.title} 
                 className={`modal-image ${imageLoading ? 'loading' : 'loaded'}`}
                 onLoad={() => setImageLoading(false)}

@@ -160,6 +160,7 @@
 .modal-image {
   width: 100%;
   height: auto;
+  max-height: 50vh;
   object-fit: cover;
   transition: opacity 0.5s ease;
   opacity: 1;
