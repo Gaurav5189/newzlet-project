@@ -25,7 +25,7 @@ with open(os.path.join(font_dir, 'fonts.css'), 'w') as f:
     f.write(css_content)
 
 # Extract woff2 URLs
-urls = re.findall(r'url\((https://fonts.gstatic.com/[^)]+\.woff2)\)', css_content)
+urls = re.findall(r'url\((https://fonts\.gstatic\.com/[^)]+\.woff2)\)', css_content)
 # deduplicate urls
 urls = list(set(urls))
 print(f"Found {len(urls)} woff2 font files to download.")
