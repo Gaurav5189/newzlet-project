@@ -1,0 +1,16 @@
+# The Daily Newzlet
+
+> A modern, fully automated daily news aggregation platform featuring a bold, aesthetic design. It decouples RSS news ingestion from presentation to deliver curated categories.
+
+## Main Navigation
+- [Home](/) - The homepage featuring breaking news ticker, day fact, and categorized news timeline.
+- [Search](/search) - Search all historical news articles.
+- [Contact](/contact) - Get in touch with the editorial team.
+- [Editorial Policy](/editorial) - Learn about our content curation and publishing guidelines.
+- [Privacy Policy](/privacy) - Our privacy policies and data protection information.
+- [Terms of Service](/terms) - Terms and conditions for using the platform.
+
+## Core News Categories
+- [International News](/category/international) - Global news updates and headlines.
+- [Tech Bites](/category/technology) - Latest technology, development, and computing news.
+- [Sports](/category/sports) - Highlights, scores, and updates from the world of sports.
