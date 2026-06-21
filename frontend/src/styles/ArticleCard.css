@@ -129,13 +129,14 @@
 
 .category-pill {
   border: 2px solid var(--on-surface);
-  border-radius: 0;
-  padding: 0.2rem 0.5rem;
+  border-radius: 9999px;
+  padding: 0.2rem 0.6rem;
   font-size: 11px;
-  background-color: var(--secondary-container);
-  color: var(--on-secondary-container);
-  text-transform: capitalize;
-  letter-spacing: normal;
+  font-weight: 700;
+  background-color: var(--on-surface);
+  color: var(--background);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .article-card.featured .category-pill {

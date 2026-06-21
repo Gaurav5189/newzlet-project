@@ -128,9 +128,9 @@ export default function HomePage() {
           <div className="fun-fact-card neo-shadow hand-drawn-bubble">
             <div className="fun-fact-header">
               <IconAutoAwesome className="text-headline-md" />
-              <h3 className="text-headline-md text-uppercase">
+              <h2 className="text-headline-md text-uppercase">
                 {dayFactArticle?.category?.name || 'Day Fact'}
-              </h3>
+              </h2>
               <IconInkPen className="text-headline-md" />
             </div>
             {isFactLoading ? (

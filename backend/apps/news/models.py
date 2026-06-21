@@ -4,7 +4,6 @@ from django.utils.html import strip_tags
 class Category(models.Model):
     name  = models.CharField(max_length=100)        # "Technology"
     slug  = models.SlugField(unique=True)            # "technology"
-    color = models.CharField(max_length=7)           # "#8B5CF6"
 
     def __str__(self):
         return self.name

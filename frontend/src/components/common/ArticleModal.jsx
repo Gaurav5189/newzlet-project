@@ -6,12 +6,6 @@ import { getOptimizedImageUrl } from '../../utils/image';
 import { IconClose, IconSync, IconLightbulb, IconArrowForward, IconCategory } from './Icons';
 import '../../styles/ArticleModal.css';
 
-// Only allow 6-digit hex colors from Django backend (e.g. #F59E0B).
-const getSafeColor = (color) => {
-  if (!color) return 'var(--secondary-container)';
-  return /^#[0-9a-fA-F]{6}$/.test(color) ? color : 'var(--secondary-container)';
-};
-
 export default function ArticleModal() {
   const { activeArticle, closeArticle } = useModal();
   const prevArticleIdRef = useRef(activeArticle ? activeArticle.id : null);
@@ -97,7 +91,6 @@ export default function ArticleModal() {
         <div className="modal-meta">
           <span 
             className="category-pill font-label-caps rotate-slight-neg border-2 border-on-surface"
-            style={{ backgroundColor: getSafeColor(activeArticle.category?.color) }}
           >
             {getCategoryName()}
           </span>

@@ -3,7 +3,7 @@ from .models import Article, Category, ContactMessage
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ['name', 'slug', 'color']
+    list_display = ['name', 'slug']
     prepopulated_fields = {'slug': ('name',)}
 
 @admin.register(Article)

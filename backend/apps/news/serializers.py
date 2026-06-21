@@ -4,7 +4,7 @@ from .models import Article, Category, ContactMessage
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ['name', 'slug', 'color']
+        fields = ['name', 'slug']
 
 class ArticleSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)

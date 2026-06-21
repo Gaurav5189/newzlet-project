@@ -6,13 +6,6 @@ import { getOptimizedImageUrl } from '../../utils/image';
 import { IconPublic, IconSync, IconArrowRightAlt } from './Icons';
 import '../../styles/ArticleCard.css';
 
-// Only allow 6-digit hex colors from Django backend (e.g. #F59E0B).
-// Falls back to CSS variable to prevent CSS injection.
-const getSafeColor = (color) => {
-  if (!color) return 'var(--secondary-container)';
-  return /^#[0-9a-fA-F]{6}$/.test(color) ? color : 'var(--secondary-container)';
-};
-
 export default function ArticleCard({ article, variant = 'standard' }) {
   const { openArticle } = useModal();
   const prevArticleIdRef = useRef(article.id);
@@ -170,7 +163,6 @@ export default function ArticleCard({ article, variant = 'standard' }) {
         <div className="article-meta">
           <span 
             className={`category-pill font-label-caps ${resolvedVariant === 'featured' ? 'rotate-slight-neg border-2 border-on-surface' : ''}`}
-            style={{ backgroundColor: getSafeColor(article.category?.color) }}
           >
             {article.category?.name || article.category_slug || 'General'}
           </span>
