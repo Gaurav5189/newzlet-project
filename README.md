@@ -2,72 +2,106 @@
 
 The Daily Newzlet is a modern, fully automated daily news aggregation platform featuring a bold, aesthetic design. It leverages a decoupled architecture to deliver high-performance, categorized news updates fetched seamlessly from global RSS feeds.
 
+The web application is fully responsive and supports Progressive Web App (PWA) standards, allowing it to be natively installed on Android and iOS devices directly from the browser.
+
+---
+
 ## System Architecture
 
-The platform is designed around a highly decoupled, modern web stack aimed at high availability, strong SEO performance, and automated content ingestion.
+The platform is designed around a highly decoupled, modern web stack aimed at high availability, strong SEO performance, automated content ingestion, and extreme responsiveness.
 
-- **Frontend Edge (Cloudflare Pages):** React SPA built with Vite and React Router. It includes an edge configuration layer (`_redirects`, `_headers`) for secure caching and API proxying.
-- **Frontend SEO Layer:** Dynamic meta tag injection via `react-helmet-async`, structured JSON-LD data generation per route, and a Cloudflare Pages Function (`functions/sitemap.xml.js`) for dynamic XML sitemap generation.
-- **Backend:** Django REST Framework (DRF) serving a clean, stateless JSON API, hosted on AlwaysData.
-- **Database (Supabase):** PostgreSQL for persistent storage of articles and categorizations.
-- **Caching Layer (Upstash):** Serverless Redis for high-speed delivery of trending and category-specific news feeds.
-- **Data Ingestion:** Automated n8n workflows that periodically fetch, normalize, and push RSS feed data into the backend.
+```text
+User ──> Cloudflare CDN ──> Cloudflare Pages (React client)
+                                  │
+                          (API requests via HTTPS)
+                                  │
+                                  ▼
+                            AlwaysData Host (Django REST API)
+                                  │
+                      ┌───────────┴───────────┐
+                      ▼                       ▼
+              Supabase (PostgreSQL)     Upstash (Redis Cache)
+
+Data Ingestion:
+[Global RSS Feeds] ──> n8n Workflows ──(Daily early morning push)──> Django Ingestion Endpoint
+```
+
+### Components
+- **Frontend Client:** Built using React.js. Hosted on Cloudflare Pages and served via Cloudflare CDN for edge caching and global delivery.
+- **Backend API & CRM:** Django REST Framework (DRF) serving a stateless, clean JSON API hosted on AlwaysData. Includes a customized Django Admin panel acting as a CRM for article moderation.
+- **Data Stores:** 
+  - **Supabase (PostgreSQL):** Persistent relational storage for articles, categories, and contact queries.
+  - **Upstash (Redis):** Fast serverless caching layer for rapid content delivery, bypassing heavy database lookups.
+- **Content Ingestion:** Fully automated n8n workflows that orchestrate early morning RSS ingestion, normalizing article metadata and pushing to the backend ingestion endpoint.
+
+---
 
 ## Core Features
 
-- **Automated Ingestion Pipeline:** n8n securely pushes new articles to the Django backend every morning. The system deduplicates content based on source URLs automatically.
-- **Robust SEO Infrastructure:** Site-wide and per-route meta tags, canonical URLs, lazy-loaded optimized images for Core Web Vitals, and JSON-LD structured data (`ItemList`, `CollectionPage`, `NewsMediaOrganization`) injected dynamically.
-- **Custom CRM/Admin Panel:** Django's built-in Admin panel acts as a powerful CRM, customized to easily toggle article visibility, mark breaking news, and manage categories.
-- **Robust Caching Strategy:** Redis instantly serves the most recent articles and breaking news to minimize database hits.
-- **Fully Responsive UI:** A playful and distinct interface featuring marquee breaking news tickers, horizontally scrolling category rails, bento-grid layouts, and clean article cards.
+- **Native Android & iOS Installation (PWA):** Leveraging a custom `site.webmanifest` and optimized icons (`apple-touch-icon.png`, `favicon.png`), the application offers a standalone, app-like native installation experience on mobile devices.
+- **Automated Ingestion & Deduplication:** Automates daily feed synchronization. Articles are normalized, categorized, and automatically deduplicated on the backend based on source URLs.
+- **Aesthetic CSS-Driven UI:** A cohesive, dark-themed responsive bento-grid design. Features horizontally scrolling category rails, a breaking news marquee ticker, clean article cards, and modal detail views.
+- **Unified Theme Styling:** Visual components like category pills are styled dynamically in CSS, decoupling theme details from the database schema.
+- **SEO & Social Optimization:** Complete meta-tag coverage, dynamic XML sitemaps, structured JSON-LD data (`ItemList`, `CollectionPage`, `NewsMediaOrganization`), and canonical URL generation.
+- **Agent-Friendly Context:** Includes static `/llms.txt` configurations for developer-agent onboarding and workspace alignment.
+
+---
+
+## Caching, Refresh, & Performance Optimizations
+
+To deliver sub-50ms API responses under hardware constraints (AlwaysData free tier), the system uses an aggressive, layered caching and pre-warming architecture:
+
+### 1. Server-Side Caching (Upstash Redis)
+- **DRF Pickle Resolution:** Custom API caching decorator resolves a common DRF limitation where unrendered `Response` objects raise serialization errors. The decorator forces response rendering before caching.
+- **Edge Cache Headers:** Responses cached in Upstash Redis are returned with `Cache-Control: public, max-age=0, s-maxage=X, stale-while-revalidate=86400`, allowing Cloudflare Edge nodes to serve stale content while resolving the latest data in the background.
+
+### 2. Real-Time Client Version Synchronization
+- **News Version Polling:** The client uses TanStack React Query to poll a lightweight endpoint (`/api/news-version/`) every 3 minutes. The endpoint returns a single Unix timestamp of the last article save, served instantly from Redis (~30 bytes, zero database queries).
+- **Cross-Tab Broadcast Synchronization:** When a change is detected in one tab, it propagates a signal via the browser's `BroadcastChannel` API. This instantly synchronizes all open browser tabs, prompting the user with a non-disruptive refresh banner without awaiting individual poll intervals.
+- **Selective Query Invalidation:** Triggering a refresh selectively invalidates article-related React Query keys (`articles`, `breaking`, `category-articles`) while preserving static configurations.
+
+### 3. Automatic Background Cache Pre-Warming
+- **Preventing Cold Starts:** Django model signals (`post_save`, `post_delete` on Articles or Categories) clear the Redis cache on updates and trigger a background task inside a single-worker `ThreadPoolExecutor`.
+- **Request Factory Simulation:** The background thread simulates requests against core endpoints (home timeline, breaking news, categories list, and daily facts) using Django's `RequestFactory`. This rebuilds the Redis cache asynchronously before any user visits the site, eliminating cache stampede and slow cold-start queries.
+
+### 4. Database Query (N+1) Optimizations
+- All article feed queries in `views.py` utilize `.select_related('category')` to execute a single, joined SQL query when serializing, reducing query count from $N+1$ to exactly **1 database query** and avoiding thread blockage.
+
+### 5. Lighthouse-Driven Performance Enhancements
+- **Self-Hosted Web Fonts:** Removed all external, render-blocking Google Fonts and Material Symbols link tags. Core fonts are stored locally in compressed `.woff2` formats (~500KB total) inside `/public/assets/fonts/` for the client, reducing layout shifts (CLS) and optimizing page load speeds.
+- **Custom Vector Icons:** External icon font libraries have been replaced entirely by custom inline vector icons (`Icons.jsx`), resolving rendering delays and rendering layout shifts.
+- **GPU-Accelerated Animations:** Keyframe transitions and CSS animations have been optimized to run directly on the GPU (utilizing `transform` and `translate` instead of properties that trigger layout re-paints).
+
+---
 
 ## Project Structure
 
 ```text
 newzlet/
-├── frontend/                 # React SPA Application
+├── frontend/                 # React SPA Client (Cloudflare Pages)
 │   ├── functions/            # Cloudflare Pages Functions
-│   │   └── sitemap.xml.js    # Dynamic XML Sitemap generator
-│   ├── public/               # Static assets & Edge Configs
-│   │   ├── _redirects        # Cloudflare routing rules
-│   │   ├── _headers          # Cloudflare caching & security headers
-│   │   ├── robots.txt        # SEO crawler instructions
-│   │   └── site.webmanifest  # PWA Manifest
+│   │   └── sitemap.xml.js    # Dynamic XML sitemap generator
+│   ├── public/               # Static assets & Edge configurations
+│   │   ├── assets/           # Client assets
+│   │   │   └── fonts/        # Local compressed .woff2 font files and CSS definitions
+│   │   ├── _headers          # Cloudflare security and cache-control headers
+│   │   ├── _redirects        # Cloudflare client-side routing rules
+│   │   ├── apple-touch-icon.png # Native app icon (PWA)
+│   │   ├── favicon.png       # App favicon
+│   │   ├── llms.txt          # LLM/AI-agent onboarding context file
+│   │   ├── og-image.png      # Social sharing previews
+│   │   ├── robots.txt        # Search crawler rules
+│   │   └── site.webmanifest  # PWA manifest configuration for mobile install
 │   └── src/
-│       ├── components/       # Reusable UI elements (ArticleCards, Modals)
+│       ├── components/       # Component library (Cards, Modals, Banners)
+│       ├── hooks/            # Custom React hooks (Query data fetching, version polling)
 │       ├── pages/            # View routes (Home, Category, Search)
-│       ├── hooks/            # React Query data fetching hooks
-│       ├── services/         # Axios API configurations
-│       └── styles/           # Global CSS and typographic variables
+│       ├── services/         # Axios client and API configurations
+│       └── styles/           # Global typography, layout variables, and animations
 │
-└── backend/                  # Django REST API & CRM
-    ├── config/               # Environment-specific settings
-    └── apps/
-        ├── news/             # Core models, views, and CRM configs
-        └── ingest/           # API Key authenticated webhook handlers for n8n
+└── backend/                  # Django REST API & CRM (AlwaysData)
+    ├── apps/
+    │   ├── ingest/           # Webhook ingestion handlers for n8n
+    │   └── news/             # Models, views, serializers, signals, and filters
+    └── config/               # Settings, routing, and custom middlewares
 ```
-
-## Caching, Refresh, & Performance Optimizations
-
-To deliver dynamic content instantly while running on a highly constrained backend hosting environment (AlwaysData free tier with 0.25 CPU and 256MB RAM), the platform utilizes an optimized caching and performance architecture:
-
-### 1. Real-Time News Update Notifications (Version Polling)
-- **Version Stamp Polling**: The frontend uses TanStack React Query to poll a lightweight `/api/news-version/` endpoint every 3 minutes. This endpoint returns a simple Unix timestamp of the last article save, served instantly from Redis.
-- **Cross-Tab Synchronization**: When a version change is detected in one tab, it fires a message across the `BroadcastChannel` API to instantly notify all other open tabs of the same site, prompting them to show the **Refresh** banner immediately without waiting for their own poll interval.
-- **Selective Query Invalidation**: Clicking "Refresh" selectively invalidates only article-related query keys (`articles`, `breaking`, `category-articles`). Static lists (like categories) remain cached to reduce redundant network requests.
-
-### 2. Cache Pre-Warming (Done)
-- **Problem**: When a new article ingestion is triggered (e.g. from n8n), Django's post-save signal flushes the Redis cache. The first subsequent user visit would experience a slow "cold start" database query.
-- **Solution**: Immediately after clearing Redis, Django triggers a background task inside a single-worker `ThreadPoolExecutor`. This task uses Django's `RequestFactory` to run internal requests against:
-  - `/api/articles/?page=1&page_size=100` (Home timeline)
-  - `/api/articles/breaking/` (Breaking news ticker)
-  - `/api/categories/` (Categories list)
-  - `/api/categories/day-fact/articles/?page=1` (Today's fun fact)
-- **Result**: The Redis cache is rebuilt in the background. Real users are *always* served warm cache hits ($< 5\text{ms}$ response times) and never experience database query latency.
-
-### 3. Database JOIN Optimization (N+1 Query Fix)
-- Querysets for all article-listing views in `views.py` utilize `.select_related('category')` to execute a single, joined SQL query when serializing articles. This reduces database queries from $N+1$ (e.g., 101 queries for 100 articles) to exactly **1 database query**, preventing thread-blocking bottlenecks on the remote database.
-
-### 4. Future Edge Hydration (Cloudflare KV)
-- **Proposed Scale Pattern**: For higher traffic volumes, the `/api/news-version/` check can be offloaded entirely to **Cloudflare KV** (Key-Value) and a Cloudflare Pages Function. When Django ingests new articles, it pushes the updated timestamp directly to Cloudflare KV. The 3-minute frontend version checks will be served instantly from Cloudflare Edge ($< 15\text{ms}$), shielding the AlwaysData Django server from 100% of the version checking traffic.
-
