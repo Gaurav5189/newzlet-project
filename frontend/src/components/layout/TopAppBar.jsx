@@ -14,7 +14,6 @@ export default function TopAppBar() {
   const isActive = (path) => location.pathname === path;
 
   useEffect(() => {
-    // Fetch categories on mount
     getCategories()
       .then(data => {
         const fetchedCategories = data.results || data;
@@ -30,7 +29,7 @@ export default function TopAppBar() {
   const handleMouseLeave = () => {
     popupTimeoutRef.current = setTimeout(() => {
       setIsPopupOpen(false);
-    }, 200); // 200ms delay to allow moving mouse into popup
+    }, 200);
   };
 
   return (

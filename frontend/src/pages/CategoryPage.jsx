@@ -11,7 +11,7 @@ import { useState, useEffect } from 'react';
 export default function CategoryPage() {
   const { slug } = useParams();
   const [page, setPage] = useState(1);
-  
+
   // Reset page to 1 when navigating to a different category
   useEffect(() => {
     setPage(1);
@@ -22,7 +22,7 @@ export default function CategoryPage() {
 
   const category = categoryData?.find(c => c.slug === slug);
   const articles = data?.results || [];
-  
+
   // Group by last 24 hours dynamically
   const oneDayAgo = new Date();
   oneDayAgo.setHours(oneDayAgo.getHours() - 24);
@@ -119,9 +119,9 @@ export default function CategoryPage() {
               </div>
               <div className="category-grid">
                 {todayArticles.map((article) => (
-                  <ArticleCard 
-                    key={article.id} 
-                    article={article} 
+                  <ArticleCard
+                    key={article.id}
+                    article={article}
                   />
                 ))}
               </div>
@@ -142,15 +142,15 @@ export default function CategoryPage() {
           )}
 
           {data && data.count > data.results.length && (
-             <div style={{ marginTop: '2rem' }}>
-                <Pagination
-                  count={data.count}
-                  next={data.next}
-                  previous={data.previous}
-                  currentPage={page}
-                  setPage={handlePageChange}
-                />
-             </div>
+            <div style={{ marginTop: '2rem' }}>
+              <Pagination
+                count={data.count}
+                next={data.next}
+                previous={data.previous}
+                currentPage={page}
+                setPage={handlePageChange}
+              />
+            </div>
           )}
         </>
       )}

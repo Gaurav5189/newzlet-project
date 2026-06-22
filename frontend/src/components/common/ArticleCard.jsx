@@ -17,9 +17,6 @@ export default function ArticleCard({ article, variant = 'standard' }) {
 
   const optimizedSrc = getOptimizedImageUrl(article.image_url, variant === 'featured' ? 800 : 400);
 
-  // If the image is already loaded (e.g. from cache) by the time React mounts,
-  // the onLoad event won't fire. We check .complete AND .src to handle this.
-  // src must match to avoid acting on a cached complete state from a previous image.
   useEffect(() => {
     if (imgRef.current && imgRef.current.complete && optimizedSrc) {
       let isMatched;
@@ -44,12 +41,9 @@ export default function ArticleCard({ article, variant = 'standard' }) {
   }, [article.id]);
 
   useEffect(() => {
-    // Only observe if on a device that lacks hover
     const isMobile = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
     if (!isMobile) return;
 
-    // Capture the node now — React clears refs before cleanup runs on unmount,
-    // so reading cardRef.current inside the return function would be null.
     const node = cardRef.current;
 
     const observer = new IntersectionObserver(
@@ -68,23 +62,17 @@ export default function ArticleCard({ article, variant = 'standard' }) {
     }
 
     return () => {
-      // disconnect() is safer than unobserve(node) — it always fires cleanly
-      // even if the node has already been removed from the DOM.
       observer.disconnect();
     };
   }, []);
 
   const handleClick = (e) => {
     e.preventDefault();
-    // Pass the already-resolved optimizedSrc so the modal can reuse the cached URL
-    // instead of computing a different width and triggering a new network request.
     openArticle({ ...article, cachedImageUrl: optimizedSrc });
   };
 
-  // Dynamically resolve variant: if the article has no image URL or loading fails, fall back to 'no-image'
   const resolvedVariant = (!article.image_url || imageError) ? 'no-image' : variant;
 
-  // We'll map the variant to specific CSS classes
   const getContainerClass = () => {
     let baseClass;
     switch (resolvedVariant) {
@@ -101,7 +89,7 @@ export default function ArticleCard({ article, variant = 'standard' }) {
   const getTitleClass = () => {
     switch (resolvedVariant) {
       case 'featured': return 'article-title font-headline-lg text-headline-lg';
-      case 'side': return 'article-title font-headline-md text-body-lg font-bold'; // Slightly smaller for side
+      case 'side': return 'article-title font-headline-md text-body-lg font-bold';
       default: return 'article-title font-headline-md text-headline-md leading-tight';
     }
   };

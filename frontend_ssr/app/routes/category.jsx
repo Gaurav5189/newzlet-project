@@ -37,7 +37,6 @@ export default function Category() {
   const category = categoriesData.find((c) => c.slug === slug);
   const articles = articlesData?.results || [];
 
-  // Use server-calculated timestamp to prevent SSR/client hydration mismatch
   const oneDayAgo = new Date(oneDayAgoISO);
 
   const todayArticles = articles.filter(

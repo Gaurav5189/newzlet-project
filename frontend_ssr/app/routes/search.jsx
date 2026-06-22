@@ -10,9 +10,7 @@ export async function loader({ request }) {
   const q = url.searchParams.get('q') || '';
   const category = url.searchParams.get('category') || '';
   const page = parseInt(url.searchParams.get('page') || '1', 10);
-  // Cloudflare sets this header on the incoming Worker request with the real
-  // visitor IP. We forward it to Django so throttling is per-person, not
-  // per-Worker-egress-IP. Falls back to empty string in local dev (no Cloudflare).
+  // Forward visitor IP from Cloudflare header for rate-limiting
   const clientIp = request.headers.get('cf-connecting-ip') || '';
 
   try {

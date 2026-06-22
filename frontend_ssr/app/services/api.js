@@ -1,15 +1,13 @@
 const isServer = typeof window === 'undefined';
 
-// Guard against double /api if env var already ends with /api
 const ensureApiPath = (url) => url.endsWith('/api') ? url : `${url}/api`;
 
 let baseURL = '/api';
 
 if (import.meta.env.VITE_API_BASE_URL) {
-  // Production or explicitly set absolute URL
   baseURL = ensureApiPath(import.meta.env.VITE_API_BASE_URL);
 } else if (isServer) {
-  // Node.js SSR requires an absolute URL. We bypass the proxy and hit the target directly.
+  // Node.js SSR requires absolute URL: hit backend target directly
   baseURL = import.meta.env.VITE_DEV_PROXY_TARGET
     ? ensureApiPath(import.meta.env.VITE_DEV_PROXY_TARGET)
     : 'http://localhost:5173/api';
@@ -34,7 +32,6 @@ const fetchApi = async (endpoint, options = {}) => {
       const errorBody = await response.json();
       errorMessage += ` - ${errorBody.message || errorBody.detail || JSON.stringify(errorBody)}`;
     } catch {
-      // Response body is not JSON, use status text only
     }
     throw new Error(errorMessage);
   }
@@ -49,8 +46,7 @@ export const searchArticles = (params, clientIp = null) => {
   Object.entries(params).forEach(([k, v]) => {
     if (v != null && v !== '') query.append(k, String(v));
   });
-  // When called from the SSR loader, forward the real visitor IP so Django's
-  // CloudflareAnonThrottle keys on the correct per-person IP, not the Worker IP.
+  // Forward real visitor IP for rate-limiting when called from SSR
   const headers = clientIp ? { 'cf-connecting-ip': clientIp } : {};
   return fetchApi(`/search/?${query.toString()}`, { headers });
 };

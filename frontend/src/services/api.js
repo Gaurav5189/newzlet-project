@@ -9,7 +9,6 @@ export const setApiVersion = (v) => { apiVersion = v; };
 const fetchApi = async (endpoint, options = {}) => {
   const urlStr = `${baseURL}${endpoint}`;
   let finalUrl = urlStr;
-  // Append cache-busting version token to all endpoints except the version poller itself
   if (apiVersion && !endpoint.includes('news-version')) {
     const separator = urlStr.includes('?') ? '&' : '?';
     finalUrl = `${urlStr}${separator}v=${apiVersion}`;
@@ -29,7 +28,6 @@ const fetchApi = async (endpoint, options = {}) => {
       const errorBody = await response.json();
       errorMessage += ` - ${errorBody.message || errorBody.detail || JSON.stringify(errorBody)}`;
     } catch {
-      // Response body is not JSON, use status text only
     }
     throw new Error(errorMessage);
   }
@@ -44,8 +42,7 @@ export const searchArticles       = (params, clientIp = null) => {
   Object.entries(params).forEach(([k, v]) => {
     if (v != null && v !== '') query.append(k, String(v));
   });
-  // When called from the SSR loader, forward the real visitor IP so Django's
-  // CloudflareAnonThrottle keys on the correct per-person IP, not the Worker IP.
+  // Forward real visitor IP for backend rate-limiting when called from SSR
   const headers = clientIp ? { 'cf-connecting-ip': clientIp } : {};
   return fetchApi(`/search/?${query.toString()}`, { headers });
 };

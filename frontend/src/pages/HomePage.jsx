@@ -9,29 +9,21 @@ import { IconAutoAwesome, IconInkPen } from '../components/common/Icons';
 import '../styles/HomePage.css';
 
 export default function HomePage() {
-  // NOTE: Page size is set to 30 to optimize load times. If added more categories
-  // in the future, increase this count accordingly to ensure there are enough
-  // articles to populate all clippings rails.
   const { data, isLoading } = useArticles(1, 30);
   const { data: factData, isLoading: isFactLoading } = useCategoryArticles('day-fact', 1);
 
-  // Memoize all filtering, sorting, and grouping computations to avoid
-  // expensive O(N) calculations on every component render.
   const processedData = useMemo(() => {
     const articlesList = data?.results || [];
 
-    // Filter out only the day-fact articles from the main general feed
     const baseArticles = articlesList.filter(
       article => article.category?.slug !== 'day-fact'
     );
 
-    // Safety measure: Ensure bento grid articles have images, and exclude fun-fact from bento.
-    // We need 4 total (1 featured, 3 side)
+    // Ensure 4 bento articles with images, excluding fun-fact
     const eligibleArticles = baseArticles.filter(a => a.image_url && a.category?.slug !== 'fun-fact');
     const selectedArticles = [];
     const selectedCategories = new Set();
 
-    // First pass: select one article per unique category
     for (const article of eligibleArticles) {
       if (selectedArticles.length >= 4) break;
       const catSlug = article.category?.slug || 'general';
@@ -41,7 +33,6 @@ export default function HomePage() {
       }
     }
 
-    // Second pass: if we have fewer than 4 articles, fill up the remaining slots
     if (selectedArticles.length < 4) {
       const selectedIds = new Set(selectedArticles.map(a => a.id));
       for (const article of eligibleArticles) {
@@ -56,7 +47,6 @@ export default function HomePage() {
     const featuredArticle = bentoArticles.length > 0 ? bentoArticles[0] : null;
     const sideArticles = bentoArticles.length > 1 ? bentoArticles.slice(1, 4) : [];
 
-    // Exclude bento articles from the latest section
     const bentoArticleIds = new Set(bentoArticles.map(a => a.id));
 
     const oneDayAgo = new Date();

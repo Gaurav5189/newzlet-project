@@ -4,7 +4,6 @@ import ArticleCard from "../components/common/ArticleCard";
 import SkeletonCard from "../components/common/SkeletonCard";
 import "../styles/HomePage.css";
 
-// Server Loader — runs once on initial SSR
 export async function loader() {
   try {
     const oneDayAgo = new Date();
@@ -23,7 +22,6 @@ export async function loader() {
   }
 }
 
-// Client Loader — runs on client-side navigations, uses cache to avoid re-fetching
 let homeCache = null;
 export async function clientLoader() {
   if (homeCache) return homeCache;
@@ -45,7 +43,6 @@ export async function clientLoader() {
   }
 }
 
-// 2. The Component
 export default function Home() {
   const data = useLoaderData();
   const { articlesData, factData, oneDayAgo: oneDayAgoISO } = data;
@@ -54,17 +51,15 @@ export default function Home() {
     homeCache = data;
   }
 
-  // Filter out the day-fact and fun-fact articles from the main general feed
   const baseArticles = (articlesData?.results || []).filter(
     (article) => article.category?.slug !== 'day-fact' && article.category?.slug !== 'fun-fact'
   );
 
-  // Safety measure: Ensure bento grid articles have images. We need 4 total (1 featured, 3 side)
+  // Ensure 4 bento articles with images
   const eligibleArticles = baseArticles.filter((a) => a.image_url);
   const selectedArticles = [];
   const selectedCategories = new Set();
 
-  // First pass: select one article per unique category
   for (const article of eligibleArticles) {
     if (selectedArticles.length >= 4) break;
     const catSlug = article.category?.slug || 'general';
@@ -74,7 +69,6 @@ export default function Home() {
     }
   }
 
-  // Second pass: if we have fewer than 4 articles, fill up the remaining slots
   if (selectedArticles.length < 4) {
     const selectedIds = new Set(selectedArticles.map((a) => a.id));
     for (const article of eligibleArticles) {
@@ -90,10 +84,8 @@ export default function Home() {
   const featuredArticle = bentoArticles.length > 0 ? bentoArticles[0] : null;
   const sideArticles = bentoArticles.length > 1 ? bentoArticles.slice(1, 4) : [];
 
-  // Exclude bento articles from the latest section
   const bentoArticleIds = new Set(bentoArticles.map((a) => a.id));
 
-  // Use server-calculated timestamp to prevent SSR/client hydration mismatch
   const oneDayAgo = new Date(oneDayAgoISO);
 
   const recentArticles = baseArticles.filter((a) => {

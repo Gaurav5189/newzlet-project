@@ -13,7 +13,6 @@ export default function ArticleModal() {
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
 
-  // Reset state when a different article is opened
   useEffect(() => {
     const currentId = activeArticle?.id ?? null;
     if (currentId !== prevArticleIdRef.current) {
@@ -23,8 +22,6 @@ export default function ArticleModal() {
     }
   }, [activeArticle?.id]);
 
-  // If the image is already in browser cache it will be .complete immediately after
-  // React sets the src — the onLoad event won't fire for cached images.
   const modalImageSrc = activeArticle
     ? activeArticle.cachedImageUrl || getOptimizedImageUrl(activeArticle.image_url, 800)
     : null;
@@ -58,7 +55,6 @@ export default function ArticleModal() {
     return paragraphs.map((p, idx) => {
       const sanitizedP = sanitizeHtml(p);
       if (idx === 0) {
-        // Guard against empty string after sanitization
         const trimmed = sanitizedP.trim();
         if (!trimmed) return null;
 
@@ -67,7 +63,6 @@ export default function ArticleModal() {
             <p key={idx} className="first-paragraph" dangerouslySetInnerHTML={{ __html: trimmed }} />
           );
         }
-        // Extract first visible character, skipping any leading whitespace
         const match = trimmed.match(/^(\s*)(.)/);
         if (!match) return <p key={idx} dangerouslySetInnerHTML={{ __html: sanitizedP }} />;
 
@@ -84,7 +79,6 @@ export default function ArticleModal() {
     });
   };
 
-  // Get category name safely depending on API structure
   const getCategoryName = () => {
     if (typeof activeArticle.category === 'object' && activeArticle.category !== null) {
       return activeArticle.category.name;
