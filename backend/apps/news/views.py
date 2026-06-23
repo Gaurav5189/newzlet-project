@@ -151,6 +151,15 @@ class NewsVersionView(APIView):
             # Establish a baseline so the next real update is detectable.
             version = int(timezone.now().timestamp())
             cache.set('news_last_updated', version, timeout=86400)
-        response = Response({'version': version})
+        
+        response = Response({
+            'version': version,
+            'ip_debug': {
+                'HTTP_CF_CONNECTING_IP': request.META.get('HTTP_CF_CONNECTING_IP'),
+                'HTTP_X_FORWARDED_FOR': request.META.get('HTTP_X_FORWARDED_FOR'),
+                'HTTP_X_REAL_IP': request.META.get('HTTP_X_REAL_IP'),
+                'REMOTE_ADDR': request.META.get('REMOTE_ADDR'),
+            }
+        })
         response['Cache-Control'] = 'no-store'
         return response

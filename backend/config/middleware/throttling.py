@@ -32,25 +32,29 @@ class CloudflareAnonThrottle(SimpleRateThrottle):
     Supports Cloudflare proxies and standard reverse proxies (e.g. Alwaysdata).
 
     Priority:
-      1. CF-Connecting-IP   – real visitor IP set by Cloudflare
-      2. X-Forwarded-For    – real visitor IP set by Alwaysdata's load balancer
-      3. REMOTE_ADDR        – fallback for local dev (no proxy in front)
+      1. CF-Connecting-IP   – real visitor IP set by Cloudflare (when API is proxied through CF)
+      2. X-Real-IP          – real visitor IP set by Alwaysdata's proxy (when API is hit directly)
+      3. X-Forwarded-For    – standard reverse proxy IP list (leftmost is client)
+      4. REMOTE_ADDR        – fallback for local dev (no proxy in front)
     """
 
     scope = "anon"
 
     def get_cache_key(self, request, view):
-        # 1. Cloudflare sets this header to the genuine visitor IP.
+        # 1. Cloudflare sets this header if the request goes through Cloudflare.
         real_ip = request.META.get("HTTP_CF_CONNECTING_IP")
 
-        # 2. Alwaysdata's shared-hosting reverse proxies inject X-Forwarded-For.
-        #    The leftmost address in the comma-separated list is the real client.
+        # 2. Alwaysdata sets X-Real-IP for direct requests hitting the origin.
+        if not real_ip:
+            real_ip = request.META.get("HTTP_X_REAL_IP")
+
+        # 3. Alwaysdata's shared-hosting reverse proxies or other load balancers.
         if not real_ip:
             x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
             if x_forwarded_for:
                 real_ip = x_forwarded_for.split(",")[0].strip()
 
-        # 3. Last resort: raw socket address (only valid in local dev).
+        # 4. Last resort: raw socket address (only valid in local dev).
         if not real_ip:
             real_ip = request.META.get("REMOTE_ADDR")
 
