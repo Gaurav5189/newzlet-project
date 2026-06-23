@@ -39,7 +39,7 @@ export default function CategoryPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const siteOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://newzlet.pages.dev';
+  const siteOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://newzlet.me';
   const canonicalUrl = `${siteOrigin}/category/${slug}`;
 
   const categoryJsonLd = {

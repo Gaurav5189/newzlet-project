@@ -3,4 +3,4 @@ Allow: /
 Disallow: /search
 Disallow: /crm
 
-Sitemap: https://newzlet.pages.dev/sitemap.xml
+Sitemap: https://newzlet.me/sitemap.xml

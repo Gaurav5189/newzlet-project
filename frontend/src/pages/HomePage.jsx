@@ -84,7 +84,7 @@ export default function HomePage() {
   const { featuredArticle, sideArticles, groupedArticles, recentArticles } = processedData;
   const dayFactArticle = factData?.results?.[0];
 
-  const siteOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://newzlet.pages.dev';
+  const siteOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://newzlet.me';
   const latestArticlesJsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
