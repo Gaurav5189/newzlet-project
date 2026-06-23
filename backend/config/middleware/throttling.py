@@ -1,19 +1,26 @@
 """
-Custom throttle classes that are Cloudflare-aware.
+Custom throttle classes that are Cloudflare- and Alwaysdata-aware.
 
 Problem
 -------
 The frontend is served via Cloudflare Pages (SSR).  All requests that arrive
 at the Django/Alwaysdata origin appear to come from a single Cloudflare edge
-IP address.  Using the default DRF AnonRateThrottle, which keys on
-REMOTE_ADDR, would count ALL users as the same client and block the entire
-site after one person's request quota is exhausted.
+IP address (or, worse, a single internal Alwaysdata load-balancer IP).
+Using the default DRF AnonRateThrottle, which keys on REMOTE_ADDR, would
+count ALL users as the same client and block the entire site after one
+person's request quota is exhausted.
 
 Solution
 --------
-Cloudflare injects the real visitor's IP via the `CF-Connecting-IP` HTTP
-header.  We key the throttle on that header when present, and fall back to
-REMOTE_ADDR when running locally (no Cloudflare in front).
+We resolve the real visitor IP using a three-tier priority chain:
+
+  1. CF-Connecting-IP   – injected by Cloudflare; most authoritative when
+                          Cloudflare is in front of the origin.
+  2. X-Forwarded-For    – injected by Alwaysdata's shared-hosting reverse
+                          proxies.  The *first* (leftmost) IP in the
+                          comma-separated list is the real visitor address.
+  3. REMOTE_ADDR        – raw socket peer; used only in local development
+                          where no proxy sits in front of Django.
 """
 
 from rest_framework.throttling import SimpleRateThrottle
@@ -22,20 +29,31 @@ from rest_framework.throttling import SimpleRateThrottle
 class CloudflareAnonThrottle(SimpleRateThrottle):
     """
     Rate-limit anonymous requests by real client IP.
+    Supports Cloudflare proxies and standard reverse proxies (e.g. Alwaysdata).
 
     Priority:
-      1. CF-Connecting-IP   – the visitor's real IP as set by Cloudflare
-      2. REMOTE_ADDR        – fallback for local dev / non-Cloudflare traffic
+      1. CF-Connecting-IP   – real visitor IP set by Cloudflare
+      2. X-Forwarded-For    – real visitor IP set by Alwaysdata's load balancer
+      3. REMOTE_ADDR        – fallback for local dev (no proxy in front)
     """
 
     scope = "anon"
 
     def get_cache_key(self, request, view):
-        # Cloudflare passes the real visitor IP in this header.
-        real_ip = (
-            request.META.get("HTTP_CF_CONNECTING_IP")
-            or request.META.get("REMOTE_ADDR")
-        )
+        # 1. Cloudflare sets this header to the genuine visitor IP.
+        real_ip = request.META.get("HTTP_CF_CONNECTING_IP")
+
+        # 2. Alwaysdata's shared-hosting reverse proxies inject X-Forwarded-For.
+        #    The leftmost address in the comma-separated list is the real client.
+        if not real_ip:
+            x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+            if x_forwarded_for:
+                real_ip = x_forwarded_for.split(",")[0].strip()
+
+        # 3. Last resort: raw socket address (only valid in local dev).
+        if not real_ip:
+            real_ip = request.META.get("REMOTE_ADDR")
+
         return self.cache_format % {
             "scope": self.scope,
             "ident": real_ip,
