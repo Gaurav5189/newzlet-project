@@ -73,9 +73,17 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'apps.news.pagination.StandardResultsSetPagination',
     'PAGE_SIZE': 12,
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
-    # --- Global rate limiting (Cloudflare-aware) ---
-    # CloudflareAnonThrottle keys on CF-Connecting-IP so each real visitor
-    # gets their own counter instead of sharing the Cloudflare edge IP.
+    # --- Authentication ---
+    # This is a fully public, anonymous API — no user sessions or logins.
+    # DRF's default SessionAuthentication enforces CSRF on every POST, which
+    # causes 400 Bad Request for unauthenticated JSON clients that don't send
+    # a CSRF token.  Setting this to empty disables CSRF enforcement cleanly
+    # without needing @csrf_exempt on every view.
+    'DEFAULT_AUTHENTICATION_CLASSES': [],
+    # --- Global rate limiting (Cloudflare- and Alwaysdata-aware) ---
+    # CloudflareAnonThrottle reads CF-Connecting-IP (Cloudflare) or
+    # X-Forwarded-For (Alwaysdata) so each real visitor gets their own
+    # counter instead of sharing the shared-hosting load-balancer IP.
     'DEFAULT_THROTTLE_CLASSES': [
         'config.middleware.throttling.CloudflareAnonThrottle',
     ],
