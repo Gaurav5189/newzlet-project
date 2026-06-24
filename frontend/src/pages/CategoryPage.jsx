@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams, Navigate } from 'react-router-dom';
 import { useCategoryArticles } from '../hooks/useCategoryArticles';
 import { useCategories } from '../hooks/useCategories';
 import ArticleCard from '../components/common/ArticleCard';
@@ -19,6 +19,10 @@ export default function CategoryPage() {
 
   const { data: categoryData } = useCategories();
   const { data, isLoading } = useCategoryArticles(slug, page);
+
+  if (slug === 'day-fact') {
+    return <Navigate to="/" replace />;
+  }
 
   const category = categoryData?.find(c => c.slug === slug);
   const articles = data?.results || [];
@@ -85,7 +89,11 @@ export default function CategoryPage() {
       <Helmet>
         <title>{category?.name || slug} News — The Daily Newzlet</title>
         <meta name="description" content={category?.description || `Latest breaking news in ${category?.name || slug}.`} />
-        <link rel="canonical" href={canonicalUrl} />
+        {slug === 'day-fact' ? (
+          <meta name="robots" content="noindex, nofollow" />
+        ) : (
+          <link rel="canonical" href={canonicalUrl} />
+        )}
         <script type="application/ld+json">{JSON.stringify(categoryJsonLd)}</script>
         <script type="application/ld+json">{JSON.stringify(itemListJsonLd)}</script>
         <script type="application/ld+json">{JSON.stringify(breadcrumbJsonLd)}</script>

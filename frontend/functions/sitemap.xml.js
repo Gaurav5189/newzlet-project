@@ -23,6 +23,8 @@ export async function onRequest(context) {
 
     if (Array.isArray(categories)) {
       for (const cat of categories) {
+        if (cat.slug === 'day-fact') continue;
+
         // Use updated_at or published_at if available on the category model
         const lastmod = cat.updated_at || cat.published_at
           ? `\n    <lastmod>${(cat.updated_at || cat.published_at).split('T')[0]}</lastmod>`
