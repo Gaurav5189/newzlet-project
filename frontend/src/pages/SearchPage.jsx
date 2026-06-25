@@ -28,6 +28,19 @@ export default function SearchPage() {
     }
   }, [q, category, currentQuery]);
 
+  const handlePageChange = (newPage) => {
+    const updateState = () => {
+      setPage(newPage);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    if (document.startViewTransition) {
+      document.startViewTransition(updateState);
+    } else {
+      updateState();
+    }
+  };
+
   return (
     <main className="container search-page">
       <Helmet>
@@ -75,7 +88,7 @@ export default function SearchPage() {
                 next={data?.next}
                 previous={data?.previous}
                 currentPage={page}
-                setPage={setPage}
+                setPage={handlePageChange}
               />
             )}
           </>

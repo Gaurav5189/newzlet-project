@@ -39,8 +39,16 @@ export default function CategoryPage() {
   );
 
   const handlePageChange = (newPage) => {
-    setPage(newPage);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const updateState = () => {
+      setPage(newPage);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    if (document.startViewTransition) {
+      document.startViewTransition(updateState);
+    } else {
+      updateState();
+    }
   };
 
   const siteOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://newzlet.me';

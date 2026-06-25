@@ -41,6 +41,28 @@ export default function ArticleModal() {
     }
   }, [modalImageSrc]);
 
+  const originalOverflowRef = useRef(null);
+
+  useEffect(() => {
+    if (activeArticle) {
+      if (originalOverflowRef.current === null) {
+        originalOverflowRef.current = document.body.style.overflow;
+      }
+      document.body.style.overflow = 'hidden';
+    } else {
+      if (originalOverflowRef.current !== null) {
+        document.body.style.overflow = originalOverflowRef.current;
+        originalOverflowRef.current = null;
+      }
+    }
+    return () => {
+      if (originalOverflowRef.current !== null) {
+        document.body.style.overflow = originalOverflowRef.current;
+        originalOverflowRef.current = null;
+      }
+    };
+  }, [activeArticle]);
+
   if (!activeArticle) return null;
 
   const handleOverlayClick = (e) => {
