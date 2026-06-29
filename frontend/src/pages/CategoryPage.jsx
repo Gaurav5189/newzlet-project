@@ -95,7 +95,7 @@ export default function CategoryPage() {
   return (
     <main className="container category-page">
       <Helmet>
-        <title>{category?.name || slug} News — The Daily Newzlet</title>
+        <title>{category?.name || slug} News - The Daily Newzlet</title>
         <meta name="description" content={category?.description || `Latest breaking news in ${category?.name || slug}.`} />
         {slug === 'day-fact' ? (
           <meta name="robots" content="noindex, nofollow" />

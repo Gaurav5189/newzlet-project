@@ -1,9 +1,10 @@
 import { Link } from "react-router";
 import "../styles/HomePage.css"; // Reuse some styles or generic container styles if available
+import { Helmet } from 'react-helmet-async';
 
 export function meta() {
   return [
-    { title: "Editorial Policy | The Daily Newzlet" },
+    { title: "Editorial Policy - The Daily Newzlet" },
     { name: "description", content: "Editorial policy for The Daily Newzlet." },
   ];
 }
@@ -11,6 +12,10 @@ export function meta() {
 export default function EditorialPolicy() {
   return (
     <main className="container page-container" style={{ padding: '4rem var(--margin-mobile)' }}>
+      <Helmet>
+        <title>Editorial Policy - The Daily Newzlet</title>
+        <meta name="description" content="Editorial policy for The Daily Newzlet." />
+      </Helmet>
       <h1 className="text-display-md text-uppercase mb-4">Editorial Policy</h1>
       <div className="neo-shadow" style={{ padding: '2rem', backgroundColor: 'var(--surface-container)' }}>
         <p className="text-body-lg mb-4">

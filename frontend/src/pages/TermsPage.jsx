@@ -1,9 +1,10 @@
 import { Link } from "react-router";
 import "../styles/HomePage.css"; // Reuse styling
+import { Helmet } from 'react-helmet-async';
 
 export function meta() {
   return [
-    { title: "Terms of Service | The Daily Newzlet" },
+    { title: "Terms of Service - The Daily Newzlet" },
     { name: "description", content: "Terms of service for The Daily Newzlet." },
   ];
 }
@@ -11,6 +12,10 @@ export function meta() {
 export default function TermsOfService() {
   return (
     <main className="container page-container" style={{ padding: '4rem var(--margin-mobile)' }}>
+      <Helmet>
+        <title>Terms of Service - The Daily Newzlet</title>
+        <meta name="description" content="Terms of service for The Daily Newzlet." />
+      </Helmet>
       <h1 className="text-display-md text-uppercase mb-4">Terms of Service</h1>
       <div className="neo-shadow" style={{ padding: '2rem', backgroundColor: 'var(--surface-container)' }}>
         <p className="text-body-lg mb-4">

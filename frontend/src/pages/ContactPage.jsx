@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { submitContactForm } from "../services/api";
 import "../styles/HomePage.css"; // Reuse styling for container/neo-shadow
+import { Helmet } from 'react-helmet-async';
 
 export function meta() {
   return [
-    { title: "Contact Me | The Daily Newzlet" },
+    { title: "Contact Me - The Daily Newzlet" },
     { name: "description", content: "Contact The Daily Newzlet team." },
   ];
 }
@@ -49,6 +50,10 @@ export default function Contact() {
 
   return (
     <main className="container page-container" style={{ padding: '4rem var(--margin-mobile)' }}>
+      <Helmet>
+        <title>Contact Me - The Daily Newzlet</title>
+        <meta name="description" content="Contact The Daily Newzlet team." />
+      </Helmet>
       <h1 className="text-display-md text-uppercase mb-4">Contact Me</h1>
 
       <div className="contact-grid" style={{ display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>

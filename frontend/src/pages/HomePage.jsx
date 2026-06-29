@@ -99,6 +99,9 @@ export default function HomePage() {
   return (
     <main className="container home-page">
       <Helmet>
+        <title>The Daily Newzlet - Your Daily News Roundup</title>
+        <meta name="description" content="The Daily Newzlet aggregates breaking news across technology, politics, sports, business, and entertainment, updated automatically every morning." />
+        <link rel="canonical" href={siteOrigin} />
         <script type="application/ld+json">
           {JSON.stringify(latestArticlesJsonLd)}
         </script>

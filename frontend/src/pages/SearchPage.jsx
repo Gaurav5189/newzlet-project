@@ -44,7 +44,8 @@ export default function SearchPage() {
   return (
     <main className="container search-page">
       <Helmet>
-        <meta name="robots" content="noindex,follow" />
+        <title>{q ? `Search results for "${q}"` : "Search"} - The Daily Newzlet</title>
+        <meta name="robots" content="noindex, follow" />
       </Helmet>
       <div className="search-header">
         <h1 className="text-display-lg text-uppercase rotate-slight-neg">
