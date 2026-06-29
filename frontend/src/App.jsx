@@ -13,8 +13,6 @@ import EditorialPage from './pages/EditorialPage';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
 import NotFoundPage from './pages/NotFoundPage';
-import { useEffect } from 'react';
-import Clarity from '@microsoft/clarity';
 
 
 const RootLayout = () => (
@@ -50,11 +48,6 @@ const router = createBrowserRouter([
 ]);
 
 export default function App() {
-  useEffect(() => {
-    // Initialize Clarity with your Project ID
-    Clarity.init('xem8r5hm0k');
-  }, []);
-
   return (
     <HelmetProvider>
       <ModalProvider>
