@@ -1,5 +1,18 @@
 # The Daily Newzlet
 
+<p>
+  <img src="https://img.shields.io/badge/Django-6.0-green?style=for-the-badge&logo=django&logoColor=white" alt="Django" />
+  <img src="https://img.shields.io/badge/PostgreSQL-Supabase-336791?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/Redis-Upstash-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis" />
+  <img src="https://img.shields.io/badge/React-19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
+  <img src="https://img.shields.io/badge/Python-3.13-blue?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
+  <img src="https://img.shields.io/badge/Django_REST_Framework-API-A30000?style=for-the-badge&logo=django&logoColor=white" alt="Django REST Framework" />
+  <img src="https://img.shields.io/badge/Vite-8-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
+  <img src="https://img.shields.io/badge/Cloudflare-Pages-F38020?style=for-the-badge&logo=cloudflare&logoColor=white" alt="Cloudflare Pages" />
+</p>
+
+---
+
 The Daily Newzlet is a modern, fully automated daily news aggregation platform featuring a bold, aesthetic design. It leverages a decoupled architecture to deliver high-performance, categorized news updates fetched seamlessly from global RSS feeds.
 
 The web application is fully responsive and supports Progressive Web App (PWA) standards, allowing it to be natively installed on Android and iOS devices directly from the browser.
