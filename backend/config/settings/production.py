@@ -27,7 +27,8 @@ ssl_require = config("DB_SSL_REQUIRE", default=DATABASE_URL.startswith("postgres
 DATABASES = {
     "default": dj_database_url.parse(
         DATABASE_URL,
-        conn_max_age=600,
+        conn_max_age=0,
+        conn_health_checks=True,
         ssl_require=ssl_require
     )
 }
