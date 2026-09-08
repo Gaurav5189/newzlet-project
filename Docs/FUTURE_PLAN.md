@@ -2,7 +2,7 @@
 
 > **Status:** Approved Architectural Blueprint  
 > **Document Target:** `Docs/FUTURE_PLAN.md`  
-> **Target Tech Stack:** Next.js 16.3 (Vercel) • FastAPI (Async) • SQLAlchemy 2.0 • Supabase PostgreSQL • Upstash Redis (Epoch Cache) • Cloudflare Durable Objects (WebSocket Hibernation) • n8n + Firecrawl AI
+> **Target Tech Stack:** React 19 (Vite 8 Optimized SPA) • Cloudflare Pages • FastAPI (Async) • SQLAlchemy 2.0 • Supabase PostgreSQL • Upstash Redis (Epoch Cache) • Cloudflare Durable Objects (WebSocket Hibernation) • n8n + Firecrawl AI
 
 ---
 
@@ -10,12 +10,13 @@
 
 1. [Executive Summary & Motivation](#1-executive-summary--motivation)
 2. [High-Level Architecture & System Design](#2-high-level-architecture--system-design)
-3. [Answers to Architectural Decisions & SEO Migration FAQs](#3-answers-to-architectural-decisions--seo-migration-faqs)
+3. [Answers to Architectural Decisions & Key Features](#3-answers-to-architectural-decisions--key-features)
    - [3.1 Google SEO & Dual-Domain Migration Explained](#31-google-seo--dual-domain-migration-explained)
    - [3.2 Epoch-Based Redis Cache Invalidation Explained](#32-epoch-based-redis-cache-invalidation-explained)
    - [3.3 Real-Time Fan-Out: Why Cloudflare Durable Objects over HiveMQ/MQTT](#33-real-time-fan-out-why-cloudflare-durable-objects-over-hivemqmqtt)
    - [3.4 Rapid-Fire Persistence & 72-Hour Deduplication Mechanics](#34-rapid-fire-persistence--72-hour-deduplication-mechanics)
    - [3.5 Breaking News Endpoint Clarification](#35-breaking-news-endpoint-clarification)
+   - [3.6 Third-Party External Redirect Consent Modal](#36-third-party-external-redirect-consent-modal)
 4. [Backend Architecture (FastAPI + Async SQLAlchemy 2.0)](#4-backend-architecture-fastapi--async-sqlalchemy-20)
    - [4.1 Directory Structure](#41-directory-structure)
    - [4.2 Database Models & Alembic Schema](#42-database-models--alembic-schema)
@@ -26,13 +27,16 @@
 5. [Real-Time Fan-Out Layer (Cloudflare Durable Objects)](#5-real-time-fan-out-layer-cloudflare-durable-objects)
    - [5.1 Cloudflare Worker & Durable Object Code](#51-cloudflare-worker--durable-object-code)
    - [5.2 FastAPI Broadcast Trigger](#52-fastapi-broadcast-trigger)
-   - [5.3 Client-Side Next.js Integration Hook](#53-client-side-nextjs-integration-hook)
-6. [Frontend Architecture (Next.js 16.3 on Vercel)](#6-frontend-architecture-nextjs-163-on-vercel)
-   - [6.1 Why Vercel for Next.js](#61-why-vercel-for-nextjs)
-   - [6.2 App Router Structure](#62-app-router-structure)
-   - [6.3 Design System & UI/UX Upgrades](#63-design-system--uiux-upgrades)
-   - [6.4 Rapid-Fire Section UI](#64-rapid-fire-section-ui)
-   - [6.5 Bento Grid & Redesigned Cards](#65-bento-grid--redesigned-cards)
+   - [5.3 Client-Side React Integration Hook](#53-client-side-react-integration-hook)
+6. [Frontend Architecture & Optimizations (React 19 + Vite 8 SPA)](#6-frontend-architecture--optimizations-react-19--vite-8-spa)
+   - [6.1 Route-Based Code Splitting (`React.lazy` + `Suspense`)](#61-route-based-code-splitting-reactlazy--suspense)
+   - [6.2 Vite Vendor Chunking (`manualChunks`) & Long-Term Caching](#62-vite-vendor-chunking-manualchunks--long-term-caching)
+   - [6.3 Build-Time Pre-Compression (Brotli + Gzip)](#63-build-time-pre-compression-brotli--gzip)
+   - [6.4 High-Impact Image Payload Tuning (`wsrv.nl` WebP/AVIF)](#64-high-impact-image-payload-tuning-wsrvnl-webpavif)
+   - [6.5 DOM Virtualization via Modern CSS (`content-visibility: auto`)](#65-dom-virtualization-via-modern-css-content-visibility-auto)
+   - [6.6 TanStack Query Cache Strategy](#66-tanstack-query-cache-strategy)
+   - [6.7 External Redirection Consent Modal Component & Hook](#67-external-redirection-consent-modal-component--hook)
+   - [6.8 UI/UX Redesign: News Cards, Rapid-Fire Section & Bento Grid](#68-uiux-redesign-news-cards-rapid-fire-section--bento-grid)
 7. [Comprehensive Domain Migration & SEO Playbook](#7-comprehensive-domain-migration--seo-playbook)
 8. [Step-by-Step Implementation Roadmap](#8-step-by-step-implementation-roadmap)
 9. [Verification & Testing Strategy](#9-verification--testing-strategy)
@@ -43,25 +47,28 @@
 
 **The Daily Newzlet (v1)** is an automated news aggregation platform built on React 19 (Vite SPA) on Cloudflare Pages, Django REST Framework (DRF) hosted on AlwaysData, Supabase PostgreSQL, and Upstash Redis.
 
-While v1 functions reliably, v2 undertakes a complete modern architectural redesign centered on:
+While v1 functions reliably, v2 undertakes a comprehensive architectural upgrade centered on:
 
-1. **Next.js 16.3 (Vercel) with React Server Components (RSC) and Incremental Static Regeneration (ISR)**:
-   - Eliminates client-side waterfall fetching and SEO penalties inherent to client-only SPAs.
-   - Provides lightning-fast initial page loads with rich server-rendered HTML for search engines and social crawlers.
-2. **FastAPI with Async SQLAlchemy 2.0**:
+1. **React 19 + Vite 8 with High-Efficiency Performance Optimizations**:
+   - Retains the lightweight, battle-tested React SPA architecture without the server complexity of SSR/Next.js.
+   - Drastically cuts initial bundle size and mobile data transfer via route-level lazy loading, Vite vendor chunk splitting, build-time Brotli/Gzip pre-compression, and `wsrv.nl` modern image formatting.
+   - Implements modern CSS offscreen rendering (`content-visibility: auto`) to render hundreds of news cards with zero UI lag.
+2. **Third-Party External Redirection Consent Modal**:
+   - Implements a privacy-first interstitial disclosure before sending users off-site to external news publications (e.g. YouTube, Reuters, BBC, TechCrunch), clarifying data transfer under third-party terms with an optional "Remember my choice" toggle.
+3. **FastAPI with Async SQLAlchemy 2.0**:
    - Replaces Django's synchronous WSGI runtime with an asynchronous ASGI architecture.
    - Native Pydantic v2 data validation, OpenAPI docs generation, lower memory footprint, and high-concurrency request handling on AlwaysData.
-3. **Hybrid Ingestion Pipeline**:
+4. **Hybrid Ingestion Pipeline**:
    - **Daily 5:00 AM Major Ingest**: Traditional RSS feeds curated by n8n.
    - **Every 4 Hours Minor Rapid-Fire Ingest**: Firecrawl Web Search + AI agent (in n8n) targeting breaking topics, tech developments, and world headlines.
    - **72-Hour Rolling Deduplication**: Ingest fingerprints prevent duplicate stories within a 3-day window while preserving articles permanently.
-4. **Edge Fan-Out Real-Time Updates (Cloudflare Durable Objects)**:
+5. **Edge Fan-Out Real-Time Updates (Cloudflare Durable Objects)**:
    - Deprecates client-side 3-minute HTTP polling (`/api/news-version/`).
    - Replaces polling with WebSocket connections managed by Cloudflare Durable Objects using the **WebSocket Hibernation API**, achieving zero idle CPU consumption and instantaneous article push notifications to all active browsers.
-5. **Safe Epoch-Based Redis Cache Invalidation**:
+6. **Safe Epoch-Based Redis Cache Invalidation**:
    - Prevents destructive `FLUSHALL`/`FLUSHDB` calls on shared Upstash Redis instances.
    - Utilizes atomic integer versioning (`INCR newzlet:epoch`) for O(1) instant cache invalidation without touching other databases or keys.
-6. **Managed Domain Migration**:
+7. **Managed Domain Migration**:
    - Safe migration path from `newzlet.me` to `newzlet.dpdns.org` preserving SEO equity via 301 redirects and Google Search Console (GSC) Change of Address.
 
 ---
@@ -72,7 +79,7 @@ While v1 functions reliably, v2 undertakes a complete modern architectural redes
                      ┌──────────────────────────────────────────────────────────┐
                      │                   INGESTION PIPELINE                     │
                      │                                                          │
-                     │  [RSS Feeds (Daily 5 AM)]   [Firecrawl AI (Every 4h)]   │
+                     │  [RSS Feeds (Daily 5 AM)]   [Firecrawl AI (Every 4h)]    │
                      │             │                           │                │
                      │             └─────────────┬─────────────┘                │
                      │                           ▼                              │
@@ -113,7 +120,7 @@ While v1 functions reliably, v2 undertakes a complete modern architectural redes
 │  [Cloudflare Worker]                                                                     │
 │         │                                                                                │
 │         ▼                                                                                │
-│  [Durable Object: NewsRoom (WebSocket Hibernation API)]                                 │
+│  [Durable Object: NewsRoom (WebSocket Hibernation API)]                                  │
 │         │                                                                                │
 │         ├── Broadcast { event: "NEWS_UPDATE", count: N, section: "rapid-fire" }          │
 │         │                                                                                │
@@ -123,49 +130,49 @@ While v1 functions reliably, v2 undertakes a complete modern architectural redes
                                          │
                                          ▼ (Triggers TanStack Query Invalidation)
 ┌──────────────────────────────────────────────────────────────────────────────────────────┐
-│                              FRONTEND (Next.js 16.3 on Vercel)                           │
+│                     FRONTEND (React 19 + Vite 8 SPA on Cloudflare Pages)                 │
 │                                                                                          │
-│  • Edge CDN & Server Components (SSR / ISR)                                              │
-│  • Client Hooks: useRealtime() receives WS broadcast -> refetches updated feeds           │
-│  • Bento Grid + Redesigned Cards + Rapid-Fire Wire Feed                                  │
+│  • High-Efficiency Bundling: manualChunks vendor separation + Brotli compression         │
+│  • Route Code-Splitting: React.lazy() for non-homepage pages (~40% smaller entry)        │
+│  • Edge Image Optimization: wsrv.nl WebP/AVIF formatting with responsive srcset          │
+│  • CSS content-visibility: auto for instantaneous smooth scrolling                       │
+│  • External Redirection Consent Modal: Interstitial disclaimer before visiting sources   │
+│  • Real-Time Updates: useRealtime() hook invalidates TanStack cache on WebSocket push    │
 └──────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 3. Answers to Architectural Decisions & SEO Migration FAQs
+## 3. Answers to Architectural Decisions & Key Features
 
 ### 3.1 Google SEO & Dual-Domain Migration Explained
 
-#### The User's Question:
+#### The Question:
 > *"But Google hates having the same site under different domains?"*
 
 #### The Technical Reality:
-Yes, Google strictly penalizes **duplicate content** if you host the exact same live website simultaneously on two separate domains where both return `HTTP 200 OK` without canonicalization or redirection. In that bad scenario:
-- Google's crawlers do not know which domain is the "true" source.
-- Backlinks and PageRank are split across both domains.
-- Search rankings crater for both domains.
+Yes, Google strictly penalizes **duplicate content** if two separate domains concurrently serve the exact same live website returning `HTTP 200 OK` without canonicalization or redirection. In that bad scenario, search crawlers do not know which domain is authoritative, splitting PageRank and hurting rankings.
 
 #### How Official Domain Migration Works (Without Penalty):
-In Google's official site migration specification:
+Under Google's official site migration specification:
 1. **At no point are both domains serving live duplicate content.**
 2. `newzlet.me` is converted into a **100% 301 Redirect Gateway**. Every request hitting `newzlet.me/any/path` receives an immediate `HTTP 301 Moved Permanently` pointing to `https://newzlet.dpdns.org/any/path`.
 3. `newzlet.dpdns.org` is the **only domain serving 200 OK content**, and all its `<link rel="canonical">` tags point to `https://newzlet.dpdns.org/...`.
 4. **Why Google Search Console requires verifying both domains:**
-   - To use Google's official **"Change of Address"** tool, Google **requires proof of ownership for both the source property (`newzlet.me`) and the destination property (`newzlet.dpdns.org`)**. This is a security safeguard so third parties cannot steal another website's search traffic.
+   - To use Google's official **"Change of Address"** tool, Google **requires proof of ownership for both the source property (`newzlet.me`) and the destination property (`newzlet.dpdns.org`)**. This is a security safeguard so third parties cannot hijack another website's search traffic.
    - Once verified, you submit the Change of Address in GSC. Google validates your 301 redirects, recognizes that the site has intentionally relocated, transfers your search index signals, backlinks, and keyword rankings to `newzlet.dpdns.org`, and updates the search result listings over 2 to 4 weeks.
 
 ```
-WRONG (Duplicate Content Penalty):
+❌ WRONG (Duplicate Content Penalty):
 newzlet.me/article/1        --> 200 OK (Full HTML) ──┐ Google sees duplicate
-newzlet.dpdns.org/article/1  --> 200 OK (Full HTML) ──┘ content -> PENALTY!
+newzlet.dpdns.org/article/1  --> 200 OK (Full HTML) ──┘ content -> Split rankings & PENALTY!
 
-RIGHT (Official GSC 301 Migration):
+✅ RIGHT (Official GSC 301 Migration):
 newzlet.me/article/1        --> 301 Moved Permanently (Location: newzlet.dpdns.org/article/1)
                                       │
                                       ▼
 newzlet.dpdns.org/article/1  --> 200 OK (Canonical: newzlet.dpdns.org/article/1)
-+ GSC Change of Address submitted (transfers 100% link equity, NO duplicate content)
++ GSC Change of Address submitted (Transfers 100% link equity, NO penalty)
 ```
 
 ---
@@ -188,7 +195,7 @@ Example:    newzlet:cache:e42:articles:page:1
 │ Current state: newzlet:epoch = 42                                      │
 │ Cached keys:                                                           │
 │   newzlet:cache:e42:articles:page:1  (TTL 12h)                         │
-│   newzlet:cache:e42:breaking          (TTL 5m)                          │
+│   newzlet:cache:e42:breaking          (TTL 5m)                         │
 │   other_project:session:xyz          (NEVER TOUCHED)                   │
 └───────────────────────────────────┬────────────────────────────────────┘
                                     │
@@ -215,7 +222,7 @@ Example:    newzlet:cache:e42:articles:page:1
 ### 3.3 Real-Time Fan-Out: Why Cloudflare Durable Objects over HiveMQ/MQTT
 
 #### The Problem with HiveMQ / External MQTT:
-Serverless edge platforms like Cloudflare Workers or Vercel Edge Functions cannot keep persistent outbound TCP socket connections open to third-party MQTT brokers (like HiveMQ Cloud) across client requests. A traditional MQTT broker requires long-lived stateful processes, defeating serverless scalability and incurring extra hosting/tier costs.
+Serverless edge platforms like Cloudflare Workers cannot keep persistent outbound TCP socket connections open to third-party MQTT brokers (like HiveMQ Cloud) across client requests. A traditional MQTT broker requires long-lived stateful processes, defeating serverless scalability and incurring extra hosting/tier costs.
 
 #### Why Cloudflare Durable Objects (Option A) is Superior:
 1. **Edge Native**: Durable Objects run directly inside Cloudflare's global edge network.
@@ -243,11 +250,43 @@ Serverless edge platforms like Cloudflare Workers or Vercel Edge Functions canno
 
 ### 3.5 Breaking News Endpoint Clarification
 
-The existing Django backend has:
+The existing backend has:
 - `BreakingArticlesView` (`/api/articles/breaking/`) serving the top 5 most recent articles.
 - Frontend `BreakingTicker.jsx` marquee component rendering these articles in a rolling ticker bar.
 
-FastAPI will maintain this exact endpoint route (`GET /api/articles/breaking/`) with a short 5-minute cache TTL to retain 100% frontend feature parity.
+FastAPI maintains this exact route (`GET /api/articles/breaking/`) with a short 5-minute cache TTL to retain 100% frontend feature parity.
+
+---
+
+### 3.6 Third-Party External Redirect Consent Modal
+
+In news aggregators, clicking "Read Full Source" or external media takes the user off-platform to third-party domains (e.g., YouTube, Reuters, BBC, TechCrunch).
+
+```
+┌───────────────────────────────────────────────────────────────────┐
+│ ⚡ Leaving The Daily Newzlet                                   [X]│
+├───────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│ You are about to visit an external third-party website:           │
+│ 🌐 TechCrunch (techcrunch.com)                                    │
+│                                                                   │
+│ By clicking continue below, you accept to view content from a     │
+│ third-party site (TechCrunch) and for your personal data and      │
+│ cookies to be transferred and processed as indicated in their     │
+│ privacy policy.                                                   │
+│                                                                   │
+│ [ ] Don't ask again on this device                                │
+│                                                                   │
+│ ┌───────────────────────────────┐   ┌───────────────────────────┐ │
+│ │ Continue to TechCrunch ↗      │   │ Stay on Newzlet           │ │
+│ └───────────────────────────────┘   └───────────────────────────┘ │
+└───────────────────────────────────────────────────────────────────┘
+```
+
+#### Key Implementation Details:
+1. **Context-Aware Host Extraction**: Extracts `hostname` and `source_name` dynamically from `article.source_url`.
+2. **Persistent Consent in `localStorage`**: If the user checks *"Don't ask again on this device"*, `localStorage.setItem('newzlet_consent_external_redirect', 'true')` is stored. Subsequent clicks open the source URL directly in a new tab without interruption.
+3. **Security Safeguard**: External redirects always use `rel="noopener noreferrer"` and `target="_blank"`.
 
 ---
 
@@ -676,7 +715,6 @@ export { NewsRoom };
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    // Singleton Durable Object ID for the global newsroom
     const id = env.NEWS_ROOM.idFromName("global-newsroom");
     const room = env.NEWS_ROOM.get(id);
     return room.fetch(request);
@@ -710,30 +748,27 @@ async def trigger_realtime_fanout(count: int, section: str, epoch: int) -> None:
         try:
             await client.post(f"{settings.CF_REALTIME_URL}/broadcast", json=payload, headers=headers)
         except Exception as exc:
-            # Broadcast failures should never roll back the DB transaction
             print(f"[FanOut Error] Cloudflare broadcast failed: {exc}")
 ```
 
 ---
 
-### 5.3 Client-Side Next.js Integration Hook
+### 5.3 Client-Side React Integration Hook
 
 ```typescript
-// frontend/src/hooks/useRealtime.ts
-'use client';
-
+// frontend/src/hooks/useRealtime.js
 import { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 export function useRealtime() {
   const queryClient = useQueryClient();
-  const wsRef = useRef<WebSocket | null>(null);
+  const wsRef = useRef(null);
 
   useEffect(() => {
-    let reconnectTimeout: NodeJS.Timeout;
+    let reconnectTimeout;
 
     function connect() {
-      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'wss://realtime.newzlet.dpdns.org/ws';
+      const wsUrl = import.meta.env.VITE_WS_URL || 'wss://realtime.newzlet.dpdns.org/ws';
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
@@ -754,7 +789,6 @@ export function useRealtime() {
       };
 
       ws.onclose = () => {
-        // Auto-reconnect with 3s backoff
         reconnectTimeout = setTimeout(connect, 3000);
       };
 
@@ -775,138 +809,348 @@ export function useRealtime() {
 
 ---
 
-## 6. Frontend Architecture (Next.js 16.3 on Vercel)
+## 6. Frontend Architecture & Optimizations (React 19 + Vite 8 SPA)
 
-### 6.1 Why Vercel for Next.js
+### 6.1 Route-Based Code Splitting (`React.lazy` + `Suspense`)
 
-1. **First-Class Next.js 16.3 Support**: Zero configuration required for Server Components, Turbopack, Image Optimization, and App Router streaming.
-2. **Elimination of Adapter Friction**: Cloudflare Pages requires `@opennextjs/cloudflare` which introduces build complexities, edge polyfill shims, and lag on new Next.js releases.
-3. **Instant Preview Environments**: Automatic preview URLs for Git branches with built-in Web Vitals and Core Web Vitals telemetry.
-4. **Hobby Tier Generosity**: Includes 100GB bandwidth, serverless compute, and SSL automation for custom domains.
+In the existing setup, all pages and modals are imported statically in `App.jsx`, making the initial homepage bundle download code for contact forms, terms of service, search logic, and editorial guidelines.
 
----
+```jsx
+// frontend/src/App.jsx (Optimized with Lazy Loading)
+import React, { Suspense } from 'react';
+import { createBrowserRouter, RouterProvider, Outlet, ScrollRestoration } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
+import { ModalProvider } from './context/ModalContext';
+import { RedirectModalProvider } from './context/RedirectModalContext';
+import TopAppBar from './components/layout/TopAppBar';
+import Footer from './components/layout/Footer';
+import NewsBanner from './components/common/NewsBanner';
+import ArticleModal from './components/common/ArticleModal';
+import ExternalRedirectModal from './components/common/ExternalRedirectModal';
+import HomePage from './pages/HomePage'; // Keep critical homepage eager for instant FCP
 
-### 6.2 App Router Structure
+// Lazy-load secondary views
+const CategoryPage = React.lazy(() => import('./pages/CategoryPage'));
+const SearchPage = React.lazy(() => import('./pages/SearchPage'));
+const ContactPage = React.lazy(() => import('./pages/ContactPage'));
+const EditorialPage = React.lazy(() => import('./pages/EditorialPage'));
+const PrivacyPage = React.lazy(() => import('./pages/PrivacyPage'));
+const TermsPage = React.lazy(() => import('./pages/TermsPage'));
+const NotFoundPage = React.lazy(() => import('./pages/NotFoundPage'));
 
-```text
-frontend/
-├── app/
-│   ├── layout.tsx                # Root layout (HTML, Outfit/Inter fonts, Metadata)
-│   ├── page.tsx                  # Home page (Server Component + Bento Grid + Ticker)
-│   ├── category/
-│   │   └── [slug]/
-│   │       └── page.tsx          # ISR Category page (revalidate = 300)
-│   ├── search/
-│   │   └── page.tsx              # Search interface (Client Component)
-│   ├── contact/
-│   │   └── page.tsx              # Contact feedback form
-│   ├── editorial/
-│   │   └── page.tsx              # Editorial & AI ethics policy
-│   ├── privacy/
-│   │   └── page.tsx              # Privacy policy
-│   ├── terms/
-│   │   └── page.tsx              # Terms of service
-│   ├── sitemap.ts                # Dynamic XML sitemap generator
-│   ├── robots.ts                 # Dynamic robots.txt
-│   └── not-found.tsx             # Custom 404 page
-├── components/
-│   ├── layout/
-│   │   ├── TopAppBar.tsx         # Header, brand, category nav, theme toggle
-│   │   ├── Sidebar.tsx           # Mobile navigation drawer
-│   │   └── Footer.tsx            # Footer, legal links, RSS feeds
-│   ├── home/
-│   │   ├── BentoGrid.tsx         # Modern hero layout
-│   │   ├── RapidFireFeed.tsx     # [NEW] Real-time 4h Firecrawl headline feed
-│   │   └── TimelineFeed.tsx      # Infinite/paginated main articles stream
-│   ├── common/
-│   │   ├── ArticleCard.tsx       # Redesigned article card with micro-interactions
-│   │   ├── BreakingTicker.tsx    # Marquee ticker bar
-│   │   ├── ArticleModal.tsx      # Read modal with AI summary badge
-│   │   └── SkeletonCard.tsx      # Glassmorphic skeleton loader
-│   └── providers/
-│       └── AppProviders.tsx      # TanStack Query + WebSocket listener wrapper
-├── hooks/
-│   ├── useArticles.ts
-│   ├── useBreaking.ts
-│   ├── useCategories.ts
-│   ├── useRapidFire.ts           # [NEW] Hook for Firecrawl live headlines
-│   └── useRealtime.ts            # [NEW] Cloudflare Durable Object WS listener
-├── styles/
-│   ├── globals.css               # Design system tokens, variables, animations
-│   └── components/               # CSS modules
-├── public/
-│   ├── favicon.ico
-│   ├── og-default.png
-│   └── site.webmanifest
-├── next.config.ts
-├── package.json
-└── tsconfig.json
+const PageLoader = () => (
+  <div className="page-loader-spinner">
+    <div className="loader-spin" />
+  </div>
+);
+
+const RootLayout = () => (
+  <div className="main-content">
+    <ScrollRestoration />
+    <TopAppBar />
+    <NewsBanner />
+    <div className="flex-grow">
+      <div className="page-transition-wrapper">
+        <Suspense fallback={<PageLoader />}>
+          <Outlet />
+        </Suspense>
+      </div>
+    </div>
+    <Footer />
+    <ArticleModal />
+    <ExternalRedirectModal />
+  </div>
+);
 ```
 
 ---
 
-### 6.3 Design System & UI/UX Upgrades
+### 6.2 Vite Vendor Chunking (`manualChunks`) & Long-Term Caching
 
-- **Typography**: Primary font `Outfit` (display/headlines) paired with `Inter` or `Geist` (body copy) loaded via `next/font/google`.
-- **Curated Palette**: Deep charcoal dark mode (`#0B0F19`), surface card layers (`#151B2B`), vibrant accent cyan/amber gradients (`#06B6D4` / `#F59E0B`).
-- **Glassmorphism**: Backdrop blur filter (`backdrop-filter: blur(12px)`) on sticky headers, floating category pills, and dialog overlays.
+Configure manual vendor chunk splitting in `vite.config.js` to isolate stable libraries from application code. This ensures user browsers and Cloudflare CDN cache vendor chunks indefinitely:
+
+```javascript
+// frontend/vite.config.js
+import { defineConfig, loadEnv } from 'vite';
+import react from '@vitejs/plugin-react';
+import viteCompression from 'vite-plugin-compression';
+
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
+
+  return {
+    plugins: [
+      react(),
+      // Pre-compress assets to .br and .gz during build
+      viteCompression({ algorithm: 'brotliCompress', ext: '.br' }),
+      viteCompression({ algorithm: 'gzip', ext: '.gz' }),
+    ],
+    build: {
+      target: 'es2022', // Modern JS targets without legacy transpilation bloat
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+                return 'vendor-react';
+              }
+              if (id.includes('@tanstack/react-query') || id.includes('axios')) {
+                return 'vendor-query';
+              }
+              if (id.includes('react-helmet-async')) {
+                return 'vendor-helmet';
+              }
+              return 'vendor-misc';
+            }
+          },
+        },
+      },
+    },
+    server: {
+      proxy: {
+        '/api': {
+          target: env.VITE_DEV_PROXY_TARGET || 'http://127.0.0.1:8000',
+          changeOrigin: true,
+        },
+      },
+    },
+  };
+});
+```
 
 ---
 
-### 6.4 Rapid-Fire Section UI
+### 6.3 Build-Time Pre-Compression (Brotli + Gzip)
 
-The Rapid-Fire section is a compact, high-density live ticker located on the homepage:
-- **Wire-Service Styling**: Designed like Bloomberg/Reuters terminals.
-- **Visual Cues**: Displays a pulsating glowing amber dot (`● LIVE`), timestamp badge (`14m ago`), bold headline, source pill, and one-click quick view.
-- **Dynamic Updates**: Automatically flashes with a subtle yellow highlight when a new article arrives via the WebSocket fan-out event.
+By running `vite-plugin-compression`, Vite generates `.js.br`, `.css.br`, `.js.gz`, and `.css.gz` companion files at build time. Cloudflare Pages and static servers serve these pre-compressed assets directly, saving up to 25% more transfer bandwidth compared to standard dynamic gzip.
 
 ---
 
-### 6.5 Bento Grid & Redesigned Cards
+### 6.4 High-Impact Image Payload Tuning (`wsrv.nl` WebP/AVIF)
 
-- **Bento Hero Grid**:
-  - `Hero Card` (spanning 2 columns): Full-bleed image with gradient overlay, headline, AI executive bullet summary, and reading-time badge.
-  - `Secondary Cards` (column 2): Stacked top stories with category badges.
-  - `Daily Fact Callout Card`: Highlights intriguing educational facts extracted from the daily news batch.
-- **Card Micro-Interactions**:
-  - `transform: translateY(-4px)` elevation on hover with subtle shadow diffusion.
-  - Image smooth zoom (`scale(1.04)`) with transition ease.
-  - Accessible keyboard focus rings (`outline: 2px solid var(--accent)`).
+News aggregation bandwidth is 85–90% images. We optimize image URLs through `wsrv.nl` with WebP/AVIF formatting and display density rules:
+
+```javascript
+// frontend/src/utils/image.js
+export function getOptimizedImageUrl(originalUrl, width = 400, quality = 75) {
+  if (!originalUrl || typeof originalUrl !== 'string') return '';
+  if (originalUrl.startsWith('data:') || originalUrl.startsWith('blob:')) return originalUrl;
+
+  try {
+    const encoded = encodeURIComponent(originalUrl);
+    // output=webp & q=75 cuts 40-50% file weight with no visible compression artifacts
+    return `https://wsrv.nl/?url=${encoded}&w=${width}&q=${quality}&output=webp&we=1`;
+  } catch {
+    return originalUrl;
+  }
+}
+```
+
+Cards apply `loading="lazy"` and `decoding="async"` across the feed, with `fetchpriority="high"` strictly applied to the single primary hero article.
+
+---
+
+### 6.5 DOM Virtualization via Modern CSS (`content-visibility: auto`)
+
+Instead of introducing heavy virtual list libraries that break browser search and native scroll momentum, we use standard CSS:
+
+```css
+/* frontend/src/styles/ArticleCard.css */
+.article-card.clipping-card {
+  content-visibility: auto;
+  contain-intrinsic-size: 360px 420px;
+}
+```
+
+The browser completely skips layout and painting computations for cards outside the viewport until the user scrolls near them, reducing layout times on mobile devices by up to 70%.
+
+---
+
+### 6.6 TanStack Query Cache Strategy
+
+```javascript
+// frontend/src/context/QueryProvider.jsx
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5,       // Data fresh for 5 minutes
+      gcTime: 1000 * 60 * 30,          // Cache kept in memory for 30 minutes
+      refetchOnWindowFocus: false,    // No redundant refetch on tab click
+      retry: 1,
+    },
+  },
+});
+```
+
+---
+
+### 6.7 External Redirection Consent Modal Component & Hook
+
+#### The Context & State Hook:
+```javascript
+// frontend/src/context/RedirectModalContext.jsx
+import React, { createContext, useContext, useState, useCallback } from 'react';
+
+const RedirectModalContext = createContext();
+
+export function RedirectModalProvider({ children }) {
+  const [redirectState, setRedirectState] = useState({
+    isOpen: false,
+    targetUrl: '',
+    sourceName: '',
+  });
+
+  const requestRedirect = useCallback((url, sourceName) => {
+    // Check if user previously checked "Don't ask again"
+    const hasConsent = localStorage.getItem('newzlet_consent_external_redirect') === 'true';
+    if (hasConsent) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    setRedirectState({
+      isOpen: true,
+      targetUrl: url,
+      sourceName: sourceName || 'External News Outlet',
+    });
+  }, []);
+
+  const closeRedirect = useCallback(() => {
+    setRedirectState(prev => ({ ...prev, isOpen: false }));
+  }, []);
+
+  return (
+    <RedirectModalContext.Provider value={{ ...redirectState, requestRedirect, closeRedirect }}>
+      {children}
+    </RedirectModalContext.Provider>
+  );
+}
+
+export const useExternalRedirect = () => useContext(RedirectModalContext);
+```
+
+#### The Modal Component:
+```jsx
+// frontend/src/components/common/ExternalRedirectModal.jsx
+import React, { useState } from 'react';
+import { useExternalRedirect } from '../../context/RedirectModalContext';
+import { IconClose, IconArrowForward } from './Icons';
+import '../../styles/ExternalRedirectModal.css';
+
+export default function ExternalRedirectModal() {
+  const { isOpen, targetUrl, sourceName, closeRedirect } = useExternalRedirect();
+  const [rememberPreference, setRememberPreference] = useState(false);
+
+  if (!isOpen || !targetUrl) return null;
+
+  let hostname = '';
+  try {
+    hostname = new URL(targetUrl).hostname.replace(/^www\./, '');
+  } catch {
+    hostname = sourceName;
+  }
+
+  const handleConfirm = () => {
+    if (rememberPreference) {
+      localStorage.setItem('newzlet_consent_external_redirect', 'true');
+    }
+    window.open(targetUrl, '_blank', 'noopener,noreferrer');
+    closeRedirect();
+  };
+
+  return (
+    <div className="external-modal-overlay" onClick={closeRedirect}>
+      <div className="external-modal-container neo-shadow" onClick={(e) => e.stopPropagation()}>
+        <div className="external-modal-header">
+          <span className="external-modal-badge font-label-caps">EXTERNAL REDIRECT</span>
+          <button className="external-modal-close" onClick={closeRedirect} aria-label="Close">
+            <IconClose />
+          </button>
+        </div>
+
+        <h2 className="external-modal-title font-headline-md">
+          Leaving The Daily Newzlet
+        </h2>
+
+        <p className="external-modal-desc font-body-md">
+          By clicking continue below, you accept to view content from a third-party site (<strong>{sourceName}</strong> — <code>{hostname}</code>) and acknowledge that your browsing activity and personal data will be processed according to their external privacy policy.
+        </p>
+
+        <label className="external-modal-checkbox-label">
+          <input
+            type="checkbox"
+            checked={rememberPreference}
+            onChange={(e) => setRememberPreference(e.target.checked)}
+          />
+          <span>Don't ask me again on this device</span>
+        </label>
+
+        <div className="external-modal-actions">
+          <button className="btn-confirm-redirect font-label-caps" onClick={handleConfirm}>
+            <span>Continue to {sourceName}</span>
+            <IconArrowForward />
+          </button>
+          <button className="btn-cancel-redirect font-label-caps" onClick={closeRedirect}>
+            Stay on Newzlet
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+---
+
+### 6.8 UI/UX Redesign: News Cards, Rapid-Fire Section & Bento Grid
+
+- **News Cards**:
+  - Enhanced brutalist borders with reading time badges (`3 min read`).
+  - Micro-interactions: card elevation (`translateY(-4px)`), smooth image zoom (`scale(1.03)`).
+  - Calling `requestRedirect(article.source_url, article.source_name)` on "Read Full Source" clicks.
+- **Rapid-Fire Section**:
+  - Compact, high-density wire feed format (Reuters/Bloomberg terminal style).
+  - Displays pulsating amber live badge (`● LIVE`), timestamp (`18m ago`), headline, source pill.
+  - Automatically pulses with subtle glow animation when refreshed by the WebSocket fan-out event.
+- **Bento Grid**:
+  - Hero card with dark gradient overlay ensuring readability on dynamic images.
+  - Secondary cards with glassmorphism category pills.
+  - Daily Fact callout box.
 
 ---
 
 ## 7. Comprehensive Domain Migration & SEO Playbook
 
 ### Phase 1: Pre-Migration Setup (Current Status)
-1. **Host Setup**: Configure `newzlet.dpdns.org` on Vercel as the primary domain with automated SSL.
+1. **Deploy Frontend on `newzlet.dpdns.org`**: Point DNS to Cloudflare Pages (or hosting CDN).
 2. **Verify Both Properties in Google Search Console**:
    - Add Domain Property `newzlet.me` (already verified).
    - Add Domain/URL-prefix Property `newzlet.dpdns.org`.
-   - Submit new dynamic XML sitemap `https://newzlet.dpdns.org/sitemap.xml`.
+   - Submit new dynamic XML sitemap for `https://newzlet.dpdns.org/sitemap.xml`.
 
 ### Phase 2: Migration Execution (While `newzlet.me` is Active)
-3. **Deploy Next.js on `newzlet.dpdns.org`**: Validate that all routes, images, API calls, and canonical tags render `https://newzlet.dpdns.org`.
-4. **Configure Cloudflare Redirect Rules on `newzlet.me`**:
+3. **Configure Cloudflare 301 Redirect Rules on `newzlet.me`**:
    - Rule: `(http.host eq "newzlet.me") or (http.host eq "www.newzlet.me")`
    - Action: Dynamic 301 Redirect to `concat("https://newzlet.dpdns.org", http.request.uri.path)`
    - Status Code: `301 Moved Permanently`.
-5. **Submit Change of Address in Google Search Console**:
+4. **Submit Change of Address in Google Search Console**:
    - Open GSC for `newzlet.me`.
    - Navigate to **Settings → Change of Address**.
    - Select destination: `newzlet.dpdns.org`.
-   - Run validation check (Google checks for 301 redirects).
+   - Run validation check (Google verifies the 301 redirects).
    - Confirm Move.
 
 ```
 Timeline Warning:
 Execute Phase 2 at least 60 to 90 days before newzlet.me expires.
-Google requires time to crawl the 301 redirects and update its global search index.
+Google requires crawl cycles to follow 301 redirects and migrate keyword equity.
 ```
 
 ### Phase 3: Post-Expiry Handling
-6. Once `newzlet.me` expires:
+5. Once `newzlet.me` expires:
    - Google retains Change of Address index associations for 180 days.
-   - All internal links, READMEs, and external citations should already be pointed to `newzlet.dpdns.org`.
+   - All external citations, social bios, and GitHub links point to `newzlet.dpdns.org`.
 
 ---
 
@@ -919,9 +1163,9 @@ graph TD
     Phase3["Phase 3: Ingest & 72h Dedup<br/>Fingerprints, Normalization, Webhook"]
     Phase4["Phase 4: Redis Epoch Caching<br/>O(1) Invalidation, Safe Namespacing"]
     Phase5["Phase 5: Cloudflare Fan-Out<br/>Durable Object WebSocket Hibernation"]
-    Phase6["Phase 6: Next.js 16.3 Frontend<br/>App Router, RSC, ISR, Vercel"]
-    Phase7["Phase 7: UI Redesign<br/>Bento Grid, Cards, Rapid-Fire Wire"]
-    Phase8["Phase 8: SEO & Migration<br/>301 Redirects, GSC Change of Address"]
+    Phase6["Phase 6: React Optimizations<br/>Code-Splitting, manualChunks, Brotli"]
+    Phase7["Phase 7: UI Upgrades & Redirect Modal<br/>Bento Grid, Rapid-Fire, Consent Modal"]
+    Phase8["Phase 8: SEO & Domain Migration<br/>301 Redirects, GSC Change of Address"]
 
     Phase1 --> Phase2
     Phase2 --> Phase3
@@ -964,20 +1208,21 @@ graph TD
   - Implement `/broadcast` HTTP endpoint protected by secret key.
   - Connect FastAPI post-ingest hook to trigger Worker broadcast.
 
-- [ ] **Phase 6: Next.js 16.3 Setup on Vercel**
-  - Initialize Next.js 16.3 App Router project in `frontend/`.
-  - Set up TanStack Query provider and `useRealtime` hook.
-  - Configure Server Components and ISR page routes.
+- [ ] **Phase 6: React Performance Optimizations**
+  - Configure route lazy-loading (`React.lazy` + `Suspense`) in `App.jsx`.
+  - Configure `manualChunks` in `vite.config.js` (`vendor-react`, `vendor-query`).
+  - Add `vite-plugin-compression` for Brotli and Gzip generation.
+  - Add `content-visibility: auto` to off-screen card CSS.
+  - Optimize `wsrv.nl` image helper with `output=webp` and responsive sizes.
 
-- [ ] **Phase 7: UI/UX & Design Upgrade**
-  - Build Bento Grid hero component on `app/page.tsx`.
-  - Build Rapid-Fire live headline wire feed component.
-  - Redesign Article Cards with micro-interactions, reading badges, and glassmorphism.
-  - Implement dark/light theme tokens and responsive navigation.
+- [ ] **Phase 7: UI Upgrades & Third-Party Redirect Modal**
+  - Implement `RedirectModalContext` and `ExternalRedirectModal` component.
+  - Wire external source links on `ArticleCard` and `ArticleModal` through the modal.
+  - Verify `localStorage` preference memory ("Don't ask again").
+  - Build the Bento Grid and live Rapid-Fire wire feed.
 
 - [ ] **Phase 8: SEO & Domain Migration**
-  - Generate dynamic `sitemap.ts` and `robots.ts` targeting `newzlet.dpdns.org`.
-  - Configure Cloudflare 301 redirect rules on `newzlet.me`.
+  - Configure Cloudflare 301 redirect rules on `newzlet.me` -> `newzlet.dpdns.org`.
   - Verify both properties in Google Search Console and submit Change of Address.
 
 ---
@@ -997,7 +1242,13 @@ graph TD
   - Next request looks for `e2` key → Cache miss, updates cache. Old `e1` key is ignored.
 - **Redis Isolation Test**: Verify no `FLUSHALL` or `FLUSHDB` commands are ever issued.
 
-### 9.2 Manual & Live Integration Tests
+### 9.2 Frontend & Performance Verification
+- **Bundle Analysis**: Run `npm run build` in `frontend/` to confirm chunk separation (`vendor-react.js`, `vendor-query.js`, individual route chunks). Verify that Brotli (`.br`) files are generated.
+- **Offscreen DOM Inspection**: Check Chrome DevTools Rendering tab to confirm `content-visibility: auto` skips layout for off-screen cards.
+- **External Consent Modal Flow**:
+  1. Click "Read Full Source" on an article → Confirm Interstitial Consent Modal appears with correct source name and domain.
+  2. Click "Stay on Newzlet" → Confirm modal closes without navigation.
+  3. Click "Continue" without checkbox → Confirm external site opens in a new tab with `noopener,noreferrer`.
+  4. Repeat with checkbox checked → Confirm modal never appears on subsequent clicks on that browser.
 - **Multi-Tab Fan-Out Test**: Open 3 separate browser windows. Trigger an ingest webhook in n8n. Confirm all 3 tabs immediately receive the WebSocket event and refresh the feed without page reloads.
 - **SQLAdmin CRUD Test**: Log in to `/admin`, toggle article visibility, edit categories, and test search filtering.
-- **SEO & Lighthouse Audit**: Target 95+ score on Performance, Accessibility, Best Practices, and SEO on Vercel preview URLs.
